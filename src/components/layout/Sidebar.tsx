@@ -238,17 +238,6 @@ export function Sidebar() {
                     <span className="text-sm">设置</span>
                 </Link>
             </div>
-
-            {/* 用户信息 */}
-            <div className="p-2 bg-discord-primary/50">
-                <div className="flex items-center gap-2 p-2">
-                    <div className="w-8 h-8 rounded-full bg-discord-hover" />
-                    <div className="flex-1">
-                        <div className="text-sm font-medium text-white">用户名</div>
-                        <div className="text-xs text-muted-foreground">已连接钱包</div>
-                    </div>
-                </div>
-            </div>
         </div>
     );
 } 
