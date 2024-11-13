@@ -46,11 +46,32 @@ const channelInfo: ChannelInfo = {
     avatar: "/twocat-logo.png",
 };
 
-const navigation = [
-    { icon: HomeIcon, label: "概览", href: "/" },
-    { icon: WalletIcon, label: "钱包监控", href: "/wallet" },
-    { icon: LayoutDashboardIcon, label: "数据面板", href: "/dashboard" },
-];
+// 定义视图类型
+type View = {
+    id: string;
+    name: string;
+    href: string;
+};
+
+// 定义频道类型
+type Channel = {
+    id: string;
+    name: string;
+    href: string;
+    views: View[];
+};
+
+// 频道及其视图数据
+const channel: Channel = {
+    id: 'general',
+    name: 'general',
+    href: '/general',
+    views: [
+        { id: 'view1', name: '视图1', href: '/general/view1' },
+        { id: 'view2', name: '视图2', href: '/general/view2' },
+        { id: 'view3', name: '视图3', href: '/general/view3' },
+    ]
+};
 
 export function Sidebar() {
     const pathname = usePathname();
@@ -148,21 +169,38 @@ export function Sidebar() {
                     </div>
 
                     {/* 导航菜单 */}
-                    <nav className="mt-4 space-y-0.5">
-                        {navigation.map((item) => (
+                    <nav className="mt-4">
+                        {/* 频道标题 */}
+                        <div className="px-2 mb-1">
                             <Link
-                                key={item.href}
-                                href={item.href}
+                                href={channel.href}
                                 className={cn(
                                     "flex items-center gap-2 px-2 py-1.5 rounded hover:bg-discord-hover group",
                                     "text-muted-foreground hover:text-white transition-colors",
-                                    pathname === item.href && "bg-discord-hover text-white"
+                                    pathname === channel.href && "bg-discord-hover text-white"
                                 )}
                             >
-                                <item.icon className="h-4 w-4" />
-                                <span className="text-sm">{item.label}</span>
+                                <span className="text-lg font-medium">#</span>
+                                <span className="text-sm">{channel.name}</span>
                             </Link>
-                        ))}
+                        </div>
+
+                        {/* 视图列表 */}
+                        <div className="pl-9 space-y-0.5">
+                            {channel.views.map((view) => (
+                                <Link
+                                    key={view.id}
+                                    href={view.href}
+                                    className={cn(
+                                        "flex items-center gap-2 px-2 py-1 rounded hover:bg-discord-hover group",
+                                        "text-muted-foreground hover:text-white transition-colors text-sm",
+                                        pathname === view.href && "bg-discord-hover text-white"
+                                    )}
+                                >
+                                    {view.name}
+                                </Link>
+                            ))}
+                        </div>
                     </nav>
                 </div>
             </div>
