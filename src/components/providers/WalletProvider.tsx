@@ -25,7 +25,7 @@ export function WalletContextProvider({ children }: { children: React.ReactNode 
                 autoConnect: false,
                 env: 'mainnet-beta',
                 metadata: {
-                    name: 'TwoCat Monitor',
+                    name: 'TwoCat',
                     description: 'Solana Wallet Monitor DApp',
                     url: 'https://twocat.com', // 替换成你的网站
                     iconUrls: ['/favicon.ico'], // 替换成你的图标

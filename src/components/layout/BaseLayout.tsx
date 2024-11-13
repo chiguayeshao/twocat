@@ -13,7 +13,7 @@ export function BaseLayout({ children }: { children: React.ReactNode }) {
             <div className="flex-1 flex flex-col">
                 {/* 顶部工具栏 */}
                 <div className="h-12 border-b border-discord-divider flex items-center justify-between px-4">
-                    <h2 className="text-white font-medium">概览</h2>
+                    <h2 className="text-white font-medium">监控 Solana 钱包地址的活动和变化，实时追踪钱包状态和交易记录。</h2>
                     <UnifiedWalletButton />
                 </div>
 
