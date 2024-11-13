@@ -65,16 +65,19 @@ type Channel = {
 const channel: Channel = {
     id: 'general',
     name: 'general',
-    href: '/general',
+    href: '/',
     views: [
-        { id: 'view1', name: '视图1', href: '/general/view1' },
-        { id: 'view2', name: '视图2', href: '/general/view2' },
-        { id: 'view3', name: '视图3', href: '/general/view3' },
+        { id: 'view1', name: '视图1', href: '/view1' },
+        { id: 'view2', name: '视图2', href: '/view2' },
+        { id: 'view3', name: '视图3', href: '/view3' },
     ]
 };
 
 export function Sidebar() {
     const pathname = usePathname();
+
+    // 判断是否是根路径或 general 路径
+    const isGeneralActive = pathname === '/' || pathname === '/general';
 
     return (
         <div className="w-60 h-screen bg-discord-secondary flex flex-col">
@@ -175,11 +178,19 @@ export function Sidebar() {
                             <Link
                                 href={channel.href}
                                 className={cn(
-                                    "flex items-center gap-2 px-2 py-1.5 rounded hover:bg-discord-hover group",
-                                    "text-muted-foreground hover:text-white transition-colors",
-                                    pathname === channel.href && "bg-discord-hover text-white"
+                                    "flex items-center gap-2 px-2 py-1.5 rounded group relative",
+                                    "text-muted-foreground transition-colors",
+                                    isGeneralActive ? (
+                                        "bg-discord-hover text-white"
+                                    ) : (
+                                        "hover:bg-discord-hover hover:text-white"
+                                    )
                                 )}
                             >
+                                {/* 添加选中指示器 */}
+                                {isGeneralActive && (
+                                    <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-4 bg-white rounded-r-full" />
+                                )}
                                 <span className="text-lg font-medium">#</span>
                                 <span className="text-sm">{channel.name}</span>
                             </Link>
@@ -192,11 +203,19 @@ export function Sidebar() {
                                     key={view.id}
                                     href={view.href}
                                     className={cn(
-                                        "flex items-center gap-2 px-2 py-1 rounded hover:bg-discord-hover group",
-                                        "text-muted-foreground hover:text-white transition-colors text-sm",
-                                        pathname === view.href && "bg-discord-hover text-white"
+                                        "flex items-center gap-2 px-2 py-1 rounded group relative",
+                                        "text-muted-foreground transition-colors text-sm",
+                                        pathname === view.href ? (
+                                            "bg-discord-hover text-white"
+                                        ) : (
+                                            "hover:bg-discord-hover hover:text-white"
+                                        )
                                     )}
                                 >
+                                    {/* 添加选中指示器 */}
+                                    {pathname === view.href && (
+                                        <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-4 bg-white rounded-r-full" />
+                                    )}
                                     {view.name}
                                 </Link>
                             ))}
