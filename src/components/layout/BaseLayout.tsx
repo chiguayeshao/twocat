@@ -54,7 +54,7 @@ export function BaseLayout({ children }: { children: React.ReactNode }) {
                     <div className="col-span-4 grid grid-rows-2 gap-4">
                         {/* address info */}
                         <div className="bg-discord-secondary rounded-lg p-4 border border-discord-divider">
-                            <h3 className="text-lg font-medium mb-2">token info</h3>
+                            <h3 className="text-lg font-medium mb-2">address info</h3>
                             <div className="h-[calc(100%-2rem)] overflow-y-auto">
                                 {/* 地址信息内容 */}
                             </div>
