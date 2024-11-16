@@ -5,13 +5,13 @@ import { useConnection } from '@solana/wallet-adapter-react';
 import React, { useState, useEffect, useCallback } from 'react';
 import { cn } from '@/lib/utils';
 import { ChevronUp, ChevronDown } from 'lucide-react';
-import { sign, Transaction, VersionedTransaction } from '@solana/web3.js';
+import { VersionedTransaction } from '@solana/web3.js';
 import { UnifiedWalletButton } from '@jup-ag/wallet-adapter';
 import { useToast } from '@/hooks/use-toast';
 import { JupiterService } from '@/services/jupiter.service';
 import { JitoService } from '@/services/jito.service';
 import { QuoteResponse } from '@jup-ag/api';
-import { SignerWalletAdapter } from '@solana/wallet-adapter-base';
+import { BirdeyeService } from '@/services/birdeye.service';
 
 type TradeMode = 'buy' | 'sell';
 type AmountPercentage = 25 | 50 | 75 | 100;
@@ -22,9 +22,6 @@ interface TokenBalance {
   usdValue: number;
 }
 
-interface TradeBoxProps {
-  // 可以添加props如token地址等
-}
 // 添加新的类型定义
 interface SignatureResponse {
   message: string;
@@ -45,21 +42,6 @@ const MONKEY_MINT_ADDRESS = 'CBdCxKo9QavR9hfShgpEBG3zekorAeD7W1jfq2o3pump';
 
 // 添加 SOL 固定金额选项
 const SOL_AMOUNT_OPTIONS = [0.01, 0.1, 0.5, 1];
-
-// 添加常量
-const SOL_DECIMALS = 9;
-const MONKEY_DECIMALS = 6; // 假设 MONKEY token 是 6 位小数，请根据实际情况调整
-
-// 添加工具函数
-const toAtomicUnits = (amount: string, decimals: number): number => {
-  try {
-    const floatAmount = parseFloat(amount);
-    return Math.floor(floatAmount * Math.pow(10, decimals));
-  } catch (error) {
-    console.error('Convert to atomic units failed:', error);
-    return 0;
-  }
-};
 
 export default function TradeBox() {
   const { publicKey, signTransaction, signMessage, connected } = useWallet();
@@ -85,26 +67,52 @@ export default function TradeBox() {
   const [walletState, setWalletState] = useState<WalletState>(
     WalletState.DISCONNECTED
   );
+  const [solBalance, setSolBalance] = useState<number>(0);
+  const [tokenInfo, setTokenInfo] = useState({
+    solDecimals: 9,
+    solSymbol: 'SOL',
+    monkeyDecimals: 6,
+    monkeySymbol: 'MONKEY',
+  });
 
   // 将 fetchBalance 提取为独立函数
   const fetchBalance = async () => {
-    if (!publicKey) return;
+    if (!publicKey || !connection) return;
     try {
-      // TODO: 实现实际的余额获取逻辑
-      setTokenBalance({
-        symbol: 'MONKEY',
-        balance: 1000,
-        usdValue: 1000 * 0.5, // 假设价格是 $0.5
-      });
+      // 获取 SOL 余额
+      const solBalance = await connection.getBalance(publicKey);
+      const solAmount = solBalance / Math.pow(10, tokenInfo.solDecimals);
+      setSolBalance(solAmount);
+
+      // 获取 MONKEY token 余额
+      const monkeyBalance = await BirdeyeService.getTokenBalance(
+        publicKey.toBase58(),
+        MONKEY_MINT_ADDRESS
+      );
+
+      if (monkeyBalance) {
+        console.log('monkeyBalance', monkeyBalance);
+        setTokenBalance({
+          symbol: monkeyBalance.symbol,
+          balance: monkeyBalance.uiAmount,
+          usdValue: monkeyBalance.valueUsd,
+        });
+      }
     } catch (error) {
       console.error('获取余额失败:', error);
+      toast({
+        title: '获取余额失败',
+        description: '无法获取最新余额信息',
+        variant: 'destructive',
+        className: 'dark:bg-red-900 dark:text-white',
+      });
     }
   };
 
   // 修改原有的 useEffect
   useEffect(() => {
     fetchBalance();
-  }, [publicKey]);
+  }, [publicKey, connection]);
 
   const handleAmountChange = (value: string) => {
     // 只允许数字和小数点
@@ -211,7 +219,7 @@ export default function TradeBox() {
 
       const atomicAmount = toAtomicUnits(
         amount,
-        mode === 'buy' ? SOL_DECIMALS : MONKEY_DECIMALS
+        mode === 'buy' ? tokenInfo.solDecimals : tokenInfo.monkeyDecimals
       );
 
       if (atomicAmount <= 0) {
@@ -245,24 +253,32 @@ export default function TradeBox() {
       // 显示交易预览
       const inputAmount =
         mode === 'buy'
-          ? (atomicAmount / Math.pow(10, SOL_DECIMALS)).toFixed(SOL_DECIMALS)
-          : (atomicAmount / Math.pow(10, MONKEY_DECIMALS)).toFixed(
-              MONKEY_DECIMALS
+          ? (atomicAmount / Math.pow(10, tokenInfo.solDecimals)).toFixed(
+              tokenInfo.solDecimals
+            )
+          : (atomicAmount / Math.pow(10, tokenInfo.monkeyDecimals)).toFixed(
+              tokenInfo.monkeyDecimals
             );
       const outputAmount =
         mode === 'buy'
           ? (
-              Number(quoteResponse.outAmount) / Math.pow(10, MONKEY_DECIMALS)
-            ).toFixed(MONKEY_DECIMALS)
+              Number(quoteResponse.outAmount) /
+              Math.pow(10, tokenInfo.monkeyDecimals)
+            ).toFixed(tokenInfo.monkeyDecimals)
           : (
-              Number(quoteResponse.outAmount) / Math.pow(10, SOL_DECIMALS)
-            ).toFixed(SOL_DECIMALS);
+              Number(quoteResponse.outAmount) /
+              Math.pow(10, tokenInfo.solDecimals)
+            ).toFixed(tokenInfo.solDecimals);
 
       console.log('交易预览:', {
-        输入: `${inputAmount} ${mode === 'buy' ? 'SOL' : 'MONKEY'}`,
-        输出: `${outputAmount} ${mode === 'buy' ? 'MONKEY' : 'SOL'}`,
+        输入: `${inputAmount} ${
+          mode === 'buy' ? tokenInfo.solSymbol : tokenInfo.monkeySymbol
+        }`,
+        输出: `${outputAmount} ${
+          mode === 'buy' ? tokenInfo.monkeySymbol : tokenInfo.solSymbol
+        }`,
         滑点: `${slippage / 10}%`,
-        优先费: `${priorityFee} SOL`,
+        优先费: `${priorityFee} ${tokenInfo.solSymbol}`,
       });
 
       console.log('正在准备交易...');
@@ -324,10 +340,12 @@ export default function TradeBox() {
           <div className="flex flex-col gap-1">
             <span>交易已提交到区块链</span>
             <span>
-              输入: {inputAmount} {mode === 'buy' ? 'SOL' : 'MONKEY'}
+              输入: {inputAmount}{' '}
+              {mode === 'buy' ? tokenInfo.solSymbol : tokenInfo.monkeySymbol}
             </span>
             <span>
-              输出: {outputAmount} {mode === 'buy' ? 'MONKEY' : 'SOL'}
+              输出: {outputAmount}{' '}
+              {mode === 'buy' ? tokenInfo.monkeySymbol : tokenInfo.solSymbol}
             </span>
             <a
               href={`https://solscan.io/tx/${signature}`}
@@ -356,7 +374,7 @@ export default function TradeBox() {
       // 扩展错误处理
       if (tradeError.message?.includes('Invalid transaction')) {
         errorTitle = '交易验证失败';
-        errorDescription = '请检查交易参数是否正确，或稍后重试';
+        errorDescription = '请检查交参数是否正确，或稍后重试';
       } else if (tradeError.message?.includes('insufficient balance')) {
         errorTitle = '余额不足';
         errorDescription = '请检查您的余额是否足够支付交易金额和手续费';
@@ -537,6 +555,39 @@ export default function TradeBox() {
     );
   };
 
+  // 修改 fetchTokenInfo 函数
+  const fetchTokenInfo = async () => {
+    try {
+      // 只获取 MONKEY 代币信息
+      const monkeyInfo = await BirdeyeService.getTokenOverview(
+        MONKEY_MINT_ADDRESS
+      );
+      setTokenInfo((prev) => ({
+        ...prev,
+        monkeyDecimals: monkeyInfo.decimals,
+        monkeySymbol: monkeyInfo.symbol,
+      }));
+    } catch (error) {
+      console.error('获取代币信息失败:', error);
+    }
+  };
+
+  // 在组件加载时获取代币信息
+  useEffect(() => {
+    fetchTokenInfo();
+  }, []);
+
+  // 修改 toAtomicUnits 的使用
+  const toAtomicUnits = (amount: string, decimals: number): number => {
+    try {
+      const floatAmount = parseFloat(amount);
+      return Math.floor(floatAmount * Math.pow(10, decimals));
+    } catch (error) {
+      console.error('Convert to atomic units failed:', error);
+      return 0;
+    }
+  };
+
   return (
     <div className="flex flex-col gap-4">
       {/* 交易模式选择 */}
@@ -571,16 +622,23 @@ export default function TradeBox() {
 
       {/* 余额显示 */}
       <div className="flex justify-between text-sm text-gray-300">
-        <span>
-          可用余额: {tokenBalance.balance.toFixed(6)} {tokenBalance.symbol}
-        </span>
+        <div className="flex flex-col gap-1">
+          <span>
+            {tokenInfo.solSymbol} 余额: {solBalance.toFixed(6)}{' '}
+            {tokenInfo.solSymbol}
+          </span>
+          <span>
+            {tokenInfo.monkeySymbol} 余额: {tokenBalance.balance.toFixed(6)}{' '}
+            {tokenInfo.monkeySymbol}
+          </span>
+        </div>
         <span>≈ ${tokenBalance.usdValue.toFixed(2)}</span>
       </div>
 
       {/* 数量输入 */}
       <div>
         <div className="text-sm mb-2">
-          数量 ({mode === 'buy' ? 'SOL' : 'MONKEY'})
+          数量 ({mode === 'buy' ? tokenInfo.solSymbol : tokenInfo.monkeySymbol})
         </div>
         <div className="flex gap-2 mb-2">
           <input
@@ -600,7 +658,7 @@ export default function TradeBox() {
                   className="bg-discord-button-secondary py-1 rounded hover:bg-discord-button-secondary-hover"
                   onClick={() => handleAmountPercentageClick(solAmount)}
                 >
-                  {solAmount} SOL
+                  {solAmount} {tokenInfo.solSymbol}
                 </button>
               ))
             : // 卖出模式：显示百分比选项
