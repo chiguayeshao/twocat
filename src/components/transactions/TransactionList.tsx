@@ -15,7 +15,11 @@ import Image from 'next/image';
 import { fetchWalletTransactions, Transaction } from '@/api/twocat-core/wallet';
 import { Skeleton } from "@/components/ui/skeleton";
 
-export function TransactionList() {
+interface TransactionListProps {
+    onTransactionClick: (walletAddress: string, tokenAddress: string) => void;
+}
+
+export function TransactionList({ onTransactionClick }: TransactionListProps) {
     const [transactions, setTransactions] = useState<Transaction[]>([]);
     const [pagination, setPagination] = useState({
         total: 0,
@@ -185,6 +189,7 @@ export function TransactionList() {
                                 onClick={() => {
                                     console.log('walletAddress:', tx.walletAddress);
                                     console.log('tokenAddress:', tx.tokenAddress);
+                                    onTransactionClick(tx.walletAddress, tx.tokenAddress);
                                 }}
                                 className="flex items-center gap-2 py-1.5 px-2 rounded-lg transition-all duration-200 ease-out
                                           bg-[#2f2f2f] hover:bg-[#353535] hover:shadow-lg

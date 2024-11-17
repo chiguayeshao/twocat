@@ -1,11 +1,19 @@
 'use client';
 
+import { useState } from 'react';
 import { Sidebar } from './Sidebar';
 import { UnifiedWalletButton } from '@jup-ag/wallet-adapter';
 import TradeBox from '@/components/trade/TradeBox';
 import { TransactionList } from '@/components/transactions/TransactionList';
+import { KLineChart } from '@/components/charts/KLineChart';
 
 export function BaseLayout({ children }: { children: React.ReactNode }) {
+  const [selectedTokenAddress, setSelectedTokenAddress] = useState<string | null>(null);
+
+  const handleTransactionClick = (walletAddress: string, tokenAddress: string) => {
+    setSelectedTokenAddress(tokenAddress);
+  };
+
   return (
     <div className="flex h-screen bg-discord-primary text-white overflow-hidden">
       {/* 左侧边栏 */}
@@ -21,25 +29,22 @@ export function BaseLayout({ children }: { children: React.ReactNode }) {
           <UnifiedWalletButton />
         </div>
 
-        {/* 内容区域 - 使用网格布局 */}
+        {/* 内容区域 */}
         <main className="flex-1 grid grid-cols-12 gap-4 p-4 min-h-0">
           {/* 左侧大区域 */}
           <div className="col-span-8 grid grid-rows-[2fr,1fr] gap-4 min-h-0">
-            {/* 上半部分 - 消息通知区域 */}
+            {/* 上半部分 - 交易列表 */}
             <div className="bg-discord-secondary rounded-lg flex flex-col border border-discord-divider min-h-0">
               <div className="flex-1 min-h-0">
-                <TransactionList />
+                <TransactionList onTransactionClick={handleTransactionClick} />
               </div>
             </div>
 
             {/* 下半部分 */}
             <div className="grid grid-cols-2 gap-4">
               {/* k线图区域 */}
-              <div className="bg-discord-secondary rounded-lg p-4 border border-discord-divider">
-                <h3 className="text-lg font-medium mb-2">k线</h3>
-                <div className="h-[calc(100%-2rem)] overflow-y-auto">
-                  {/* k线图 */}
-                </div>
+              <div className="bg-discord-secondary rounded-lg overflow-hidden border border-discord-divider h-full">
+                <KLineChart tokenAddress={selectedTokenAddress} />
               </div>
 
               {/* token信息区域 */}
