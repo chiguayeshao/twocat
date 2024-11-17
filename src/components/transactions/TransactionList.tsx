@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -12,76 +12,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { ChevronLeft, ChevronRight, Filter, SortAsc, Loader2 } from 'lucide-react';
 import Image from 'next/image';
-
-// 模拟数据生成函数
-const generateMockData = (page: number, limit: number) => {
-    const total = 156;
-    const totalPages = Math.ceil(total / limit);
-
-    const transactions = Array(limit).fill(0).map((_, index) => ({
-        _id: `tx-${page}-${index}`,
-        walletAddress: 'HN7cABqLq46Es1jh92dQQisAq662SmxELLLsHHe4YWrH',
-        type: Math.random() > 0.5 ? 'buy' : 'sell' as const,
-        solAmount: Number((Math.random() * 10).toFixed(4)),
-        tokenAmount: Number((Math.random() * 100000).toFixed(2)),
-        tokenAddress: 'TokenAddress123...',
-        signature: 'Signature123...',
-        timestamp: Math.floor(Date.now() / 1000) - Math.floor(Math.random() * 86400),
-        symbol: ['SOL', 'BONK', 'JUP', 'PYTH'][Math.floor(Math.random() * 4)],
-        tokenName: 'Mock Token',
-    }));
-
-    return {
-        transactions,
-        pagination: {
-            total,
-            page,
-            limit,
-            totalPages,
-            hasMore: page < totalPages,
-        }
-    };
-};
-
-interface Transaction {
-    _id: string;
-    walletAddress: string;
-    type: 'buy' | 'sell';
-    solAmount: number;
-    tokenAmount: number;
-    tokenAddress: string;
-    signature: string;
-    timestamp: number;
-    symbol: string;
-    tokenName: string;
-}
-
-// 生成随机交易数据
-const generateRandomTransaction = (): Transaction => {
-    const symbols = ['SOL', 'BONK', 'JUP', 'PYTH'];
-    const type = Math.random() > 0.5 ? 'buy' : 'sell';
-    return {
-        _id: `tx-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-        walletAddress: 'HN7cABqLq46Es1jh92dQQisAq662SmxELLLsHHe4YWrH',
-        type,
-        solAmount: Number((Math.random() * 10).toFixed(4)),
-        tokenAmount: Number((Math.random() * 100000).toFixed(2)),
-        tokenAddress: 'TokenAddress123...',
-        signature: 'Signature123...',
-        timestamp: Math.floor(Date.now() / 1000),
-        symbol: symbols[Math.floor(Math.random() * symbols.length)],
-        tokenName: 'Mock Token',
-    };
-};
-
-// 模拟轮询生成新数据
-const simulatePollData = () => {
-    // 30% 的概率生成新交易
-    if (Math.random() < 0.3) {
-        return [generateRandomTransaction()];
-    }
-    return [];
-};
+import { fetchWalletTransactions, Transaction } from '@/api/twocat-core/wallet';
 
 export function TransactionList() {
     const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -93,19 +24,21 @@ export function TransactionList() {
         hasMore: false,
     });
     const [loading, setLoading] = useState(false);
-    const lastUpdateTime = useRef<number>(Date.now());
-    const prevTransactionsRef = useRef<Transaction[]>([]);
     const [isNewPage, setIsNewPage] = useState(false);
 
     // 添加 fetchTransactions 函数
     const fetchTransactions = useCallback(async (page: number) => {
-        if (loading || page < 1 || page > pagination.totalPages) return;
+        if (loading || page < 1) return;
 
         setLoading(true);
         setIsNewPage(true);
         try {
-            const result = generateMockData(page, pagination.limit);
-            setTransactions(result.transactions as Transaction[]); // 添加类型断言
+            const result = await fetchWalletTransactions({
+                roomId: '67331cdeb2a6f4d517951bdb',
+                page,
+                limit: pagination.limit
+            });
+            setTransactions(result.transactions);
             setPagination(prev => ({
                 ...prev,
                 ...result.pagination,
@@ -119,50 +52,51 @@ export function TransactionList() {
                 setIsNewPage(false);
             }, 100);
         }
-    }, [loading, pagination.totalPages, pagination.limit]);
+    }, [loading, pagination.limit]);
 
-    // 初始加载
-    useEffect(() => {
-        fetchTransactions(1);
-    }, [fetchTransactions]);
-
-    // 轮询逻辑保持不变
     const pollTransactions = useCallback(async () => {
         if (pagination.page !== 1) return;
 
-        const now = Date.now();
-        if (now - lastUpdateTime.current < 300) return;
+        try {
+            const result = await fetchWalletTransactions({
+                roomId: '67331cdeb2a6f4d517951bdb',
+                page: 1,
+                limit: pagination.limit
+            });
 
-        const newTransactions = simulatePollData();
-
-        if (newTransactions.length > 0) {
             setIsNewPage(false);
             setTransactions(prev => {
+                const newTransactions = result.transactions;
                 const newUniqueTransactions = newTransactions.filter(
-                    newTx => !prev.some(existingTx => existingTx._id === newTx._id)
+                    (newTx: Transaction) => !prev.some((existingTx: Transaction) => existingTx._id === newTx._id)
                 );
 
                 if (newUniqueTransactions.length === 0) return prev;
 
-                const updatedTransactions = [...newUniqueTransactions, ...prev];
-                prevTransactionsRef.current = updatedTransactions;
-                return updatedTransactions.slice(0, pagination.limit);
+                return [...newUniqueTransactions, ...prev].slice(0, pagination.limit);
             });
-            lastUpdateTime.current = now;
+        } catch (error) {
+            console.error('Failed to poll transactions:', error);
         }
     }, [pagination.page, pagination.limit]);
 
     useEffect(() => {
-        const intervalId = setInterval(pollTransactions, 500);
+        // 初始加载
+        fetchTransactions(1);
+
+        // 设置轮询
+        const intervalId = setInterval(pollTransactions, 5000);
+
+        // 清理函数
         return () => clearInterval(intervalId);
-    }, [pollTransactions]);
+    }, []); // 依赖数组置空，确保只在组件挂载时设置一次轮询
 
     return (
         <div className="h-full flex flex-col">
             {/* 工具栏 */}
             <div className="shrink-0 flex items-center gap-4 bg-discord-secondary/50 backdrop-blur-sm z-10 py-2 px-1">
                 <Input
-                    placeholder="搜索交易..."
+                    placeholder="索交易..."
                     className="max-w-xs bg-discord-primary/50"
                 />
 
