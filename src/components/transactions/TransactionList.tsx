@@ -5,20 +5,13 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from '@/components/ui/table';
-import {
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { ChevronLeft, ChevronRight, Filter, SortAsc, Loader2 } from 'lucide-react';
+import Image from 'next/image';
 
 // 模拟数据生成函数
 const generateMockData = (page: number, limit: number) => {
@@ -140,8 +133,6 @@ export function TransactionList() {
         fetchTransactions(1);
     }, []);
 
-    const TableRowAnimated = motion(TableRow);
-
     return (
         <div className="h-full flex flex-col">
             {/* 工具栏 */}
@@ -176,64 +167,62 @@ export function TransactionList() {
                 </DropdownMenu>
             </div>
 
-            {/* 表格容器 */}
-            <div className="flex-1 min-h-0 overflow-auto custom-scrollbar">
-                <Table>
-                    <TableHeader className="sticky top-0 bg-discord-secondary/50 backdrop-blur-sm z-10">
-                        <TableRow className="border-none hover:bg-transparent">
-                            <TableHead className="text-gray-400 font-medium">钱包地址</TableHead>
-                            <TableHead className="text-gray-400 font-medium">类型</TableHead>
-                            <TableHead className="text-gray-400 font-medium">SOL 数量</TableHead>
-                            <TableHead className="text-gray-400 font-medium">代币数量</TableHead>
-                            <TableHead className="text-gray-400 font-medium">代币符号</TableHead>
-                            <TableHead className="text-gray-400 font-medium">时间</TableHead>
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                        <AnimatePresence initial={false} mode="popLayout">
-                            {transactions.map((tx) => (
-                                <TableRowAnimated
-                                    key={tx._id}
-                                    initial={{
-                                        opacity: 0,
-                                        height: 0,
-                                        backgroundColor: "rgba(34, 197, 94, 0.2)"
-                                    }}
-                                    animate={{
-                                        opacity: 1,
-                                        height: "auto",
-                                        backgroundColor: "rgba(0, 0, 0, 0)"
-                                    }}
-                                    exit={{
-                                        opacity: 0,
-                                        height: 0
-                                    }}
-                                    transition={{
-                                        duration: 0.3,
-                                        ease: "easeOut"
-                                    }}
-                                    className="border-none hover:bg-discord-primary/30 transition-colors"
-                                    layout
-                                >
-                                    <TableCell className="font-mono text-sm">
+            {/* 消息列表容器 */}
+            <div className="flex-1 min-h-0 overflow-auto custom-scrollbar p-4 space-y-4">
+                <AnimatePresence initial={false} mode="popLayout">
+                    {transactions.map((tx) => (
+                        <motion.div
+                            key={tx._id}
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -20 }}
+                            className="flex gap-4 group hover:bg-discord-primary/30 p-2 rounded-lg transition-colors"
+                        >
+                            {/* 头像 */}
+                            <div className="shrink-0">
+                                <Image
+                                    src="/default-avatar.png"
+                                    alt="Avatar"
+                                    width={40}
+                                    height={40}
+                                    className="rounded-full"
+                                />
+                            </div>
+
+                            {/* 消息内容 */}
+                            <div className="flex-1 min-w-0">
+                                {/* 头部信息 */}
+                                <div className="flex items-center gap-2">
+                                    <span className="font-medium text-white">
                                         {tx.walletAddress.slice(0, 4)}...{tx.walletAddress.slice(-4)}
-                                    </TableCell>
-                                    <TableCell>
-                                        <span className={`${tx.type === 'buy' ? 'text-green-400' : 'text-red-400'} font-medium`}>
-                                            {tx.type === 'buy' ? '买入' : '卖出'}
-                                        </span>
-                                    </TableCell>
-                                    <TableCell className="font-medium">{tx.solAmount.toFixed(4)}</TableCell>
-                                    <TableCell className="text-gray-300">{tx.tokenAmount.toFixed(2)}</TableCell>
-                                    <TableCell className="font-medium">{tx.symbol}</TableCell>
-                                    <TableCell className="text-gray-400 text-sm">
+                                    </span>
+                                    <span className="text-xs text-gray-400">
                                         {new Date(tx.timestamp * 1000).toLocaleString()}
-                                    </TableCell>
-                                </TableRowAnimated>
-                            ))}
-                        </AnimatePresence>
-                    </TableBody>
-                </Table>
+                                    </span>
+                                </div>
+
+                                {/* 交易描述 */}
+                                <p className="text-gray-300 mt-1">
+                                    {tx.type === 'buy' ? '买入' : '卖出'} {tx.tokenAmount.toFixed(2)} {tx.symbol}
+                                    {' '}({tx.solAmount.toFixed(4)} SOL)
+                                </p>
+
+                                {/* 表情反应 */}
+                                <div className="flex gap-2 mt-2 text-sm">
+                                    <button className="hover:bg-discord-primary/50 px-2 py-1 rounded text-gray-400 hover:text-white transition-colors">
+                                        👍 <span className="ml-1">0</span>
+                                    </button>
+                                    <button className="hover:bg-discord-primary/50 px-2 py-1 rounded text-gray-400 hover:text-white transition-colors">
+                                        🚀 <span className="ml-1">0</span>
+                                    </button>
+                                    <button className="hover:bg-discord-primary/50 px-2 py-1 rounded text-gray-400 hover:text-white transition-colors">
+                                        💰 <span className="ml-1">0</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </motion.div>
+                    ))}
+                </AnimatePresence>
             </div>
 
             {/* 分页 */}
