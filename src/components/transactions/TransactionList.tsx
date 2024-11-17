@@ -181,11 +181,12 @@ export function TransactionList() {
                             {/* 头像 */}
                             <div className="shrink-0">
                                 <Image
-                                    src="/default-avatar.png"
+                                    src="https://twocat-room-avatars.s3.ap-southeast-1.amazonaws.com/room-avatars/1731764573897-default-avatar.png"
                                     alt="Avatar"
                                     width={40}
                                     height={40}
                                     className="rounded-full"
+                                    unoptimized
                                 />
                             </div>
 
