@@ -10,7 +10,7 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { ChevronLeft, ChevronRight, Filter, SortAsc, Loader2 } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Filter, SortAsc, Loader2, MoreVertical } from 'lucide-react';
 import Image from 'next/image';
 import { fetchWalletTransactions, Transaction } from '@/api/twocat-core/wallet';
 import { Skeleton } from "@/components/ui/skeleton";
@@ -103,21 +103,21 @@ export function TransactionList() {
     }, [pagination.page, pollTransactions]); // 只监听页码变化来控制轮询
 
     const TransactionSkeleton = () => (
-        <div className="flex gap-4 p-3 rounded-lg bg-[#2f2f2f] mb-3">
-            {/* 头像骨架 - 调亮骨架颜色 */}
-            <Skeleton className="h-10 w-10 rounded-full bg-gray-500/20" />
+        <div className="flex gap-2 p-2 rounded-lg bg-[#2f2f2f] mb-1.5">
+            <Skeleton className="h-7 w-7 rounded-full bg-gray-500/20" />
 
-            {/* 内容骨架 */}
             <div className="flex-1">
-                <div className="flex items-center gap-2 mb-2">
-                    <Skeleton className="h-4 w-24 bg-gray-500/20" />
-                    <Skeleton className="h-4 w-32 bg-gray-500/20" />
+                <div className="flex items-center gap-2 mb-1">
+                    <Skeleton className="h-3.5 w-24 bg-gray-500/20" />
+                    <Skeleton className="h-3.5 w-32 bg-gray-500/20" />
                 </div>
-                <Skeleton className="h-4 w-3/4 mb-2 bg-gray-500/20" />
-                <div className="flex gap-2">
-                    <Skeleton className="h-8 w-16 bg-gray-500/20" />
-                    <Skeleton className="h-8 w-16 bg-gray-500/20" />
-                    <Skeleton className="h-8 w-16 bg-gray-500/20" />
+                <div className="flex items-center justify-between">
+                    <Skeleton className="h-3.5 w-3/4 bg-gray-500/20" />
+                    <div className="flex gap-1 ml-2">
+                        <Skeleton className="h-5 w-12 bg-gray-500/20" />
+                        <Skeleton className="h-5 w-12 bg-gray-500/20" />
+                        <Skeleton className="h-5 w-12 bg-gray-500/20" />
+                    </div>
                 </div>
             </div>
         </div>
@@ -160,8 +160,8 @@ export function TransactionList() {
             {/* 消息列表容器 */}
             <div className="flex-1 min-h-0 overflow-auto custom-scrollbar p-4">
                 {loading ? (
-                    // 显示5个骨架加载项
-                    Array.from({ length: 5 }).map((_, index) => (
+                    // 显示8个骨架加载项
+                    Array.from({ length: 8 }).map((_, index) => (
                         <TransactionSkeleton key={index} />
                     ))
                 ) : (
@@ -169,52 +169,43 @@ export function TransactionList() {
                         {transactions.map((tx, index) => (
                             <motion.div
                                 key={tx._id}
-                                initial={{
-                                    y: isNewPage ? 40 : -40,
-                                    opacity: 0,
-                                    scale: 0.98
-                                }}
-                                animate={{
-                                    y: 0,
-                                    opacity: 1,
-                                    scale: 1
-                                }}
+                                initial={{ y: isNewPage ? 40 : -40, opacity: 0, scale: 0.98 }}
+                                animate={{ y: 0, opacity: 1, scale: 1 }}
                                 transition={{
                                     duration: 0.3,
                                     ease: [0.2, 0.65, 0.3, 0.9],
-                                    opacity: { duration: 0.2 },
-                                    layout: {
-                                        type: "spring",
-                                        bounce: 0.15,
-                                        duration: 0.4
-                                    }
+                                    opacity: { duration: 0.2 }
                                 }}
                                 layout
-                                className="flex gap-4 p-3 rounded-lg transition-all duration-200 ease-out
+                                className="flex gap-2 p-2 rounded-lg transition-all duration-200 ease-out
                                           bg-[#2f2f2f] hover:bg-[#353535]
-                                          mb-3 last:mb-0"
-                                style={{
-                                    height: 'auto',
-                                    transform: 'translate3d(0, 0, 0)',
-                                    transformOrigin: isNewPage ? 'bottom' : 'top'
-                                }}
+                                          mb-1.5 last:mb-0 relative"
                             >
-                                {/* 头像部分 */}
+                                {/* 三点按钮 */}
+                                <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="absolute top-1 right-1 h-7 w-7 hover:bg-discord-primary/30"
+                                >
+                                    <MoreVertical className="h-4 w-4 text-gray-400" />
+                                </Button>
+
+                                {/* 头像 */}
                                 <div className="shrink-0">
                                     <Image
                                         src="https://twocat-room-avatars.s3.ap-southeast-1.amazonaws.com/room-avatars/1731764573897-default-avatar.png"
                                         alt="Avatar"
-                                        width={40}
-                                        height={40}
-                                        className="rounded-full ring-2 ring-discord-primary/30"
+                                        width={28}
+                                        height={28}
+                                        className="rounded-full ring-1 ring-discord-primary/30"
                                         unoptimized
                                     />
                                 </div>
 
-                                {/* 消息内容 */}
-                                <div className="flex-1 min-w-0">
+                                {/* 内容区 */}
+                                <div className="flex-1 min-w-0 pr-8">
                                     {/* 头部信息 */}
-                                    <div className="flex items-center gap-2">
+                                    <div className="flex items-center gap-2 text-sm">
                                         <span className="font-medium text-white/90 hover:text-white transition-colors">
                                             {tx.walletAddress.slice(0, 4)}...{tx.walletAddress.slice(-4)}
                                         </span>
@@ -223,23 +214,24 @@ export function TransactionList() {
                                         </span>
                                     </div>
 
-                                    {/* 交易描述 */}
-                                    <p className="text-gray-300 mt-1">
-                                        {tx.type === 'buy' ? '买入' : '卖出'} {tx.tokenAmount.toFixed(2)} {tx.symbol}
-                                        {' '}({tx.solAmount.toFixed(4)} SOL)
-                                    </p>
+                                    {/* 交易信息和表情反应在同一行 */}
+                                    <div className="flex items-center justify-between mt-0.5">
+                                        <p className="text-sm text-gray-300">
+                                            {tx.type === 'buy' ? '买入' : '卖出'} {tx.tokenAmount.toFixed(2)} {tx.symbol}
+                                            {' '}({tx.solAmount.toFixed(4)} SOL)
+                                        </p>
 
-                                    {/* 表情反应 */}
-                                    <div className="flex gap-2 mt-2 text-sm">
-                                        <button className="hover:bg-discord-primary/50 px-2 py-1 rounded text-gray-400 hover:text-white transition-colors">
-                                            👍 <span className="ml-1">0</span>
-                                        </button>
-                                        <button className="hover:bg-discord-primary/50 px-2 py-1 rounded text-gray-400 hover:text-white transition-colors">
-                                            🚀 <span className="ml-1">0</span>
-                                        </button>
-                                        <button className="hover:bg-discord-primary/50 px-2 py-1 rounded text-gray-400 hover:text-white transition-colors">
-                                            💰 <span className="ml-1">0</span>
-                                        </button>
+                                        <div className="flex gap-1 text-xs shrink-0 ml-2">
+                                            <button className="hover:bg-discord-primary/50 px-1.5 py-0.5 rounded text-gray-400 hover:text-white transition-colors">
+                                                👍 <span className="ml-0.5">0</span>
+                                            </button>
+                                            <button className="hover:bg-discord-primary/50 px-1.5 py-0.5 rounded text-gray-400 hover:text-white transition-colors">
+                                                🚀 <span className="ml-0.5">0</span>
+                                            </button>
+                                            <button className="hover:bg-discord-primary/50 px-1.5 py-0.5 rounded text-gray-400 hover:text-white transition-colors">
+                                                💰 <span className="ml-0.5">0</span>
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
                             </motion.div>
