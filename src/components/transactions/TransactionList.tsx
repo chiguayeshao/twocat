@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import {
@@ -49,36 +50,102 @@ const generateMockData = (page: number, limit: number) => {
     };
 };
 
+interface Transaction {
+    _id: string;
+    walletAddress: string;
+    type: 'buy' | 'sell';
+    solAmount: number;
+    tokenAmount: number;
+    tokenAddress: string;
+    signature: string;
+    timestamp: number;
+    symbol: string;
+    tokenName: string;
+}
+
+// 生成随机交易数据
+const generateRandomTransaction = (): Transaction => {
+    const symbols = ['SOL', 'BONK', 'JUP', 'PYTH'];
+    const type = Math.random() > 0.5 ? 'buy' : 'sell';
+    return {
+        _id: `tx-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+        walletAddress: 'HN7cABqLq46Es1jh92dQQisAq662SmxELLLsHHe4YWrH',
+        type,
+        solAmount: Number((Math.random() * 10).toFixed(4)),
+        tokenAmount: Number((Math.random() * 100000).toFixed(2)),
+        tokenAddress: 'TokenAddress123...',
+        signature: 'Signature123...',
+        timestamp: Math.floor(Date.now() / 1000),
+        symbol: symbols[Math.floor(Math.random() * symbols.length)],
+        tokenName: 'Mock Token',
+    };
+};
+
+// 模拟轮询生成新数据
+const simulatePollData = () => {
+    // 30% 的概率生成新交易
+    if (Math.random() < 0.3) {
+        return [generateRandomTransaction()];
+    }
+    return [];
+};
+
 export function TransactionList() {
-    const [transactions, setTransactions] = useState<any[]>([]);
-    const [selected, setSelected] = useState<string[]>([]); // 添加选中状态
+    const [transactions, setTransactions] = useState<Transaction[]>([]);
+    const [selected, setSelected] = useState<string[]>([]);
     const [pagination, setPagination] = useState({
         total: 0,
         page: 1,
-        limit: 10,
+        limit: 30,
         totalPages: 1,
         hasMore: false,
     });
     const [loading, setLoading] = useState(false);
+    const lastUpdateTime = useRef<number>(Date.now());
 
+    // 模拟轮询获取数据
+    const pollTransactions = useCallback(async () => {
+        // 只在第一页时进行轮询
+        if (pagination.page !== 1) return;
+
+        const newTransactions = simulatePollData();
+
+        if (newTransactions.length > 0) {
+            setTransactions(prev => {
+                const updatedTransactions = [...newTransactions, ...prev];
+                return updatedTransactions.slice(0, pagination.limit);
+            });
+        }
+    }, [pagination.page, pagination.limit]);
+
+    // 初始加载数据
     const fetchTransactions = async (page: number) => {
         setLoading(true);
-        // 模拟 API 延迟
         await new Promise(resolve => setTimeout(resolve, 500));
         const data = generateMockData(page, pagination.limit);
-        setTransactions(data.transactions);
+        setTransactions(data.transactions as Transaction[]); // 添加类型断言
         setPagination(data.pagination);
         setLoading(false);
+        lastUpdateTime.current = Date.now();
     };
 
+    // 设置轮询
+    useEffect(() => {
+        const intervalId = setInterval(pollTransactions, 500); // 每0.5秒轮询一次
+        return () => clearInterval(intervalId);
+    }, [pollTransactions]);
+
+    // 初始加载
     useEffect(() => {
         fetchTransactions(1);
     }, []);
 
+    const TableRowAnimated = motion(TableRow);
+
     return (
-        <div className="flex flex-col h-full">
-            {/* 工具栏 - 调整背景色和内边距 */}
-            <div className="flex items-center gap-4 mb-2 sticky top-0 bg-discord-secondary/50 backdrop-blur-sm z-10 py-3 px-1">
+        <div className="h-full flex flex-col">
+            {/* 工具栏 */}
+            <div className="shrink-0 flex items-center gap-4 bg-discord-secondary/50 backdrop-blur-sm z-10 py-2 px-1">
                 <Input
                     placeholder="搜索交易..."
                     className="max-w-xs bg-discord-primary/50"
@@ -107,14 +174,10 @@ export function TransactionList() {
                         <DropdownMenuItem>时间降序</DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>
-
-                <div className="ml-auto text-sm text-gray-400">
-                    已选择 {selected.length} 项
-                </div>
             </div>
 
-            {/* 表格 - 优化样式 */}
-            <div className="flex-1 overflow-auto relative">
+            {/* 表格容器 */}
+            <div className="flex-1 min-h-0 overflow-auto custom-scrollbar">
                 <Table>
                     <TableHeader className="sticky top-0 bg-discord-secondary/50 backdrop-blur-sm z-10">
                         <TableRow className="border-none hover:bg-transparent">
@@ -126,20 +189,31 @@ export function TransactionList() {
                             <TableHead className="text-gray-400 font-medium">时间</TableHead>
                         </TableRow>
                     </TableHeader>
-                    <TableBody className="relative">
-                        {loading ? (
-                            <TableRow>
-                                <TableCell colSpan={6} className="h-[400px] border-none">
-                                    <div className="flex items-center justify-center h-full">
-                                        <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
-                                    </div>
-                                </TableCell>
-                            </TableRow>
-                        ) : (
-                            transactions.map((tx) => (
-                                <TableRow
+                    <TableBody>
+                        <AnimatePresence initial={false} mode="popLayout">
+                            {transactions.map((tx) => (
+                                <TableRowAnimated
                                     key={tx._id}
+                                    initial={{
+                                        opacity: 0,
+                                        height: 0,
+                                        backgroundColor: "rgba(34, 197, 94, 0.2)"
+                                    }}
+                                    animate={{
+                                        opacity: 1,
+                                        height: "auto",
+                                        backgroundColor: "rgba(0, 0, 0, 0)"
+                                    }}
+                                    exit={{
+                                        opacity: 0,
+                                        height: 0
+                                    }}
+                                    transition={{
+                                        duration: 0.3,
+                                        ease: "easeOut"
+                                    }}
                                     className="border-none hover:bg-discord-primary/30 transition-colors"
+                                    layout
                                 >
                                     <TableCell className="font-mono text-sm">
                                         {tx.walletAddress.slice(0, 4)}...{tx.walletAddress.slice(-4)}
@@ -155,15 +229,15 @@ export function TransactionList() {
                                     <TableCell className="text-gray-400 text-sm">
                                         {new Date(tx.timestamp * 1000).toLocaleString()}
                                     </TableCell>
-                                </TableRow>
-                            ))
-                        )}
+                                </TableRowAnimated>
+                            ))}
+                        </AnimatePresence>
                     </TableBody>
                 </Table>
             </div>
 
-            {/* 分页 - 优化样式 */}
-            <div className="flex items-center justify-between mt-2 sticky bottom-0 bg-discord-secondary/50 backdrop-blur-sm py-3 px-1">
+            {/* 分页 */}
+            <div className="shrink-0 flex items-center justify-between bg-discord-secondary/50 backdrop-blur-sm py-2 px-1">
                 <div className="flex items-center gap-1">
                     {Array.from({ length: Math.min(5, pagination.totalPages) }).map((_, i) => (
                         <Button

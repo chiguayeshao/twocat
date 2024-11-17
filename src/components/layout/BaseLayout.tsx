@@ -7,14 +7,14 @@ import { TransactionList } from '@/components/transactions/TransactionList';
 
 export function BaseLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex h-screen bg-discord-primary text-white">
+    <div className="flex h-screen bg-discord-primary text-white overflow-hidden">
       {/* 左侧边栏 */}
       <Sidebar />
 
       {/* 主内容区 */}
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col min-w-0">
         {/* 顶部工具栏 */}
-        <div className="h-12 border-b border-discord-divider flex items-center justify-between px-4">
+        <div className="h-12 shrink-0 border-b border-discord-divider flex items-center justify-between px-4">
           <h2 className="text-white font-medium">
             监控 Solana 钱包地址的活动和变化，实时追踪钱包状态和交易记录。
           </h2>
@@ -22,13 +22,13 @@ export function BaseLayout({ children }: { children: React.ReactNode }) {
         </div>
 
         {/* 内容区域 - 使用网格布局 */}
-        <main className="flex-1 grid grid-cols-12 gap-4 p-4 overflow-hidden">
+        <main className="flex-1 grid grid-cols-12 gap-4 p-4 min-h-0">
           {/* 左侧大区域 */}
-          <div className="col-span-8 grid grid-rows-[2fr,1fr] gap-4">
+          <div className="col-span-8 grid grid-rows-[2fr,1fr] gap-4 min-h-0">
             {/* 上半部分 - 消息通知区域 */}
-            <div className="bg-discord-secondary rounded-lg p-4 border border-discord-divider overflow-hidden">
-              <h3 className="text-lg font-medium mb-2">交易记录</h3>
-              <div className="h-[calc(100%-2.5rem)] overflow-hidden">
+            <div className="bg-discord-secondary rounded-lg flex flex-col border border-discord-divider min-h-0">
+              <h3 className="text-lg font-medium p-4 pb-2">交易记录</h3>
+              <div className="flex-1 min-h-0">
                 <TransactionList />
               </div>
             </div>
