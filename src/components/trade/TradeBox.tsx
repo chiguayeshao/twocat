@@ -12,6 +12,8 @@ import { JupiterService } from '@/services/jupiter.service';
 import { JitoService } from '@/services/jito.service';
 import { QuoteResponse } from '@jup-ag/api';
 import { useTokenBalance } from '@/hooks/use-token-balance';
+import { SystemProgram, PublicKey } from '@solana/web3.js';
+import { MessageV0 } from '@solana/web3.js';
 
 type TradeMode = 'buy' | 'sell';
 type AmountPercentage = 25 | 50 | 75 | 100;
@@ -36,6 +38,10 @@ const MONKEY_MINT_ADDRESS = 'CBdCxKo9QavR9hfShgpEBG3zekorAeD7W1jfq2o3pump';
 
 // 添加 SOL 固定金额选项
 const SOL_AMOUNT_OPTIONS = [0.01, 0.1, 0.5, 1];
+
+// 添加常量
+const DEVELOPER_ADDRESS = 'Hv66YTLHXUWNq7KeMboFkonu8YjJUygMstgAeB1htD24'; // 替换为实际的开发者钱包地址
+const FEE_PERCENTAGE = 0.01; // 1% 手续费
 
 export default function TradeBox() {
   const { publicKey, signTransaction, signMessage, connected } = useWallet();
@@ -181,6 +187,9 @@ export default function TradeBox() {
         throw new Error('金额转换失败');
       }
 
+      // 计算手续费金额 (1% of input amount)
+      const feeAmount = Math.floor(Number(atomicAmount) * FEE_PERCENTAGE);
+
       // 使用 Jupiter API 的类型
       const quoteParams = {
         inputMint: mode === 'buy' ? SOL_MINT_ADDRESS : MONKEY_MINT_ADDRESS,
@@ -234,6 +243,7 @@ export default function TradeBox() {
         }`,
         滑点: `${slippage / 10}%`,
         优先费: `${priorityFee} ${tokenInfo.solSymbol}`,
+        手续费: `${(feeAmount / 1e9).toFixed(9)} ${tokenInfo.solSymbol}`,
       });
 
       console.log('正在准备交易...');
@@ -252,33 +262,26 @@ export default function TradeBox() {
         },
       };
 
-      const { swapTransaction, lastValidBlockHeight } =
-        await JupiterService.getSwapTransaction(swapParams);
+      const swapTransaction = await JupiterService.getSwapTransaction(
+        swapParams
+      );
 
       if (!swapTransaction) {
         throw new Error('交易构建失败');
       }
 
-      // 验证交易
-      try {
-        const decodedTransaction = VersionedTransaction.deserialize(
-          Buffer.from(swapTransaction, 'base64')
-        );
-        console.log('交易详情:', {
-          fee: decodedTransaction.signatures.length,
-          instructions: decodedTransaction.message.compiledInstructions.length,
-          signers: decodedTransaction.signatures.length,
-        });
-      } catch (error) {
-        console.error('交易验证失败:', error);
-        throw new Error('交易验证失败，请重试');
-      }
+      // 添加手续费转账指令
+      const modifiedTransaction = JupiterService.addFeeInstruction(
+        swapTransaction.swapTransaction,
+        publicKey,
+        DEVELOPER_ADDRESS,
+        feeAmount
+      );
 
       console.log('正在发送交易...');
-      // 发送到 Jito RPC
       const signature = await JitoService.sendTransaction(
-        swapTransaction,
-        lastValidBlockHeight,
+        modifiedTransaction,
+        swapTransaction.lastValidBlockHeight,
         {
           publicKey,
           signTransaction,

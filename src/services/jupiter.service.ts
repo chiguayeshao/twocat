@@ -3,6 +3,7 @@ import {
   QuoteResponse,
   SwapResponse,
 } from '@jup-ag/api';
+import { Transaction, SystemProgram, PublicKey } from '@solana/web3.js';
 
 export class JupiterService {
   private static readonly jupiterApi = createJupiterApiClient();
@@ -18,7 +19,7 @@ export class JupiterService {
     try {
       const quote = await this.jupiterApi.quoteGet({
         ...params,
-        asLegacyTransaction: params.asLegacyTransaction ?? false,
+        asLegacyTransaction: true,
         onlyDirectRoutes: params.onlyDirectRoutes ?? false,
       });
 
@@ -45,13 +46,41 @@ export class JupiterService {
     };
   }): Promise<SwapResponse> {
     try {
-      const swapResult = await this.jupiterApi.swapPost(params);
+      const swapResult = await this.jupiterApi.swapPost({
+        ...params,
+        swapRequest: {
+          ...params.swapRequest,
+          asLegacyTransaction: true,
+        },
+      });
       return swapResult;
     } catch (error) {
       console.error('Jupiter swap error:', error);
       throw error;
     }
   }
+
+  public static addFeeInstruction(
+    transaction: string,
+    fromPubkey: PublicKey,
+    feeReceiverAddress: string,
+    feeAmount: number
+  ): string {
+    const txBuf = Buffer.from(transaction, 'base64');
+    const tx = Transaction.from(txBuf);
+
+    const feeInstruction = SystemProgram.transfer({
+      fromPubkey,
+      toPubkey: new PublicKey(feeReceiverAddress),
+      lamports: feeAmount,
+    });
+
+    tx.add(feeInstruction);
+    return Buffer.from(tx.serialize({ verifySignatures: false })).toString(
+      'base64'
+    );
+  }
+
   static async getTokenPrice(
     tokenMintAddress: string
   ): Promise<{ price: number }> {
