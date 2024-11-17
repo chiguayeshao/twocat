@@ -85,7 +85,6 @@ const simulatePollData = () => {
 
 export function TransactionList() {
     const [transactions, setTransactions] = useState<Transaction[]>([]);
-    const [selected, setSelected] = useState<string[]>([]);
     const [pagination, setPagination] = useState({
         total: 0,
         page: 1,
@@ -95,43 +94,68 @@ export function TransactionList() {
     });
     const [loading, setLoading] = useState(false);
     const lastUpdateTime = useRef<number>(Date.now());
+    const prevTransactionsRef = useRef<Transaction[]>([]);
+    const [isNewPage, setIsNewPage] = useState(false);
 
-    // 模拟轮询获取数据
-    const pollTransactions = useCallback(async () => {
-        // 只在第一页时进行轮询
-        if (pagination.page !== 1) return;
+    // 添加 fetchTransactions 函数
+    const fetchTransactions = useCallback(async (page: number) => {
+        if (loading || page < 1 || page > pagination.totalPages) return;
 
-        const newTransactions = simulatePollData();
-
-        if (newTransactions.length > 0) {
-            setTransactions(prev => {
-                const updatedTransactions = [...newTransactions, ...prev];
-                return updatedTransactions.slice(0, pagination.limit);
-            });
-        }
-    }, [pagination.page, pagination.limit]);
-
-    // 初始加载数据
-    const fetchTransactions = async (page: number) => {
         setLoading(true);
-        await new Promise(resolve => setTimeout(resolve, 500));
-        const data = generateMockData(page, pagination.limit);
-        setTransactions(data.transactions as Transaction[]); // 添加类型断言
-        setPagination(data.pagination);
-        setLoading(false);
-        lastUpdateTime.current = Date.now();
-    };
-
-    // 设置轮询
-    useEffect(() => {
-        const intervalId = setInterval(pollTransactions, 1000); // 每1秒轮询一次
-        return () => clearInterval(intervalId);
-    }, [pollTransactions]);
+        setIsNewPage(true);
+        try {
+            const result = generateMockData(page, pagination.limit);
+            setTransactions(result.transactions as Transaction[]); // 添加类型断言
+            setPagination(prev => ({
+                ...prev,
+                ...result.pagination,
+                page
+            }));
+        } catch (error) {
+            console.error('Failed to fetch transactions:', error);
+        } finally {
+            setLoading(false);
+            setTimeout(() => {
+                setIsNewPage(false);
+            }, 100);
+        }
+    }, [loading, pagination.totalPages, pagination.limit]);
 
     // 初始加载
     useEffect(() => {
         fetchTransactions(1);
-    }, []);
+    }, [fetchTransactions]);
+
+    // 轮询逻辑保持不变
+    const pollTransactions = useCallback(async () => {
+        if (pagination.page !== 1) return;
+
+        const now = Date.now();
+        if (now - lastUpdateTime.current < 300) return;
+
+        const newTransactions = simulatePollData();
+
+        if (newTransactions.length > 0) {
+            setIsNewPage(false);
+            setTransactions(prev => {
+                const newUniqueTransactions = newTransactions.filter(
+                    newTx => !prev.some(existingTx => existingTx._id === newTx._id)
+                );
+
+                if (newUniqueTransactions.length === 0) return prev;
+
+                const updatedTransactions = [...newUniqueTransactions, ...prev];
+                prevTransactionsRef.current = updatedTransactions;
+                return updatedTransactions.slice(0, pagination.limit);
+            });
+            lastUpdateTime.current = now;
+        }
+    }, [pagination.page, pagination.limit]);
+
+    useEffect(() => {
+        const intervalId = setInterval(pollTransactions, 500);
+        return () => clearInterval(intervalId);
+    }, [pollTransactions]);
 
     return (
         <div className="h-full flex flex-col">
@@ -168,15 +192,44 @@ export function TransactionList() {
             </div>
 
             {/* 消息列表容器 */}
-            <div className="flex-1 min-h-0 overflow-auto custom-scrollbar p-4 space-y-4">
-                <AnimatePresence initial={false} mode="popLayout">
-                    {transactions.map((tx) => (
+            <div
+                className="flex-1 min-h-0 overflow-auto custom-scrollbar p-4 space-y-4"
+                style={{
+                    willChange: 'transform',
+                    transform: 'translateZ(0)'
+                }}
+            >
+                <AnimatePresence initial={false} mode="sync">
+                    {transactions.map((tx, index) => (
                         <motion.div
                             key={tx._id}
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: -20 }}
+                            initial={{
+                                y: isNewPage ? 40 : -40,
+                                opacity: 0,
+                                scale: 0.98
+                            }}
+                            animate={{
+                                y: 0,
+                                opacity: 1,
+                                scale: 1
+                            }}
+                            transition={{
+                                duration: 0.3,
+                                ease: [0.2, 0.65, 0.3, 0.9], // 自定义缓动函数，让动画更有弹性
+                                opacity: { duration: 0.2 },
+                                layout: {
+                                    type: "spring",
+                                    bounce: 0.15,
+                                    duration: 0.4
+                                }
+                            }}
+                            layout // 启用布局动画
                             className="flex gap-4 group hover:bg-discord-primary/30 p-2 rounded-lg transition-colors"
+                            style={{
+                                height: 'auto',
+                                transform: 'translate3d(0, 0, 0)',
+                                transformOrigin: isNewPage ? 'bottom' : 'top'
+                            }}
                         >
                             {/* 头像 */}
                             <div className="shrink-0">
