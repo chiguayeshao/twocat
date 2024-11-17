@@ -52,4 +52,18 @@ export class JupiterService {
       throw error;
     }
   }
+  static async getTokenPrice(
+    tokenMintAddress: string
+  ): Promise<{ price: number }> {
+    try {
+      const response = await fetch(
+        `https://price.jup.ag/v4/price?ids=${tokenMintAddress}`
+      );
+      const data = await response.json();
+      return { price: data.data[tokenMintAddress]?.price || 0 };
+    } catch (error) {
+      console.error('获取代币价格失败:', error);
+      return { price: 0 };
+    }
+  }
 }

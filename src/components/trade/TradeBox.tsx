@@ -11,16 +11,10 @@ import { useToast } from '@/hooks/use-toast';
 import { JupiterService } from '@/services/jupiter.service';
 import { JitoService } from '@/services/jito.service';
 import { QuoteResponse } from '@jup-ag/api';
-import { BirdeyeService } from '@/services/birdeye.service';
+import { useTokenBalance } from '@/hooks/use-token-balance';
 
 type TradeMode = 'buy' | 'sell';
 type AmountPercentage = 25 | 50 | 75 | 100;
-
-interface TokenBalance {
-  symbol: string;
-  balance: number;
-  usdValue: number;
-}
 
 // 添加新的类型定义
 interface SignatureResponse {
@@ -51,14 +45,9 @@ export default function TradeBox() {
   const [amount, setAmount] = useState<string>(
     SOL_AMOUNT_OPTIONS[0].toString()
   );
-  const [slippage, setSlippage] = useState<number>(30); // 3.0%
+  const [slippage, setSlippage] = useState<number>(150); // 3.0%
   const [isAutoMode, setIsAutoMode] = useState<boolean>(false);
   const [isEditingSlippage, setIsEditingSlippage] = useState<boolean>(false);
-  const [tokenBalance, setTokenBalance] = useState<TokenBalance>({
-    symbol: 'MONKEY',
-    balance: 0,
-    usdValue: 0,
-  });
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [priorityFee, setPriorityFee] = useState<string>('0.012');
   const [isCustomPriorityFee, setIsCustomPriorityFee] = useState(false);
@@ -67,52 +56,18 @@ export default function TradeBox() {
   const [walletState, setWalletState] = useState<WalletState>(
     WalletState.DISCONNECTED
   );
-  const [solBalance, setSolBalance] = useState<number>(0);
-  const [tokenInfo, setTokenInfo] = useState({
-    solDecimals: 9,
-    solSymbol: 'SOL',
-    monkeyDecimals: 6,
-    monkeySymbol: 'MONKEY',
+
+  const {
+    isLoading,
+    error,
+    solBalance: solBalance,
+    tokenBalance: tokenBalance,
+    tokenInfo: tokenInfo,
+    refresh: refreshBalance,
+  } = useTokenBalance({
+    tokenMintAddress: MONKEY_MINT_ADDRESS,
+    refreshInterval: 30000, // 可选: 每30秒自动刷新一次
   });
-
-  // 将 fetchBalance 提取为独立函数
-  const fetchBalance = async () => {
-    if (!publicKey || !connection) return;
-    try {
-      // 获取 SOL 余额
-      const solBalance = await connection.getBalance(publicKey);
-      const solAmount = solBalance / Math.pow(10, tokenInfo.solDecimals);
-      setSolBalance(solAmount);
-
-      // 获取 MONKEY token 余额
-      const monkeyBalance = await BirdeyeService.getTokenBalance(
-        publicKey.toBase58(),
-        MONKEY_MINT_ADDRESS
-      );
-
-      if (monkeyBalance) {
-        console.log('monkeyBalance', monkeyBalance);
-        setTokenBalance({
-          symbol: monkeyBalance.symbol,
-          balance: monkeyBalance.uiAmount,
-          usdValue: monkeyBalance.valueUsd,
-        });
-      }
-    } catch (error) {
-      console.error('获取余额失败:', error);
-      toast({
-        title: '获取余额失败',
-        description: '无法获取最新余额信息',
-        variant: 'destructive',
-        className: 'dark:bg-red-900 dark:text-white',
-      });
-    }
-  };
-
-  // 修改原有的 useEffect
-  useEffect(() => {
-    fetchBalance();
-  }, [publicKey, connection]);
 
   const handleAmountChange = (value: string) => {
     // 只允许数字和小数点
@@ -189,7 +144,7 @@ export default function TradeBox() {
   // 添加错误类型
   interface TradeError extends Error {
     code?: string | number;
-    data?: any;
+    data?: unknown; // 或者
   }
 
   // 预留交易接口
@@ -245,7 +200,7 @@ export default function TradeBox() {
         throw new Error('无法获取交易报价');
       }
 
-      // 验证报价响应
+      // 验证报响应
       if (!quoteResponse.outAmount) {
         throw new Error('无效的报价响应');
       }
@@ -363,7 +318,7 @@ export default function TradeBox() {
       });
 
       // 刷新余额
-      await fetchBalance();
+      await refreshBalance();
     } catch (error) {
       console.error('Trade failed:', error);
       const tradeError = error as TradeError;
@@ -425,7 +380,12 @@ export default function TradeBox() {
     slippage,
     priorityFee,
     toast,
-    fetchBalance,
+    refreshBalance,
+    isAntiMEV,
+    tokenInfo.monkeyDecimals,
+    tokenInfo.monkeySymbol,
+    tokenInfo.solDecimals,
+    tokenInfo.solSymbol,
   ]);
 
   // 处理签名流程
@@ -555,28 +515,6 @@ export default function TradeBox() {
     );
   };
 
-  // 修改 fetchTokenInfo 函数
-  const fetchTokenInfo = async () => {
-    try {
-      // 只获取 MONKEY 代币信息
-      const monkeyInfo = await BirdeyeService.getTokenOverview(
-        MONKEY_MINT_ADDRESS
-      );
-      setTokenInfo((prev) => ({
-        ...prev,
-        monkeyDecimals: monkeyInfo.decimals,
-        monkeySymbol: monkeyInfo.symbol,
-      }));
-    } catch (error) {
-      console.error('获取代币信息失败:', error);
-    }
-  };
-
-  // 在组件加载时获取代币信息
-  useEffect(() => {
-    fetchTokenInfo();
-  }, []);
-
   // 修改 toAtomicUnits 的使用
   const toAtomicUnits = (amount: string, decimals: number): number => {
     try {
@@ -589,13 +527,15 @@ export default function TradeBox() {
   };
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-3 w-full">
       {/* 交易模式选择 */}
       <div className="flex gap-2">
         <button
           className={cn(
-            'flex-1 py-2 rounded',
-            mode === 'buy' ? 'bg-green-600' : 'bg-discord-button-secondary'
+            'flex-1 py-2.5 rounded-lg font-medium transition-all duration-200',
+            mode === 'buy'
+              ? 'bg-green-600 text-white shadow-sm'
+              : 'bg-discord-button-secondary text-gray-300 hover:bg-discord-button-secondary-hover'
           )}
           onClick={() => handleModeChange('buy')}
         >
@@ -603,69 +543,128 @@ export default function TradeBox() {
         </button>
         <button
           className={cn(
-            'flex-1 py-2 rounded',
-            mode === 'sell' ? 'bg-red-600' : 'bg-discord-button-secondary'
+            'flex-1 py-2.5 rounded-lg font-medium transition-all duration-200',
+            mode === 'sell'
+              ? 'bg-red-600 text-white shadow-sm'
+              : 'bg-discord-button-secondary text-gray-300 hover:bg-discord-button-secondary-hover'
           )}
           onClick={() => handleModeChange('sell')}
         >
           卖出
         </button>
-        <div className="flex items-center gap-2">
-          <span>自动</span>
-          <input
-            type="checkbox"
-            checked={isAutoMode}
-            onChange={(e) => setIsAutoMode(e.target.checked)}
-          />
+        <div className="flex items-center gap-2 px-3 bg-discord-secondary rounded-lg">
+          <span className="text-sm text-gray-300">自动</span>
+          <label className="relative inline-flex items-center cursor-pointer">
+            <input
+              type="checkbox"
+              className="sr-only peer"
+              checked={isAutoMode}
+              onChange={(e) => setIsAutoMode(e.target.checked)}
+            />
+            <div
+              className={cn(
+                'w-8 h-4 rounded-full peer transition-all duration-200',
+                'after:content-[""] after:absolute after:top-[2px] after:left-[2px]',
+                'after:bg-white after:rounded-full after:h-3 after:w-3',
+                'after:transition-all after:duration-200',
+                isAutoMode
+                  ? 'bg-blue-600 after:translate-x-full'
+                  : 'bg-gray-600'
+              )}
+            ></div>
+          </label>
         </div>
       </div>
 
       {/* 余额显示 */}
-      <div className="flex justify-between text-sm text-gray-300">
-        <div className="flex flex-col gap-1">
-          <span>
-            {tokenInfo.solSymbol} 余额: {solBalance.toFixed(6)}{' '}
-            {tokenInfo.solSymbol}
-          </span>
-          <span>
-            {tokenInfo.monkeySymbol} 余额: {tokenBalance.balance.toFixed(6)}{' '}
-            {tokenInfo.monkeySymbol}
-          </span>
+      <div className="bg-discord-secondary/50 rounded-lg p-3 space-y-1.5">
+        <div className="flex justify-between items-center">
+          <span className="text-sm text-gray-400">可用余额</span>
+          <button
+            onClick={refreshBalance}
+            className="text-xs text-blue-400 hover:text-blue-300 transition-colors"
+          >
+            刷新
+          </button>
         </div>
-        <span>≈ ${tokenBalance.usdValue.toFixed(2)}</span>
+        <div className="flex flex-col gap-1.5">
+          <div className="flex justify-between items-center">
+            <span className="text-sm text-gray-300">{tokenInfo.solSymbol}</span>
+            <span>
+              {solBalance.toFixed(6)} {tokenInfo.solSymbol}
+            </span>
+          </div>
+          <div className="flex justify-between items-center">
+            <span className="text-sm text-gray-300">
+              {tokenInfo.monkeySymbol}
+            </span>
+            <div className="text-right">
+              <div>
+                {tokenBalance.balance.toFixed(6)} {tokenInfo.monkeySymbol}
+              </div>
+              <div className="text-xs text-gray-400">
+                ≈ ${tokenBalance.usdValue.toFixed(2)}
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* 数量输入 */}
-      <div>
-        <div className="text-sm mb-2">
-          数量 ({mode === 'buy' ? tokenInfo.solSymbol : tokenInfo.monkeySymbol})
+      <div className="space-y-2">
+        <div className="flex justify-between items-center text-sm">
+          <span className="text-gray-300">
+            数量 (
+            {mode === 'buy' ? tokenInfo.solSymbol : tokenInfo.monkeySymbol})
+          </span>
+          <span className="text-gray-400">
+            最大:{' '}
+            {mode === 'buy'
+              ? solBalance.toFixed(6)
+              : tokenBalance.balance.toFixed(6)}
+          </span>
         </div>
-        <div className="flex gap-2 mb-2">
+        <div className="relative">
           <input
             type="text"
             value={amount}
             onChange={(e) => handleAmountChange(e.target.value)}
-            className="w-full bg-discord-button-secondary px-3 py-2 rounded text-right text-black"
+            className={cn(
+              'w-full bg-discord-button-secondary px-4 py-2.5 rounded-lg',
+              'text-right pr-16 text-base text-black',
+              'focus:outline-none focus:ring-2 focus:ring-blue-500/50',
+              'transition-all duration-200',
+              'placeholder:text-gray-500'
+            )}
             placeholder="0.000000"
           />
+          <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400">
+            {mode === 'buy' ? tokenInfo.solSymbol : tokenInfo.monkeySymbol}
+          </span>
         </div>
         <div className="grid grid-cols-4 gap-2">
           {mode === 'buy'
-            ? // 买入模式：显示固定 SOL 数量选项
-              SOL_AMOUNT_OPTIONS.map((solAmount) => (
+            ? SOL_AMOUNT_OPTIONS.map((solAmount) => (
                 <button
                   key={solAmount}
-                  className="bg-discord-button-secondary py-1 rounded hover:bg-discord-button-secondary-hover"
+                  className={cn(
+                    'py-1.5 rounded-lg text-sm font-medium transition-all duration-200',
+                    'bg-discord-button-secondary hover:bg-discord-button-secondary-hover',
+                    'text-gray-300 hover:text-white'
+                  )}
                   onClick={() => handleAmountPercentageClick(solAmount)}
                 >
-                  {solAmount} {tokenInfo.solSymbol}
+                  {solAmount}
                 </button>
               ))
-            : // 卖出模式：显示百分比选项
-              [25, 50, 75, 100].map((percentage) => (
+            : [25, 50, 75, 100].map((percentage) => (
                 <button
                   key={percentage}
-                  className="bg-discord-button-secondary py-1 rounded hover:bg-discord-button-secondary-hover"
+                  className={cn(
+                    'py-1.5 rounded-lg text-sm font-medium transition-all duration-200',
+                    'bg-discord-button-secondary hover:bg-discord-button-secondary-hover',
+                    'text-gray-300 hover:text-white'
+                  )}
                   onClick={() =>
                     handleAmountPercentageClick(percentage as AmountPercentage)
                   }
@@ -676,119 +675,140 @@ export default function TradeBox() {
         </div>
       </div>
 
-      {/* 置面板触发器 */}
-      <div className="flex items-center justify-between text-sm text-gray-300">
-        <div className="flex items-center gap-2">
-          <span>滑点: 自动({(slippage / 10).toFixed(1)}%)</span>
-        </div>
-        <div className="flex items-center gap-4">
-          <span>优先费: {priorityFee}</span>
-          <span>防夹: {isAntiMEV ? '开' : '关'}</span>
-          <button
-            onClick={() => setIsSettingsOpen(!isSettingsOpen)}
-            className="hover:text-white"
-          >
-            {isSettingsOpen ? (
-              <ChevronUp size={16} />
-            ) : (
-              <ChevronDown size={16} />
+      {/* 设置按钮和面板 */}
+      <div className="relative w-full">
+        <button
+          onClick={() => setIsSettingsOpen(!isSettingsOpen)}
+          className={cn(
+            'w-full px-4 py-2.5 flex items-center justify-between',
+            'bg-discord-secondary rounded-lg transition-all duration-200',
+            'hover:bg-discord-secondary-hover',
+            isSettingsOpen && 'rounded-b-none'
+          )}
+        >
+          <div className="flex items-center gap-4 text-sm text-gray-300">
+            <span>滑点: {(slippage / 10).toFixed(1)}%</span>
+            <span>优先费: {priorityFee}</span>
+            <span>防夹: {isAntiMEV ? '开' : '关'}</span>
+          </div>
+          <ChevronDown
+            size={16}
+            className={cn(
+              'text-gray-400 transition-transform duration-200',
+              isSettingsOpen && 'rotate-180'
             )}
-          </button>
-        </div>
+          />
+        </button>
+
+        {isSettingsOpen && (
+          <div
+            className={cn(
+              'absolute left-0 right-0 z-10 w-full',
+              'bg-discord-secondary rounded-b-lg',
+              'border-t border-discord-divider',
+              'animate-slideDown'
+            )}
+          >
+            <div className="p-4 space-y-3 max-h-[300px] overflow-y-auto custom-scrollbar">
+              {/* 滑点设置 */}
+              <div className="space-y-2">
+                <div className="text-sm text-gray-300">滑点</div>
+                <div className="flex gap-2 w-full">
+                  <button
+                    className={cn(
+                      'px-4 py-2 rounded transition-colors duration-200 whitespace-nowrap',
+                      !isEditingSlippage
+                        ? 'bg-discord-button-primary text-white'
+                        : 'bg-discord-button-secondary text-gray-300'
+                    )}
+                    onClick={() => setIsEditingSlippage(false)}
+                  >
+                    自动 {(slippage / 10).toFixed(1)}%
+                  </button>
+                  <input
+                    type="text"
+                    className={cn(
+                      'flex-1 min-w-0 bg-discord-button-secondary px-4 py-2 rounded',
+                      'text-black placeholder-gray-500',
+                      'focus:outline-none focus:ring-2 focus:ring-blue-500/50',
+                      'transition-all duration-200'
+                    )}
+                    placeholder="自定义滑点"
+                    value={isEditingSlippage ? (slippage / 10).toFixed(1) : ''}
+                    onChange={(e) => handleSlippageChange(e.target.value)}
+                    onFocus={() => setIsEditingSlippage(true)}
+                  />
+                </div>
+              </div>
+
+              {/* 优先费设置 */}
+              <div className="space-y-2">
+                <div className="text-sm text-gray-300">优先费 (SOL)</div>
+                <div className="flex gap-2 w-full">
+                  <button
+                    className={cn(
+                      'px-4 py-2 rounded transition-colors duration-200 whitespace-nowrap',
+                      !isCustomPriorityFee
+                        ? 'bg-discord-button-primary text-white'
+                        : 'bg-discord-button-secondary text-gray-300'
+                    )}
+                    onClick={() => {
+                      setIsCustomPriorityFee(false);
+                      setPriorityFee('0.012');
+                    }}
+                  >
+                    ×10 0.012
+                  </button>
+                  <input
+                    type="text"
+                    className={cn(
+                      'flex-1 min-w-0 bg-discord-button-secondary px-4 py-2 rounded',
+                      'text-black placeholder-gray-500',
+                      'focus:outline-none focus:ring-2 focus:ring-blue-500/50',
+                      'transition-all duration-200'
+                    )}
+                    placeholder="自定义优先费"
+                    value={isCustomPriorityFee ? priorityFee : ''}
+                    onChange={(e) => {
+                      setIsCustomPriorityFee(true);
+                      handlePriorityFeeChange(e.target.value);
+                    }}
+                  />
+                </div>
+              </div>
+
+              {/* 防夹设置 */}
+              <div className="flex items-center justify-between py-2">
+                <span className="text-sm text-gray-300">
+                  防夹模式(Anti-MEV)
+                </span>
+                <label className="relative inline-flex items-center cursor-pointer">
+                  <input
+                    type="checkbox"
+                    className="sr-only peer"
+                    checked={isAntiMEV}
+                    onChange={(e) => setIsAntiMEV(e.target.checked)}
+                  />
+                  <div
+                    className={cn(
+                      'w-11 h-6 rounded-full peer transition-colors duration-200',
+                      'after:content-[""] after:absolute after:top-[2px] after:left-[2px]',
+                      'after:bg-white after:rounded-full after:h-5 after:w-5',
+                      'after:transition-all after:duration-200',
+                      isAntiMEV
+                        ? 'bg-green-600 after:translate-x-full'
+                        : 'bg-gray-600'
+                    )}
+                  ></div>
+                </label>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
-      {/* 设置面板 */}
-      {isSettingsOpen && (
-        <div className="bg-discord-secondary rounded-lg p-4 space-y-4 border border-discord-divider">
-          {/* 滑点设置 */}
-          <div className="space-y-2">
-            <div className="text-sm text-gray-300">滑点</div>
-            <div className="flex gap-2">
-              <button
-                className={cn(
-                  'px-4 py-2 rounded',
-                  !isEditingSlippage
-                    ? 'bg-discord-button-primary'
-                    : 'bg-discord-button-secondary'
-                )}
-                onClick={() => setIsEditingSlippage(false)}
-              >
-                自动 {(slippage / 10).toFixed(1)}%
-              </button>
-              <div className="flex-1">
-                <input
-                  type="text"
-                  className="w-full bg-discord-button-secondary px-4 py-2 rounded text-black"
-                  placeholder="自定义滑点"
-                  value={isEditingSlippage ? (slippage / 10).toFixed(1) : ''}
-                  onChange={(e) => handleSlippageChange(e.target.value)}
-                  onFocus={() => setIsEditingSlippage(true)}
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* 优先费设置 */}
-          <div className="space-y-2">
-            <div className="text-sm text-gray-300">优先费 (SOL)</div>
-            <div className="flex gap-2">
-              <button
-                className={cn(
-                  'px-4 py-2 rounded',
-                  !isCustomPriorityFee
-                    ? 'bg-discord-button-primary'
-                    : 'bg-discord-button-secondary'
-                )}
-                onClick={() => {
-                  setIsCustomPriorityFee(false);
-                  setPriorityFee('0.012');
-                }}
-              >
-                ×10 0.012
-              </button>
-              <div className="flex-1">
-                <input
-                  type="text"
-                  className="w-full bg-discord-button-secondary px-4 py-2 rounded text-black"
-                  placeholder="自定义优先费"
-                  value={isCustomPriorityFee ? priorityFee : ''}
-                  onChange={(e) => {
-                    setIsCustomPriorityFee(true);
-                    handlePriorityFeeChange(e.target.value);
-                  }}
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* 防夹设置 */}
-          <div className="flex items-center justify-between">
-            <span className="text-sm text-gray-300">防夹模式(Anti-MEV)</span>
-            <label className="relative inline-flex items-center cursor-pointer">
-              <input
-                type="checkbox"
-                className="sr-only peer"
-                checked={isAntiMEV}
-                onChange={(e) => setIsAntiMEV(e.target.checked)}
-              />
-              <div
-                className={cn(
-                  'w-11 h-6 rounded-full peer',
-                  "after:content-[''] after:absolute after:top-[2px] after:left-[2px]",
-                  'after:bg-white after:rounded-full after:h-5 after:w-5',
-                  'after:transition-all',
-                  isAntiMEV
-                    ? 'bg-green-600 after:translate-x-full'
-                    : 'bg-red-600'
-                )}
-              ></div>
-            </label>
-          </div>
-        </div>
-      )}
-
       {/* 交易按钮 */}
-      {renderTradeButton()}
+      <div className="mt-1">{renderTradeButton()}</div>
     </div>
   );
 }

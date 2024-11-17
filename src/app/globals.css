@@ -92,6 +92,171 @@ body {
 
 /* 确保暗色主题 */
 :root {
-  --background: 0 0% 7%;  /* #131313 */
+  --background: 0 0% 7%; /* #131313 */
   /* ... 其他变量保持不变 */
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-slideDown {
+  animation: slideDown 0.2s ease-out forwards;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-slideUp {
+  animation: slideUp 0.2s ease-out;
+}
+
+/* 添加暗色背景遮罩动画 */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.2s ease-out;
+}
+
+/* 自定义滚动条样式 */
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* 下拉菜单动画 */
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+    pointer-events: none;
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-8px);
+    pointer-events: none;
+  }
+}
+
+.animate-slideDown {
+  animation: slideDown 0.2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  transform-origin: top;
+  backface-visibility: hidden;
+  will-change: transform, opacity;
+}
+
+.animate-slideUp {
+  animation: slideUp 0.2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  transform-origin: top;
+  backface-visibility: hidden;
+  will-change: transform, opacity;
+}
+
+/* 下拉面板过渡效果 */
+.settings-panel-enter {
+  opacity: 0;
+  transform: translateY(-8px);
+}
+
+.settings-panel-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 200ms, transform 200ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.settings-panel-exit {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.settings-panel-exit-active {
+  opacity: 0;
+  transform: translateY(-8px);
+  transition: opacity 200ms, transform 200ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* 优化滚动行为 */
+.smooth-scroll {
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* 防止滚动穿透 */
+.no-scroll {
+  overflow: hidden;
+  touch-action: none;
+}
+
+/* 优化动画性能 */
+.gpu-accelerated {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  perspective: 1000px;
+}
+
+/* 下拉内容容器 */
+.dropdown-content {
+  position: absolute;
+  left: 0;
+  right: -17px;
+  z-index: 50;
+  transform-origin: top;
+}
+
+/* 下拉内容阴影效果 */
+.dropdown-shadow {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06);
 }
