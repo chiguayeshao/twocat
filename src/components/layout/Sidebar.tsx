@@ -322,7 +322,7 @@ export function Sidebar() {
             {/* 设置区域 */}
             <div className="mt-auto p-2 border-t border-discord-divider">
                 <Link
-                    href="/settings"
+                    href="/"
                     className={cn(
                         "flex items-center gap-2 px-2 py-1.5 rounded hover:bg-discord-hover group w-full",
                         "text-muted-foreground hover:text-white transition-colors",

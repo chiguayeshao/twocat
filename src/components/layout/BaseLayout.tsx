@@ -1,14 +1,32 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Sidebar } from './Sidebar';
-import { UnifiedWalletButton } from '@jup-ag/wallet-adapter';
+import { Header } from './Header';
 import TradeBox from '@/components/trade/TradeBox';
 import { TransactionList } from '@/components/transactions/TransactionList';
 import { KLineChart } from '@/components/charts/KLineChart';
+import { fetchRoomInfo, Room } from '@/api/twocat-core/room';
 
 export function BaseLayout({ children }: { children: React.ReactNode }) {
   const [selectedTokenAddress, setSelectedTokenAddress] = useState<string | null>(null);
+  const [room, setRoom] = useState<Room | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadRoomInfo = async () => {
+      try {
+        const roomData = await fetchRoomInfo('6738a22ba1a70d5fd0d14f29');
+        setRoom(roomData);
+      } catch (error) {
+        console.error('Failed to load room info:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadRoomInfo();
+  }, []);
 
   const handleTransactionClick = (walletAddress: string, tokenAddress: string) => {
     setSelectedTokenAddress(tokenAddress);
@@ -22,12 +40,7 @@ export function BaseLayout({ children }: { children: React.ReactNode }) {
       {/* 主内容区 */}
       <div className="flex-1 flex flex-col min-w-0">
         {/* 顶部工具栏 */}
-        <div className="h-12 shrink-0 border-b border-discord-divider flex items-center justify-between px-4">
-          <h2 className="text-white font-medium">
-            监控 Solana 钱包地址的活动和变化，实时追踪钱包状态和交易记录。
-          </h2>
-          <UnifiedWalletButton />
-        </div>
+        <Header room={room} loading={loading} />
 
         {/* 内容区域 */}
         <main className="flex-1 grid grid-cols-12 gap-4 p-4 min-h-0">
