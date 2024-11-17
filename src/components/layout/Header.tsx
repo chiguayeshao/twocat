@@ -23,7 +23,7 @@ export function Header({ room, loading }: HeaderProps) {
                 ) : (
                     <>
                         <div className="flex items-center gap-2">
-                            <Info className="h-4 w-4 text-gray-400" />
+                            <Info className="h-4 w-4 text-[#acc97e]" />
                             <h2 className="text-white font-medium truncate">
                                 {room?.description || '监控 Solana 钱包地址的活动和变化，实时追踪钱包状态和交易记录。'}
                             </h2>
