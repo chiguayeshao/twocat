@@ -131,7 +131,7 @@ export function TransactionList({ onTransactionClick }: TransactionListProps) {
     return (
         <div className="h-full flex flex-col">
             {/* 工具栏 */}
-            <div className="shrink-0 flex items-center gap-4 bg-discord-secondary/50 backdrop-blur-sm z-10 py-2 px-1">
+            {/* <div className="shrink-0 flex items-center gap-4 bg-discord-secondary/50 backdrop-blur-sm z-10 py-2 px-1">
                 <Input
                     placeholder="索交易..."
                     className="max-w-xs bg-discord-primary/50"
@@ -160,7 +160,7 @@ export function TransactionList({ onTransactionClick }: TransactionListProps) {
                         <DropdownMenuItem>时间降序</DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>
-            </div>
+            </div> */}
 
             {/* 消息列表容器 */}
             <div className="flex-1 min-h-0 overflow-auto custom-scrollbar p-4">
