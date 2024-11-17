@@ -189,7 +189,7 @@ export function TransactionList() {
                                 className="flex items-center gap-2 py-1.5 px-2 rounded-lg transition-all duration-200 ease-out
                                           bg-[#2f2f2f] hover:bg-[#353535] hover:shadow-lg
                                           mb-1 last:mb-0 relative h-12 cursor-pointer
-                                          transform hover:-translate-y-0.5 hover:shadow-[0_4px_12px_rgba(0,0,0,0.25)]"
+                                          transform hover:-translate-y-0.5"
                             >
                                 {/* 阻止冒泡的按钮点击事件 */}
                                 <Button
