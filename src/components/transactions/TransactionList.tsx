@@ -193,7 +193,7 @@ export function TransactionList() {
 
             {/* 消息列表容器 */}
             <div
-                className="flex-1 min-h-0 overflow-auto custom-scrollbar p-4 space-y-4"
+                className="flex-1 min-h-0 overflow-auto custom-scrollbar p-4"
                 style={{
                     willChange: 'transform',
                     transform: 'translateZ(0)'
@@ -215,7 +215,7 @@ export function TransactionList() {
                             }}
                             transition={{
                                 duration: 0.3,
-                                ease: [0.2, 0.65, 0.3, 0.9], // 自定义缓动函数，让动画更有弹性
+                                ease: [0.2, 0.65, 0.3, 0.9],
                                 opacity: { duration: 0.2 },
                                 layout: {
                                     type: "spring",
@@ -223,22 +223,24 @@ export function TransactionList() {
                                     duration: 0.4
                                 }
                             }}
-                            layout // 启用布局动画
-                            className="flex gap-4 group hover:bg-discord-primary/30 p-2 rounded-lg transition-colors"
+                            layout
+                            className="flex gap-4 p-3 rounded-lg transition-all duration-200 ease-out
+                                      bg-[#2f2f2f] hover:bg-[#353535]
+                                      mb-3 last:mb-0"
                             style={{
                                 height: 'auto',
                                 transform: 'translate3d(0, 0, 0)',
                                 transformOrigin: isNewPage ? 'bottom' : 'top'
                             }}
                         >
-                            {/* 头像 */}
+                            {/* 头像部分 */}
                             <div className="shrink-0">
                                 <Image
                                     src="https://twocat-room-avatars.s3.ap-southeast-1.amazonaws.com/room-avatars/1731764573897-default-avatar.png"
                                     alt="Avatar"
                                     width={40}
                                     height={40}
-                                    className="rounded-full"
+                                    className="rounded-full ring-2 ring-discord-primary/30"
                                     unoptimized
                                 />
                             </div>
@@ -247,7 +249,7 @@ export function TransactionList() {
                             <div className="flex-1 min-w-0">
                                 {/* 头部信息 */}
                                 <div className="flex items-center gap-2">
-                                    <span className="font-medium text-white">
+                                    <span className="font-medium text-white/90 hover:text-white transition-colors">
                                         {tx.walletAddress.slice(0, 4)}...{tx.walletAddress.slice(-4)}
                                     </span>
                                     <span className="text-xs text-gray-400">
