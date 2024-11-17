@@ -10,7 +10,7 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { ChevronLeft, ChevronRight, Filter, SortAsc, Loader2, MoreVertical } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Filter, SortAsc, Loader2, MoreVertical, ExternalLink } from 'lucide-react';
 import Image from 'next/image';
 import { fetchWalletTransactions, Transaction } from '@/api/twocat-core/wallet';
 import { Skeleton } from "@/components/ui/skeleton";
@@ -103,7 +103,7 @@ export function TransactionList() {
     }, [pagination.page, pollTransactions]); // 只监听页码变化来控制轮询
 
     const TransactionSkeleton = () => (
-        <div className="flex gap-2 p-2 rounded-lg bg-[#2f2f2f] mb-1.5">
+        <div className="flex gap-2 p-2 rounded-lg bg-[#2f2f2f] mb-1.5 h-12">
             <Skeleton className="h-7 w-7 rounded-full bg-gray-500/20" />
 
             <div className="flex-1">
@@ -177,17 +177,17 @@ export function TransactionList() {
                                     opacity: { duration: 0.2 }
                                 }}
                                 layout
-                                className="flex gap-2 p-2 rounded-lg transition-all duration-200 ease-out
+                                className="flex items-center gap-2 py-1.5 px-2 rounded-lg transition-all duration-200 ease-out
                                           bg-[#2f2f2f] hover:bg-[#353535]
-                                          mb-1.5 last:mb-0 relative"
+                                          mb-1 last:mb-0 relative h-12"
                             >
                                 {/* 三点按钮 */}
                                 <Button
                                     variant="ghost"
                                     size="icon"
-                                    className="absolute top-1 right-1 h-7 w-7 hover:bg-discord-primary/30"
+                                    className="absolute right-1 h-6 w-6 hover:bg-discord-primary/30"
                                 >
-                                    <MoreVertical className="h-4 w-4 text-gray-400" />
+                                    <MoreVertical className="h-3.5 w-3.5 text-gray-400" />
                                 </Button>
 
                                 {/* 头像 */}
@@ -195,40 +195,72 @@ export function TransactionList() {
                                     <Image
                                         src="https://twocat-room-avatars.s3.ap-southeast-1.amazonaws.com/room-avatars/1731764573897-default-avatar.png"
                                         alt="Avatar"
-                                        width={28}
-                                        height={28}
+                                        width={20}
+                                        height={20}
                                         className="rounded-full ring-1 ring-discord-primary/30"
                                         unoptimized
                                     />
                                 </div>
 
                                 {/* 内容区 */}
-                                <div className="flex-1 min-w-0 pr-8">
-                                    {/* 头部信息 */}
-                                    <div className="flex items-center gap-2 text-sm">
-                                        <span className="font-medium text-white/90 hover:text-white transition-colors">
-                                            {tx.walletAddress.slice(0, 4)}...{tx.walletAddress.slice(-4)}
-                                        </span>
-                                        <span className="text-xs text-gray-400">
-                                            {new Date(tx.timestamp * 1000).toLocaleString()}
-                                        </span>
-                                    </div>
+                                <div className="flex-1 min-w-0 pr-7">
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex items-center gap-2 text-xs">
+                                            {/* 地址 */}
+                                            <button
+                                                onClick={() => window.open(`https://solscan.io/account/${tx.walletAddress}`, '_blank')}
+                                                className="font-medium text-[#53b991] hover:underline transition-colors"
+                                            >
+                                                {tx.walletAddress.slice(0, 4)}...{tx.walletAddress.slice(-4)}
+                                            </button>
 
-                                    {/* 交易信息和表情反应在同一行 */}
-                                    <div className="flex items-center justify-between mt-0.5">
-                                        <p className="text-sm text-gray-300">
-                                            {tx.type === 'buy' ? '买入' : '卖出'} {tx.tokenAmount.toFixed(2)} {tx.symbol}
-                                            {' '}({tx.solAmount.toFixed(4)} SOL)
-                                        </p>
+                                            {/* 交易类型 */}
+                                            <span className={tx.type === 'buy' ? 'text-[#9ad499]' : 'text-[#de5569]'}>
+                                                {tx.type === 'buy' ? '买入' : '卖出'}
+                                            </span>
 
-                                        <div className="flex gap-1 text-xs shrink-0 ml-2">
-                                            <button className="hover:bg-discord-primary/50 px-1.5 py-0.5 rounded text-gray-400 hover:text-white transition-colors">
+                                            {/* 代币数量和名称 */}
+                                            <span className="text-gray-300">
+                                                {tx.tokenAmount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                            </span>
+
+                                            <button
+                                                onClick={() => window.open(`https://solscan.io/token/${tx.tokenAddress}`, '_blank')}
+                                                className="text-[#acc97e] hover:underline transition-colors"
+                                            >
+                                                {tx.symbol}
+                                            </button>
+
+                                            {/* SOL 金额 */}
+                                            <span className="text-gray-400">
+                                                {tx.type === 'buy'
+                                                    ? `消耗: ${tx.solAmount.toFixed(4)} `
+                                                    : `获得: ${tx.solAmount.toFixed(4)} `
+                                                }
+                                                <span className="text-[#acc97e]">SOL</span>
+                                            </span>
+
+                                            {/* 时间和跳转链接 */}
+                                            <span className="text-xs text-gray-400 flex items-center gap-1">
+                                                {new Date(tx.timestamp * 1000).toLocaleString()}
+                                                <button
+                                                    onClick={() => window.open(`https://solscan.io/tx/${tx.signature}`, '_blank')}
+                                                    className="hover:text-gray-300 transition-colors"
+                                                >
+                                                    <ExternalLink className="h-3.5 w-3.5" />
+                                                </button>
+                                            </span>
+                                        </div>
+
+                                        {/* Emoji 反应 */}
+                                        <div className="flex gap-1 text-xs ml-2">
+                                            <button className="hover:bg-discord-primary/50 px-1 rounded text-gray-400 hover:text-white transition-colors">
                                                 👍 <span className="ml-0.5">0</span>
                                             </button>
-                                            <button className="hover:bg-discord-primary/50 px-1.5 py-0.5 rounded text-gray-400 hover:text-white transition-colors">
+                                            <button className="hover:bg-discord-primary/50 px-1 rounded text-gray-400 hover:text-white transition-colors">
                                                 🚀 <span className="ml-0.5">0</span>
                                             </button>
-                                            <button className="hover:bg-discord-primary/50 px-1.5 py-0.5 rounded text-gray-400 hover:text-white transition-colors">
+                                            <button className="hover:bg-discord-primary/50 px-1 rounded text-gray-400 hover:text-white transition-colors">
                                                 💰 <span className="ml-0.5">0</span>
                                             </button>
                                         </div>
