@@ -3,6 +3,7 @@
 import { Sidebar } from './Sidebar';
 import { UnifiedWalletButton } from '@jup-ag/wallet-adapter';
 import TradeBox from '@/components/trade/TradeBox';
+import { TransactionList } from '@/components/transactions/TransactionList';
 
 export function BaseLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -25,9 +26,11 @@ export function BaseLayout({ children }: { children: React.ReactNode }) {
           {/* 左侧大区域 */}
           <div className="col-span-8 grid grid-rows-[2fr,1fr] gap-4">
             {/* 上半部分 - 消息通知区域 */}
-            <div className="bg-discord-secondary rounded-lg p-4 border border-discord-divider">
-              <h3 className="text-lg font-medium mb-2">消息通知</h3>
-              <div className="h-[calc(100%-2rem)]">{/* 消息通知内容 */}</div>
+            <div className="bg-discord-secondary rounded-lg p-4 border border-discord-divider overflow-hidden">
+              <h3 className="text-lg font-medium mb-2">交易记录</h3>
+              <div className="h-[calc(100%-2.5rem)] overflow-hidden">
+                <TransactionList />
+              </div>
             </div>
 
             {/* 下半部分 */}
