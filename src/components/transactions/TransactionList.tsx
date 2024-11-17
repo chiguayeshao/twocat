@@ -103,7 +103,8 @@ export function TransactionList() {
     }, [pagination.page, pollTransactions]); // 只监听页码变化来控制轮询
 
     const TransactionSkeleton = () => (
-        <div className="flex gap-2 p-2 rounded-lg bg-[#2f2f2f] mb-1.5 h-12">
+        <div className="flex gap-2 p-2 rounded-lg bg-[#2f2f2f] mb-1.5 h-12
+                       transform transition-all duration-200 ease-out">
             <Skeleton className="h-7 w-7 rounded-full bg-gray-500/20" />
 
             <div className="flex-1">
@@ -177,15 +178,28 @@ export function TransactionList() {
                                     opacity: { duration: 0.2 }
                                 }}
                                 layout
+                                whileHover={{
+                                    scale: 1.02,
+                                    transition: { duration: 0.2, ease: "easeOut" }
+                                }}
+                                onClick={() => {
+                                    console.log('walletAddress:', tx.walletAddress);
+                                    console.log('tokenAddress:', tx.tokenAddress);
+                                }}
                                 className="flex items-center gap-2 py-1.5 px-2 rounded-lg transition-all duration-200 ease-out
-                                          bg-[#2f2f2f] hover:bg-[#353535]
-                                          mb-1 last:mb-0 relative h-12"
+                                          bg-[#2f2f2f] hover:bg-[#353535] hover:shadow-lg
+                                          mb-1 last:mb-0 relative h-12 cursor-pointer
+                                          transform hover:-translate-y-0.5 hover:shadow-[0_4px_12px_rgba(0,0,0,0.25)]"
                             >
-                                {/* 三点按钮 */}
+                                {/* 阻止冒泡的按钮点击事件 */}
                                 <Button
                                     variant="ghost"
                                     size="icon"
-                                    className="absolute right-1 h-6 w-6 hover:bg-discord-primary/30"
+                                    className="absolute right-1 h-6 w-6 hover:bg-discord-primary/30 z-10"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        // 三点按钮的处理逻辑
+                                    }}
                                 >
                                     <MoreVertical className="h-3.5 w-3.5 text-gray-400" />
                                 </Button>
@@ -208,8 +222,11 @@ export function TransactionList() {
                                         <div className="flex items-center gap-2 text-xs">
                                             {/* 地址 */}
                                             <button
-                                                onClick={() => window.open(`https://solscan.io/account/${tx.walletAddress}`, '_blank')}
-                                                className="font-medium text-[#53b991] hover:underline transition-colors"
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    window.open(`https://solscan.io/account/${tx.walletAddress}`, '_blank');
+                                                }}
+                                                className="font-medium text-[#53b991] hover:underline transition-colors z-10"
                                             >
                                                 {tx.walletAddress.slice(0, 4)}...{tx.walletAddress.slice(-4)}
                                             </button>
@@ -225,8 +242,11 @@ export function TransactionList() {
                                             </span>
 
                                             <button
-                                                onClick={() => window.open(`https://solscan.io/token/${tx.tokenAddress}`, '_blank')}
-                                                className="text-[#acc97e] hover:underline transition-colors"
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    window.open(`https://solscan.io/token/${tx.tokenAddress}`, '_blank');
+                                                }}
+                                                className="text-[#acc97e] hover:underline transition-colors z-10"
                                             >
                                                 {tx.symbol}
                                             </button>
@@ -244,16 +264,19 @@ export function TransactionList() {
                                             <span className="text-xs text-gray-400 flex items-center gap-1">
                                                 {new Date(tx.timestamp * 1000).toLocaleString()}
                                                 <button
-                                                    onClick={() => window.open(`https://solscan.io/tx/${tx.signature}`, '_blank')}
-                                                    className="hover:text-gray-300 transition-colors"
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        window.open(`https://solscan.io/tx/${tx.signature}`, '_blank');
+                                                    }}
+                                                    className="hover:text-gray-300 transition-colors z-10"
                                                 >
                                                     <ExternalLink className="h-3.5 w-3.5" />
                                                 </button>
                                             </span>
                                         </div>
 
-                                        {/* Emoji 反应 */}
-                                        <div className="flex gap-1 text-xs ml-2">
+                                        {/* Emoji 反应 - 阻止冒泡 */}
+                                        <div className="flex gap-1 text-xs ml-2" onClick={(e) => e.stopPropagation()}>
                                             <button className="hover:bg-discord-primary/50 px-1 rounded text-gray-400 hover:text-white transition-colors">
                                                 👍 <span className="ml-0.5">0</span>
                                             </button>
