@@ -131,7 +131,7 @@ export function TransactionList() {
 
     // 设置轮询
     useEffect(() => {
-        const intervalId = setInterval(pollTransactions, 500); // 每0.5秒轮询一次
+        const intervalId = setInterval(pollTransactions, 1000); // 每1秒轮询一次
         return () => clearInterval(intervalId);
     }, [pollTransactions]);
 

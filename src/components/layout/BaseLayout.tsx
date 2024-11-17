@@ -27,7 +27,6 @@ export function BaseLayout({ children }: { children: React.ReactNode }) {
           <div className="col-span-8 grid grid-rows-[2fr,1fr] gap-4 min-h-0">
             {/* 上半部分 - 消息通知区域 */}
             <div className="bg-discord-secondary rounded-lg flex flex-col border border-discord-divider min-h-0">
-              <h3 className="text-lg font-medium p-4 pb-2">交易记录</h3>
               <div className="flex-1 min-h-0">
                 <TransactionList />
               </div>
