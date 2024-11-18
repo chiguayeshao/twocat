@@ -62,8 +62,22 @@ export function WalletInfo({ walletAddress }: WalletInfoProps) {
                 if (!response.ok) {
                     throw new Error('Failed to fetch wallet tokens');
                 }
-                const data = await response.json();
-                setWalletTokens(data);
+                const responseData = await response.json();
+
+                // 从 data 中提取实际数据
+                const formattedData: WalletTokens = {
+                    totalUsd: responseData.data.totalUsd || 0,
+                    items: responseData.data.items.map((item: any) => ({
+                        address: item.address,
+                        symbol: item.symbol,
+                        name: item.name,
+                        logoURI: item.logoURI || item.icon,
+                        uiAmount: item.uiAmount || 0,
+                        valueUsd: item.valueUsd || 0,
+                    }))
+                };
+
+                setWalletTokens(formattedData);
             } catch (error) {
                 console.error('Failed to fetch wallet tokens:', error);
             } finally {
