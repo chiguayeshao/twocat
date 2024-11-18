@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { formatNumber, formatPercent, formatUSD } from '@/lib/utils';
-import { Copy, Info } from 'lucide-react';
+import { Copy, Info, Check } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
@@ -158,6 +158,7 @@ export function TokenStats({ tokenAddress }: TokenStatsProps) {
   const [tokenInfo, setTokenInfo] = useState<TokenInfo | null>(null);
   const [selectedTime, setSelectedTime] = useState<'30m' | '1h' | '2h'>('2h');
   const { toast } = useToast();
+  const [isCopied, setIsCopied] = useState(false);
 
   useEffect(() => {
     async function fetchData() {
@@ -307,27 +308,17 @@ export function TokenStats({ tokenAddress }: TokenStatsProps) {
 
   if (!tokenInfo) return null;
 
-  async function handleCopy() {
+  const handleCopy = async () => {
     try {
       await navigator.clipboard.writeText(tokenAddress || '');
-      toast({
-        title: '复制成功',
-        description: '地址已复制到剪贴板',
-        variant: 'success',
-        className: 'dark:bg-green-900 dark:text-white',
-        duration: 2000,
-      });
+      setIsCopied(true);
+      setTimeout(() => {
+        setIsCopied(false);
+      }, 2000);
     } catch (err) {
       console.error('Failed to copy:', err);
-      toast({
-        title: '复制失败',
-        description: '请重试',
-        variant: 'destructive',
-        className: 'dark:bg-red-900 dark:text-white',
-        duration: 2000,
-      });
     }
-  }
+  };
 
   // 获取当前选中时间段的价格变化
   const getCurrentPriceChange = (info: TokenInfo, timeFrame: string): number => {
@@ -444,8 +435,17 @@ export function TokenStats({ tokenAddress }: TokenStatsProps) {
               当前价格
             </div>
           </div>
-          <Button size="sm" variant="ghost" onClick={handleCopy}>
-            <Copy className="h-4 w-4" />
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8 hover:bg-discord-primary/30"
+            onClick={handleCopy}
+          >
+            {isCopied ? (
+              <Check className="h-4 w-4 text-green-400" />
+            ) : (
+              <Copy className="h-4 w-4 text-gray-400" />
+            )}
           </Button>
         </div>
       </div>
