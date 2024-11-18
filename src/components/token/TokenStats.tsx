@@ -701,9 +701,13 @@ export function TokenStats({ tokenAddress }: TokenStatsProps) {
     </div>
   );
 }
+// 修改格式化函数
+function formatCompactNumber(num: number | undefined | null): string {
+  // 添加空值检查
+  if (num === undefined || num === null) {
+    return '0';
+  }
 
-// 添加一个新的格式化函数用于紧凑数字显示
-function formatCompactNumber(num: number): string {
   if (num >= 1_000_000_000) {
     return `${(num / 1_000_000_000).toFixed(1)}B`;
   }
@@ -715,7 +719,6 @@ function formatCompactNumber(num: number): string {
   }
   return num.toFixed(1);
 }
-
 // 辅助函数：获取指定时间段的数据
 function getTimeFrameData(
   timeFrame: string,
@@ -832,3 +835,4 @@ function getTimeFrameData(
       };
   }
 }
+
