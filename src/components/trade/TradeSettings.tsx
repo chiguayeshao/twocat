@@ -146,9 +146,9 @@ export function TradeSettings({
             <DialogContent className="bg-[#1E1F22] border-none text-gray-100 max-w-md p-0">
                 {/* 标题栏 */}
                 <div className="flex items-center gap-2 p-4 pb-2">
-                    <Zap size={20} className="text-yellow-500" />
-                    <DialogTitle className="text-lg font-medium text-gray-100">
-                        快速热门设置
+                    <Zap size={20} className="text-[#acc97e]" />
+                    <DialogTitle className="text-lg font-medium text-[#acc97e]">
+                        快速设置
                     </DialogTitle>
                 </div>
 
@@ -171,8 +171,8 @@ export function TradeSettings({
                                 'after:bg-white after:rounded-full after:h-6 after:w-6',
                                 'after:transition-all after:duration-200',
                                 isAntiMEV
-                                    ? 'bg-green-500 after:translate-x-full'
-                                    : 'bg-gray-600'
+                                    ? 'bg-[#53b991] after:translate-x-full'
+                                    : 'bg-[#2f2f2f]'
                             )}></div>
                         </label>
                     </div>
@@ -185,7 +185,7 @@ export function TradeSettings({
                                 'w-[120px] p-4 rounded-lg border border-gray-700 transition-colors',
                                 'flex flex-col items-center justify-center',
                                 !isCustomPriorityFee
-                                    ? 'bg-gray-800 border-blue-500'
+                                    ? 'bg-gray-800 border-[#53b991]'
                                     : 'hover:border-gray-600'
                             )}
                             onClick={() => {
@@ -193,27 +193,38 @@ export function TradeSettings({
                                 setPriorityFee(DEFAULT_PRIORITY_FEE);
                             }}
                         >
-                            <div className="font-medium">×15</div>
+                            <div className="font-medium text-[#acc97e]">×15</div>
                             <div className="text-sm text-gray-400">{DEFAULT_PRIORITY_FEE} SOL</div>
                             <div className="text-xs text-gray-500">≈ 2s</div>
                         </button>
+
                         <div className="text-sm text-gray-400 mt-2">
                             支持自定义优先费 (最大: 0.2 SOL)
                         </div>
-                        <input
-                            type="text"
-                            className={cn(
-                                'w-full bg-gray-900 rounded-lg px-4 py-3',
-                                'text-white placeholder-gray-500 border border-gray-700',
-                                'focus:outline-none focus:border-blue-500',
-                                isCustomPriorityFee && parseFloat(priorityFee) > 0.2 && 'border-red-500'
-                            )}
-                            placeholder="自定义优先费"
-                            value={isCustomPriorityFee ? priorityFee : ''}
-                            onChange={(e) => handlePriorityFeeChange(e.target.value)}
-                        />
+
+                        <div className="flex gap-3">
+                            <input
+                                type="text"
+                                className={cn(
+                                    'flex-1 bg-[#2f2f2f] rounded-lg px-4 py-3',
+                                    'text-[#acc97e] placeholder-gray-500',
+                                    'border border-gray-700',
+                                    'focus:outline-none focus:border-[#53b991]',
+                                    'transition-all duration-200',
+                                    isCustomPriorityFee && parseFloat(priorityFee) > 0.2 && 'border-[#de5569]'
+                                )}
+                                placeholder="自定义优先费"
+                                value={isCustomPriorityFee ? priorityFee : ''}
+                                onChange={(e) => handlePriorityFeeChange(e.target.value)}
+                            />
+                            <div className="flex items-center px-4 py-3 bg-[#2f2f2f] rounded-lg text-gray-400">
+                                SOL
+                            </div>
+                        </div>
+
                         {isCustomPriorityFee && parseFloat(priorityFee) > 0.2 && (
-                            <div className="text-sm text-red-500">
+                            <div className="text-sm text-[#de5569] flex items-center gap-1.5">
+                                <span className="w-1.5 h-1.5 rounded-full bg-[#de5569]"></span>
                                 超过最大值 0.2 SOL，确认时将自动调整为 0.2 SOL
                             </div>
                         )}
@@ -227,7 +238,7 @@ export function TradeSettings({
                                 'w-[120px] p-4 rounded-lg border border-gray-700 transition-colors',
                                 'flex flex-col items-center justify-center',
                                 !isEditingSlippage
-                                    ? 'bg-gray-800 border-blue-500'
+                                    ? 'bg-gray-800 border-[#53b991]'
                                     : 'hover:border-gray-600'
                             )}
                             onClick={() => {
@@ -235,29 +246,38 @@ export function TradeSettings({
                                 handleSlippageChange(DEFAULT_SLIPPAGE.toString());
                             }}
                         >
-                            <div className="font-medium">自动</div>
-                            <div className="text-sm text-gray-400">2.5%</div>
+                            <div className="font-medium text-[#acc97e]">自动</div>
+                            <div className="text-sm text-gray-400">{DEFAULT_SLIPPAGE}%</div>
+                            <div className="text-xs text-gray-500">推荐设置</div>
                         </button>
 
                         <div className="text-sm text-gray-400 mt-2">
                             支持自定义滑点 (最大: 100%)
                         </div>
 
-                        <input
-                            type="text"
-                            className={cn(
-                                'w-full bg-gray-900 rounded-lg px-4 py-3',
-                                'text-white placeholder-gray-500 border border-gray-700',
-                                'focus:outline-none focus:border-blue-500',
-                                isEditingSlippage && parseFloat(slippage.toString()) > 100 && 'border-red-500'
-                            )}
-                            placeholder="自定义滑点"
-                            value={isEditingSlippage ? slippage : ''}
-                            onChange={(e) => handleSlippageInputChange(e.target.value)}
-                        />
+                        <div className="flex gap-3">
+                            <input
+                                type="text"
+                                className={cn(
+                                    'flex-1 bg-[#2f2f2f] rounded-lg px-4 py-3',
+                                    'text-[#acc97e] placeholder-gray-500',
+                                    'border border-gray-700',
+                                    'focus:outline-none focus:border-[#53b991]',
+                                    'transition-all duration-200',
+                                    isEditingSlippage && parseFloat(slippage.toString()) > 100 && 'border-[#de5569]'
+                                )}
+                                placeholder="自定义滑点"
+                                value={isEditingSlippage ? slippage : ''}
+                                onChange={(e) => handleSlippageInputChange(e.target.value)}
+                            />
+                            <div className="flex items-center px-4 py-3 bg-[#2f2f2f] rounded-lg text-gray-400">
+                                %
+                            </div>
+                        </div>
 
                         {isEditingSlippage && parseFloat(slippage.toString()) > 100 && (
-                            <div className="text-sm text-red-500">
+                            <div className="text-sm text-[#de5569] flex items-center gap-1.5">
+                                <span className="w-1.5 h-1.5 rounded-full bg-[#de5569]"></span>
                                 超过最大值 100%，确认时将自动调整为 100%
                             </div>
                         )}
@@ -269,13 +289,13 @@ export function TradeSettings({
                     <Button
                         variant="secondary"
                         onClick={handleCancel}
-                        className="w-full py-6 bg-[#313338] hover:bg-[#404249] text-white text-base"
+                        className="w-full py-6 bg-[#2f2f2f] hover:bg-[#404249] text-gray-300 text-base"
                     >
                         取消
                     </Button>
                     <Button
                         onClick={handleConfirm}
-                        className="w-full py-6 bg-white hover:bg-gray-100 text-black text-base"
+                        className="w-full py-6 bg-[#53b991] hover:bg-[#4ca883] text-white text-base"
                     >
                         确认
                     </Button>
