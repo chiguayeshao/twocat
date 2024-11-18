@@ -8,6 +8,7 @@ import { TransactionList } from '@/components/transactions/TransactionList';
 import { KLineChart } from '@/components/charts/KLineChart';
 import { fetchRoomInfo, Room } from '@/api/twocat-core/room';
 import { TokenStats } from '@/components/token/TokenStats';
+import { WalletInfo } from '@/components/wallet/WalletInfo';
 
 export function BaseLayout({ children }: { children: React.ReactNode }) {
   const [selectedTokenAddress, setSelectedTokenAddress] = useState<
@@ -15,6 +16,7 @@ export function BaseLayout({ children }: { children: React.ReactNode }) {
   >(null);
   const [room, setRoom] = useState<Room | null>(null);
   const [loading, setLoading] = useState(true);
+  const [selectedWalletAddress, setSelectedWalletAddress] = useState<string | null>(null);
 
   useEffect(() => {
     const loadRoomInfo = async () => {
@@ -35,6 +37,7 @@ export function BaseLayout({ children }: { children: React.ReactNode }) {
     walletAddress: string,
     tokenAddress: string
   ) => {
+    setSelectedWalletAddress(walletAddress);
     setSelectedTokenAddress(tokenAddress);
   };
 
@@ -60,21 +63,20 @@ export function BaseLayout({ children }: { children: React.ReactNode }) {
 
               <div className="bg-discord-secondary rounded-lg border border-discord-divider flex flex-col overflow-hidden">
                 <div className="flex-1 min-h-0 overflow-auto">
-                  <TokenStats
+                  {/* <TokenStats
                     tokenAddress={
                       'CBdCxKo9QavR9hfShgpEBG3zekorAeD7W1jfq2o3pump'
                     }
-                  />
+                  /> */}
                 </div>
               </div>
             </div>
           </div>
 
           <div className="col-span-4 grid grid-rows-2 gap-4 min-h-0">
-            <div className="bg-discord-secondary rounded-lg p-4 border border-discord-divider overflow-hidden">
-              <h3 className="text-lg font-medium mb-2">address info</h3>
-              <div className="h-[calc(100%-2rem)] overflow-auto">
-                {/* 地址信息内容 */}
+            <div className="bg-discord-secondary rounded-lg border border-discord-divider overflow-hidden">
+              <div className="h-full overflow-auto">
+                <WalletInfo walletAddress={selectedWalletAddress} />
               </div>
             </div>
 
