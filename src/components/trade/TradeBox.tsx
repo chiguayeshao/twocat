@@ -140,7 +140,7 @@ export default function TradeBox({ tokenAddress }: { tokenAddress: string | null
     }
   };
 
-  // 验证��名
+  // 验证名
   const verifySignature = async (
     signature: Uint8Array,
     message: string
@@ -635,7 +635,7 @@ export default function TradeBox({ tokenAddress }: { tokenAddress: string | null
             onChange={(e) => handleAmountChange(e.target.value)}
             className={cn(
               'w-full bg-discord-button-secondary px-4 py-2.5 rounded-lg',
-              'text-right pr-16 text-base text-black',
+              'text-left pl-4 pr-16 text-base text-black',
               'focus:outline-none focus:ring-2 focus:ring-blue-500/50',
               'transition-all duration-200',
               'placeholder:text-gray-500'
