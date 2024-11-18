@@ -4,12 +4,25 @@ import { useState, useEffect } from 'react';
 import { ExternalLink, Copy, Check, Wallet, TrendingUp, BarChart3 } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { fetchWalletTokens, WalletTokens, TokenHolding } from '@/api/twocat-core/token';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
 
 interface WalletInfoProps {
     walletAddress: string | null;
+}
+
+interface TokenHolding {
+    address: string;
+    symbol: string;
+    name: string;
+    logoURI?: string;
+    uiAmount: number;
+    valueUsd: number;
+}
+
+interface WalletTokens {
+    totalUsd: number;
+    items: TokenHolding[];
 }
 
 const TokenSkeleton = () => (
@@ -45,7 +58,11 @@ export function WalletInfo({ walletAddress }: WalletInfoProps) {
         const fetchTokens = async () => {
             setLoading(true);
             try {
-                const data = await fetchWalletTokens(walletAddress);
+                const response = await fetch(`/api/twocat-core/tokens-wallet?address=${walletAddress}`);
+                if (!response.ok) {
+                    throw new Error('Failed to fetch wallet tokens');
+                }
+                const data = await response.json();
                 setWalletTokens(data);
             } catch (error) {
                 console.error('Failed to fetch wallet tokens:', error);
