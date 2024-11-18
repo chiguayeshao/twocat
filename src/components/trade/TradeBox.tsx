@@ -710,7 +710,7 @@ export default function TradeBox({ tokenAddress }: { tokenAddress: string | null
         priorityFee={priorityFee}
         isCustomPriorityFee={isCustomPriorityFee}
         setIsCustomPriorityFee={setIsCustomPriorityFee}
-        handlePriorityFeeChange={handlePriorityFeeChange}
+        setPriorityFee={setPriorityFee}
         isAntiMEV={isAntiMEV}
         setIsAntiMEV={setIsAntiMEV}
       />

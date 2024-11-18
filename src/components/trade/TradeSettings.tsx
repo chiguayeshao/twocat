@@ -14,10 +14,12 @@ interface TradeSettingsProps {
     priorityFee: string;
     isCustomPriorityFee: boolean;
     setIsCustomPriorityFee: (value: boolean) => void;
-    handlePriorityFeeChange: (value: string) => void;
+    setPriorityFee: (value: string) => void;
     isAntiMEV: boolean;
     setIsAntiMEV: (value: boolean) => void;
 }
+
+const DEFAULT_PRIORITY_FEE = '0.018';
 
 export function TradeSettings({
     open,
@@ -29,7 +31,7 @@ export function TradeSettings({
     priorityFee,
     isCustomPriorityFee,
     setIsCustomPriorityFee,
-    handlePriorityFeeChange,
+    setPriorityFee,
     isAntiMEV,
     setIsAntiMEV,
 }: TradeSettingsProps) {
@@ -55,22 +57,51 @@ export function TradeSettings({
         }
     }, [open]);
 
+    // 修改优先费处理函数
+    const handlePriorityFeeChange = (value: string) => {
+        // 如果输入为空，使用默认值
+        if (!value.trim()) {
+            setIsCustomPriorityFee(false);
+            setPriorityFee(DEFAULT_PRIORITY_FEE);
+            return;
+        }
+
+        // 只允许输入数字和小数点
+        if (/^\d*\.?\d*$/.test(value)) {
+            setIsCustomPriorityFee(true);
+            setPriorityFee(value);
+        }
+    };
+
     // 处理取消
     const handleCancel = () => {
         // 恢复到初始值
         setIsEditingSlippage(initialValues.isEditingSlippage);
         handleSlippageChange((initialValues.slippage / 10).toString());
         setIsCustomPriorityFee(initialValues.isCustomPriorityFee);
-        handlePriorityFeeChange(initialValues.priorityFee);
+        setPriorityFee(initialValues.priorityFee);
         setIsAntiMEV(initialValues.isAntiMEV);
 
         // 关闭弹框
         onOpenChange(false);
     };
 
-    // 处理确认
+    // 修改确认处理函数
     const handleConfirm = () => {
-        // 直接关闭弹框，因为所有改动都是实时的
+        // 如果自定义优先费为空，使用默认值
+        if (isCustomPriorityFee) {
+            if (!priorityFee.trim()) {
+                setIsCustomPriorityFee(false);
+                setPriorityFee(DEFAULT_PRIORITY_FEE);
+            } else {
+                // 如果大于 0.2，则设置为 0.2
+                const numValue = parseFloat(priorityFee);
+                if (!isNaN(numValue) && numValue > 0.2) {
+                    setPriorityFee('0.2');
+                }
+            }
+        }
+        // 关闭弹框
         onOpenChange(false);
     };
 
@@ -131,11 +162,11 @@ export function TradeSettings({
                             )}
                             onClick={() => {
                                 setIsCustomPriorityFee(false);
-                                handlePriorityFeeChange('0.018');
+                                setPriorityFee(DEFAULT_PRIORITY_FEE);
                             }}
                         >
                             <div className="font-medium">×15</div>
-                            <div className="text-sm text-gray-400">0.018 SOL</div>
+                            <div className="text-sm text-gray-400">{DEFAULT_PRIORITY_FEE} SOL</div>
                             <div className="text-xs text-gray-500">≈ 2s</div>
                         </button>
                         <div className="text-sm text-gray-400 mt-2">
@@ -147,14 +178,17 @@ export function TradeSettings({
                                 'w-full bg-gray-900 rounded-lg px-4 py-3',
                                 'text-white placeholder-gray-500 border border-gray-700',
                                 'focus:outline-none focus:border-blue-500',
+                                isCustomPriorityFee && parseFloat(priorityFee) > 0.2 && 'border-red-500'
                             )}
                             placeholder="自定义优先费"
                             value={isCustomPriorityFee ? priorityFee : ''}
-                            onChange={(e) => {
-                                setIsCustomPriorityFee(true);
-                                handlePriorityFeeChange(e.target.value);
-                            }}
+                            onChange={(e) => handlePriorityFeeChange(e.target.value)}
                         />
+                        {isCustomPriorityFee && parseFloat(priorityFee) > 0.2 && (
+                            <div className="text-sm text-red-500">
+                                超过最大值 0.2 SOL，确认时将自动调整为 0.2 SOL
+                            </div>
+                        )}
                     </div>
 
                     {/* 滑点设置 */}
