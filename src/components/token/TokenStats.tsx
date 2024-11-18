@@ -7,6 +7,7 @@ import { useToast } from '@/hooks/use-toast';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from "@/components/ui/tooltip";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface TokenStatsProps {
   tokenAddress: string | null;
@@ -115,6 +116,8 @@ interface TokenInfo {
   vSell8hUSD: number;
   uniqueWallet8h: number;
   uniqueWallet8hChangePercent: number;
+  buyHistory24h: number;
+  sellHistory24h: number;
 }
 
 interface TimeFrameData {
@@ -153,6 +156,69 @@ const calculateSecurityScore = (tokenInfo: TokenInfo) => {
   return score;
 };
 
+// 添加骨架屏组件
+const TokenStatsSkeleton = () => (
+  <div className="p-4 space-y-4">
+    {/* 代币基本信息骨架屏 */}
+    <div className="flex items-center justify-between">
+      <div className="flex items-center gap-2">
+        <Skeleton className="h-8 w-8 rounded-full bg-gray-500/20" />
+        <div>
+          <Skeleton className="h-5 w-20 bg-gray-500/20 mb-1" />
+          <Skeleton className="h-4 w-32 bg-gray-500/20" />
+        </div>
+      </div>
+      <div className="text-right">
+        <Skeleton className="h-6 w-32 bg-gray-500/20 mb-1" />
+        <Skeleton className="h-4 w-20 bg-gray-500/20" />
+      </div>
+    </div>
+
+    {/* 时间选择器和安全信息骨架屏 */}
+    <div className="flex items-center justify-between bg-[#2f2f2f] rounded-lg p-2">
+      <div className="flex gap-1">
+        {[1, 2, 3].map((i) => (
+          <Skeleton key={i} className="h-8 w-16 bg-gray-500/20" />
+        ))}
+      </div>
+      <div className="flex gap-4">
+        {[1, 2, 3].map((i) => (
+          <div key={i} className="flex flex-col items-center">
+            <Skeleton className="h-4 w-16 bg-gray-500/20 mb-1" />
+            <Skeleton className="h-4 w-12 bg-gray-500/20" />
+          </div>
+        ))}
+      </div>
+    </div>
+
+    {/* 市值等信息骨架屏 */}
+    <div className="bg-[#2f2f2f] rounded-lg p-2">
+      <div className="flex items-center divide-x divide-gray-700">
+        {[1, 2, 3].map((i) => (
+          <div key={i} className="flex-1 px-3 first:pl-0 last:pr-0">
+            <div className="flex justify-between items-center">
+              <Skeleton className="h-4 w-12 bg-gray-500/20" />
+              <Skeleton className="h-4 w-20 bg-gray-500/20" />
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+
+    {/* 买入卖出钱包数量骨架屏 */}
+    <div className="bg-[#2f2f2f] rounded-lg p-2">
+      <div className="flex justify-between items-center">
+        <Skeleton className="h-4 w-12 bg-gray-500/20" />
+        <Skeleton className="h-4 w-20 bg-gray-500/20" />
+      </div>
+      <div className="flex justify-between items-center">
+        <Skeleton className="h-4 w-12 bg-gray-500/20" />
+        <Skeleton className="h-4 w-20 bg-gray-500/20" />
+      </div>
+    </div>
+  </div>
+);
+
 export function TokenStats({ tokenAddress }: TokenStatsProps) {
   const [loading, setLoading] = useState(false);
   const [tokenInfo, setTokenInfo] = useState<TokenInfo | null>(null);
@@ -162,6 +228,9 @@ export function TokenStats({ tokenAddress }: TokenStatsProps) {
 
   useEffect(() => {
     async function fetchData() {
+      if (!tokenAddress) return;
+
+      setLoading(true);
       try {
         const [overviewRes, securityRes] = await Promise.all([
           fetch(`/api/birdeye/token-overview?address=${tokenAddress}`),
@@ -241,6 +310,9 @@ export function TokenStats({ tokenAddress }: TokenStatsProps) {
             overview.data.uniqueWallet24hChangePercent,
           v24hUSD: overview.data.v24hUSD,
 
+          buyHistory24h: overview.data.buy24h,
+          sellHistory24h: overview.data.sell24h,
+
           history2hPrice: overview.data.history2hPrice,
           priceChange2hPercent: overview.data.priceChange2hPercent,
           v2h: overview.data.v2h,
@@ -293,17 +365,12 @@ export function TokenStats({ tokenAddress }: TokenStatsProps) {
       }
     }
 
-    if (tokenAddress) {
-      fetchData();
-    }
+    fetchData();
   }, [tokenAddress]);
 
+  // 如果正在加载，显示骨架屏
   if (loading) {
-    return (
-      <div className="h-full flex justify-center items-center p-4">
-        <div className="animate-pulse">加载中...</div>
-      </div>
-    );
+    return <TokenStatsSkeleton />;
   }
 
   if (!tokenInfo) return null;
@@ -557,7 +624,7 @@ export function TokenStats({ tokenAddress }: TokenStatsProps) {
       </div>
 
       {/* 交易数据网格 */}
-      <div className="grid grid-cols-2 gap-2">
+      <div className="grid grid-cols-3 gap-2">
         <div className="bg-[#2f2f2f] rounded-lg p-2">
           <div className="flex justify-between text-xs mb-2">
             <span className="text-gray-400">交易量</span>
@@ -570,12 +637,22 @@ export function TokenStats({ tokenAddress }: TokenStatsProps) {
         </div>
         <div className="bg-[#2f2f2f] rounded-lg p-2">
           <div className="flex justify-between text-xs mb-2">
-            <span className="text-[#9ad499]">买入</span>
+            <span className="text-[#9ad499]">买入额</span>
             <span className="text-[#53b991]">${formatCompactNumber(getTimeFrameData(selectedTime, tokenInfo).buyVolume)}</span>
           </div>
           <div className="flex justify-between text-xs">
-            <span className="text-[#de5569]">卖出</span>
+            <span className="text-[#de5569]">卖出额</span>
             <span className="text-[#53b991]">${formatCompactNumber(getTimeFrameData(selectedTime, tokenInfo).sellVolume)}</span>
+          </div>
+        </div>
+        <div className="bg-[#2f2f2f] rounded-lg p-2">
+          <div className="flex justify-between text-xs mb-2">
+            <span className="text-[#9ad499]">买入钱包数量</span>
+            <span className="text-[#53b991]">{formatCompactNumber(tokenInfo.buyHistory24h)}</span>
+          </div>
+          <div className="flex justify-between text-xs mb-2">
+            <span className="text-[#de5569]">卖出钱包数量</span>
+            <span className="text-[#53b991]">{formatCompactNumber(tokenInfo.sellHistory24h)}</span>
           </div>
         </div>
       </div>
