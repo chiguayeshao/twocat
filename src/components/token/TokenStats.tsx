@@ -432,7 +432,7 @@ export function TokenStats({ tokenAddress }: TokenStatsProps) {
               ${tokenInfo.price.toFixed(12)}
             </div>
             <div className="text-xs text-gray-400">
-              当前价格
+              24h成交额 ${formatCompactNumber(tokenInfo.v24hUSD)}
             </div>
           </div>
           <Button
