@@ -34,7 +34,7 @@ enum WalletState {
 }
 
 const SOL_MINT_ADDRESS = 'So11111111111111111111111111111111111111112';
-const MONKEY_MINT_ADDRESS = 'CBdCxKo9QavR9hfShgpEBG3zekorAeD7W1jfq2o3pump';
+// let MONKEY_MINT_ADDRESS = 'CBdCxKo9QavR9hfShgpEBG3zekorAeD7W1jfq2o3pump';
 
 // 添加 SOL 固定金额选项
 const SOL_AMOUNT_OPTIONS = [0.01, 0.1, 0.5, 1];
@@ -43,7 +43,8 @@ const SOL_AMOUNT_OPTIONS = [0.01, 0.1, 0.5, 1];
 const DEVELOPER_ADDRESS = 'Hv66YTLHXUWNq7KeMboFkonu8YjJUygMstgAeB1htD24'; // 替换为实际的开发者钱包地址
 const FEE_PERCENTAGE = 0.01; // 1% 手续费
 
-export default function TradeBox() {
+export default function TradeBox({ tokenAddress }: { tokenAddress: string }) {
+  const MONKEY_MINT_ADDRESS = tokenAddress;
   const { publicKey, signTransaction, signMessage, connected } = useWallet();
   const { connection } = useConnection();
   const { toast } = useToast();

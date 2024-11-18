@@ -7,10 +7,12 @@ import TradeBox from '@/components/trade/TradeBox';
 import { TransactionList } from '@/components/transactions/TransactionList';
 import { KLineChart } from '@/components/charts/KLineChart';
 import { fetchRoomInfo, Room } from '@/api/twocat-core/room';
-import { TokenInfo } from '@/components/token/TokenInfo';
+import { TokenStats } from '@/components/token/TokenStats';
 
 export function BaseLayout({ children }: { children: React.ReactNode }) {
-  const [selectedTokenAddress, setSelectedTokenAddress] = useState<string | null>(null);
+  const [selectedTokenAddress, setSelectedTokenAddress] = useState<
+    string | null
+  >(null);
   const [room, setRoom] = useState<Room | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -29,60 +31,59 @@ export function BaseLayout({ children }: { children: React.ReactNode }) {
     loadRoomInfo();
   }, []);
 
-  const handleTransactionClick = (walletAddress: string, tokenAddress: string) => {
+  const handleTransactionClick = (
+    walletAddress: string,
+    tokenAddress: string
+  ) => {
     setSelectedTokenAddress(tokenAddress);
   };
 
   return (
     <div className="flex h-screen bg-discord-primary text-white overflow-hidden">
-      {/* 左侧边栏 */}
       <Sidebar />
 
-      {/* 主内容区 */}
-      <div className="flex-1 flex flex-col min-w-0">
-        {/* 顶部工具栏 */}
+      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
         <Header room={room} loading={loading} />
 
-        {/* 内容区域 */}
-        <main className="flex-1 grid grid-cols-12 gap-4 p-4 min-h-0">
-          {/* 左侧大区域 */}
+        <main className="flex-1 grid grid-cols-12 gap-4 p-4 min-h-0 overflow-auto">
           <div className="col-span-8 grid grid-rows-[2fr,1fr] gap-4 min-h-0">
-            {/* 上半部分 - 交易列表 */}
-            <div className="bg-discord-secondary rounded-lg flex flex-col border border-discord-divider min-h-0">
-              <div className="flex-1 min-h-0">
+            <div className="bg-discord-secondary rounded-lg flex flex-col border border-discord-divider min-h-0 overflow-hidden">
+              <div className="flex-1 min-h-0 overflow-auto">
                 <TransactionList onTransactionClick={handleTransactionClick} />
               </div>
             </div>
 
-            {/* 下半部分 */}
-            <div className="grid grid-cols-2 gap-4">
-              {/* k线图区域 */}
-              <div className="bg-discord-secondary rounded-lg overflow-hidden border border-discord-divider h-full">
+            <div className="grid grid-cols-2 gap-4 min-h-0">
+              <div className="bg-discord-secondary rounded-lg overflow-hidden border border-discord-divider">
                 <KLineChart tokenAddress={selectedTokenAddress} />
               </div>
 
-              {/* token信息区域 */}
-              <div className="bg-discord-secondary rounded-lg p-4 border border-discord-divider">
-                <TokenInfo tokenAddress={selectedTokenAddress} />
+              <div className="bg-discord-secondary rounded-lg border border-discord-divider flex flex-col overflow-hidden">
+                <div className="flex-1 min-h-0 overflow-auto">
+                  <TokenStats
+                    tokenAddress={
+                      'CBdCxKo9QavR9hfShgpEBG3zekorAeD7W1jfq2o3pump'
+                    }
+                  />
+                </div>
               </div>
             </div>
           </div>
 
-          {/* 右侧区域 */}
-          <div className="col-span-4 grid grid-rows-2 gap-4">
-            {/* address info */}
-            <div className="bg-discord-secondary rounded-lg p-4 border border-discord-divider">
+          <div className="col-span-4 grid grid-rows-2 gap-4 min-h-0">
+            <div className="bg-discord-secondary rounded-lg p-4 border border-discord-divider overflow-hidden">
               <h3 className="text-lg font-medium mb-2">address info</h3>
-              <div className="h-[calc(100%-2rem)] overflow-y-auto">
+              <div className="h-[calc(100%-2rem)] overflow-auto">
                 {/* 地址信息内容 */}
               </div>
             </div>
 
-            {/* 交易区域 */}
-            <div className="bg-discord-secondary rounded-lg p-4 border border-discord-divider">
+            <div className="bg-discord-secondary rounded-lg p-4 border border-discord-divider overflow-hidden">
               <h3 className="text-lg font-medium mb-2">交易</h3>
-              <div className="h-[calc(100%-2rem)] overflow-y-auto">
-                <TradeBox />
+              <div className="h-[calc(100%-2rem)] overflow-auto">
+                <TradeBox
+                  tokenAddress={'CBdCxKo9QavR9hfShgpEBG3zekorAeD7W1jfq2o3pump'}
+                />
               </div>
             </div>
           </div>
