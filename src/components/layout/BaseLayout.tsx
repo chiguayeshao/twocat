@@ -63,11 +63,11 @@ export function BaseLayout({ children }: { children: React.ReactNode }) {
 
               <div className="bg-discord-secondary rounded-lg border border-discord-divider flex flex-col overflow-hidden">
                 <div className="flex-1 min-h-0 overflow-auto">
-                  {/* <TokenStats
+                  <TokenStats
                     tokenAddress={
                       'CBdCxKo9QavR9hfShgpEBG3zekorAeD7W1jfq2o3pump'
                     }
-                  /> */}
+                  />
                 </div>
               </div>
             </div>
