@@ -2,10 +2,11 @@
 
 import { useEffect, useState } from 'react';
 import { formatNumber, formatPercent, formatUSD } from '@/lib/utils';
-import { Copy } from 'lucide-react';
+import { Copy, Info } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
+import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from "@/components/ui/tooltip";
 
 interface TokenStatsProps {
   tokenAddress: string | null;
@@ -28,15 +29,18 @@ interface TokenInfo {
   sell24h: number;
   sellVolume24h: number;
   netBuyVolume24h: number;
+  creatorPercentage: number;
   top10HolderPercent: number;
   totalHolders: number;
   isToken2022: boolean;
   transferFeeEnable: boolean | null;
   freezeable: boolean | null;
+  nonTransferable: boolean | null;
   extensions: {
     website?: string;
     twitter?: string;
-    discord?: string;
+    telegram?: string;
+    description?: string;
   } | null;
   numberMarkets: number;
   history30mPrice: number;
@@ -137,6 +141,18 @@ function shortenAddress(address: string): string {
   return `${address.slice(0, 4)}...${address.slice(-4)}`;
 }
 
+// 添加一个函数来计算安全得分
+const calculateSecurityScore = (tokenInfo: TokenInfo) => {
+  let score = 0;
+  // 黑名单检查
+  if (tokenInfo.freezeable === null) score++;
+  // 转账费检查
+  if (tokenInfo.transferFeeEnable === null) score++;
+  // 貔貅盘检查
+  if (tokenInfo.nonTransferable === null) score++;
+  return score;
+};
+
 export function TokenStats({ tokenAddress }: TokenStatsProps) {
   const [loading, setLoading] = useState(false);
   const [tokenInfo, setTokenInfo] = useState<TokenInfo | null>(null);
@@ -175,11 +191,13 @@ export function TokenStats({ tokenAddress }: TokenStatsProps) {
           sellVolume24h: overview.data.vSell24hUSD,
           netBuyVolume24h: overview.data.vBuy24hUSD - overview.data.vSell24hUSD,
 
+          creatorPercentage: security.data.creatorPercentage * 100,
           top10HolderPercent: security.data.top10HolderPercent * 100,
           totalHolders: overview.data.holder,
           isToken2022: security.data.isToken2022,
           transferFeeEnable: security.data.transferFeeEnable,
           freezeable: security.data.freezeable,
+          nonTransferable: security.data.nonTransferable,
 
           extensions: overview.data.extensions,
           numberMarkets: overview.data.numberMarkets,
@@ -340,16 +358,79 @@ export function TokenStats({ tokenAddress }: TokenStatsProps) {
       {/* 顶部信息栏：代币信息 + 地址 */}
       <div className="flex items-center justify-between bg-[#2f2f2f] rounded-lg p-2">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-full bg-discord-primary/30 flex items-center justify-center">
+          <div className="w-8 h-8 rounded-full bg-discord-primary/30 flex items-center justify-center overflow-hidden">
             {tokenInfo.logoURI ? (
-              <Image src={tokenInfo.logoURI} alt={tokenInfo.symbol} width={32} height={32}
-                className="rounded-full" unoptimized />
+              <Image
+                src={tokenInfo.logoURI}
+                alt={tokenInfo.symbol}
+                width={32}
+                height={32}
+                className="rounded-full w-full h-full object-cover"
+                unoptimized
+              />
             ) : (
-              <span className="text-sm text-gray-400">{tokenInfo.symbol?.[0] || '?'}</span>
+              <span className="text-sm text-gray-400">
+                {tokenInfo.symbol?.[0] || '?'}
+              </span>
             )}
           </div>
           <div>
-            <div className="font-medium text-[#acc97e]">{tokenInfo.symbol}</div>
+            <div className="flex items-center gap-1">
+              <span className="font-medium text-[#acc97e]">{tokenInfo.symbol}</span>
+              <div className="flex items-center gap-1 text-[10px]">
+                {tokenInfo.extensions && (
+                  <>
+                    {tokenInfo.extensions.website && (
+                      <a href={tokenInfo.extensions.website}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-gray-400 hover:text-[#53b991]">
+                        官网
+                      </a>
+                    )}
+                    {tokenInfo.extensions.twitter && (
+                      <>
+                        <span className="text-gray-600">·</span>
+                        <a href={tokenInfo.extensions.twitter}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-gray-400 hover:text-[#53b991]">
+                          Twitter
+                        </a>
+                      </>
+                    )}
+                    {tokenInfo.extensions.telegram && (
+                      <>
+                        <span className="text-gray-600">·</span>
+                        <a href={tokenInfo.extensions.telegram}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-gray-400 hover:text-[#53b991]">
+                          TG
+                        </a>
+                      </>
+                    )}
+                  </>
+                )}
+                {tokenInfo.extensions?.description && (
+                  <TooltipProvider delayDuration={100}>
+                    <Tooltip>
+                      <TooltipTrigger>
+                        <Info className="h-3 w-3 text-gray-400 hover:text-[#53b991]" />
+                      </TooltipTrigger>
+                      <TooltipContent
+                        className="bg-[#2f2f2f] border-gray-700 p-2"
+                        sideOffset={5}
+                      >
+                        <p className="text-xs text-gray-200 max-w-[240px] whitespace-pre-wrap break-words leading-5">
+                          {tokenInfo.extensions.description}
+                        </p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                )}
+              </div>
+            </div>
             <div className="text-xs text-gray-400">{tokenInfo.name}</div>
           </div>
         </div>
@@ -359,8 +440,8 @@ export function TokenStats({ tokenAddress }: TokenStatsProps) {
             <div className="text-lg font-medium text-[#53b991]">
               ${tokenInfo.price.toFixed(12)}
             </div>
-            <div className={`text-xs ${tokenInfo.priceChange24h >= 0 ? 'text-[#9ad499]' : 'text-[#de5569]'}`}>
-              {tokenInfo.priceChange24h >= 0 ? '+' : ''}{tokenInfo.priceChange24h.toFixed(2)}%
+            <div className="text-xs text-gray-400">
+              当前价格
             </div>
           </div>
           <Button size="sm" variant="ghost" onClick={handleCopy}>
@@ -393,21 +474,86 @@ export function TokenStats({ tokenAddress }: TokenStatsProps) {
         </div>
       </div>
 
-      {/* 时间选择器 */}
-      <div className="flex gap-1">
-        {timeOptions.map((option) => (
-          <Button
-            key={option.value}
-            variant={selectedTime === option.value ? 'default' : 'ghost'}
-            size="sm"
-            onClick={() => setSelectedTime(option.value as '30m' | '1h' | '2h')}
-            className={`${selectedTime === option.value
-              ? 'bg-discord-primary text-white'
-              : 'text-gray-400 hover:bg-discord-primary/30'}`}
-          >
-            {option.label}
-          </Button>
-        ))}
+      {/* 时间选择器和安全信息行 */}
+      <div className="flex items-center justify-between bg-[#2f2f2f] rounded-lg p-2">
+        {/* 时间选择器 */}
+        <div className="flex gap-1">
+          {timeOptions.map((option) => (
+            <Button
+              key={option.value}
+              variant={selectedTime === option.value ? 'default' : 'ghost'}
+              size="sm"
+              onClick={() => setSelectedTime(option.value as '30m' | '1h' | '2h')}
+              className={`${selectedTime === option.value
+                ? 'bg-discord-primary text-white'
+                : 'text-gray-400 hover:bg-discord-primary/30'}`}
+            >
+              {option.label}
+            </Button>
+          ))}
+        </div>
+
+        {/* 安全信息 */}
+        <div className="flex gap-4">
+          <div className="flex flex-col items-center">
+            <span className="text-xs text-gray-400">创建者持仓</span>
+            <span className="text-xs text-[#53b991]">
+              {formatPercent(tokenInfo.creatorPercentage)} %
+            </span>
+          </div>
+          <div className="flex flex-col items-center">
+            <span className="text-xs text-gray-400">Top10持仓</span>
+            <span className="text-xs text-[#53b991]">
+              {formatPercent(tokenInfo.top10HolderPercent)} %
+            </span>
+          </div>
+          <div className="flex flex-col items-center">
+            <span className="text-xs text-gray-400">安全检查</span>
+            <TooltipProvider delayDuration={0}>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div className="flex flex-col items-center gap-1">
+                    {/* 得分显示 */}
+                    <span className={`text-xs ${calculateSecurityScore(tokenInfo) === 3 ? 'text-[#9ad499]' : 'text-[#de5569]'}`}>
+                      {calculateSecurityScore(tokenInfo)}/3
+                    </span>
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent className="bg-[#2f2f2f] border-gray-700 p-2">
+                  <div className="space-y-1 text-xs">
+                    <div className="flex items-center gap-2">
+                      <span className={`${tokenInfo.freezeable === null ? 'text-[#9ad499]' : 'text-[#de5569]'}`}>
+                        {tokenInfo.freezeable === null ? '✓' : '✗'}
+                      </span>
+                      <span>黑名单</span>
+                      <span className="text-gray-400">
+                        {tokenInfo.freezeable === null ? '（安全）' : '（风险）'}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className={`${tokenInfo.transferFeeEnable === null ? 'text-[#9ad499]' : 'text-[#de5569]'}`}>
+                        {tokenInfo.transferFeeEnable === null ? '✓' : '✗'}
+                      </span>
+                      <span>转账费</span>
+                      <span className="text-gray-400">
+                        {tokenInfo.transferFeeEnable === null ? '（安全）' : '（风险）'}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className={`${tokenInfo.nonTransferable === null ? 'text-[#9ad499]' : 'text-[#de5569]'}`}>
+                        {tokenInfo.nonTransferable === null ? '✓' : '✗'}
+                      </span>
+                      <span>貔貅设置</span>
+                      <span className="text-gray-400">
+                        {tokenInfo.nonTransferable === null ? '（安全）' : '（风险）'}
+                      </span>
+                    </div>
+                  </div>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </div>
+        </div>
       </div>
 
       {/* 交易数据网格 */}
@@ -433,50 +579,6 @@ export function TokenStats({ tokenAddress }: TokenStatsProps) {
           </div>
         </div>
       </div>
-
-      {/* 安全信息 */}
-      <div className="bg-[#2f2f2f] rounded-lg p-2">
-        <div className="grid grid-cols-2 gap-2 text-xs">
-          <div className="flex justify-between">
-            <span className="text-gray-400">前10持有比例</span>
-            <span className="text-[#53b991]">{formatPercent(tokenInfo.top10HolderPercent)}</span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-gray-400">Token2022</span>
-            <span className="text-[#53b991]">{tokenInfo.isToken2022 ? '是' : '否'}</span>
-          </div>
-          {tokenInfo.transferFeeEnable !== null && (
-            <div className="flex justify-between">
-              <span className="text-gray-400">转账费用</span>
-              <span className="text-[#53b991]">{tokenInfo.transferFeeEnable ? '是' : '否'}</span>
-            </div>
-          )}
-          {tokenInfo.freezeable !== null && (
-            <div className="flex justify-between">
-              <span className="text-gray-400">可冻结</span>
-              <span className="text-[#53b991]">{tokenInfo.freezeable ? '是' : '否'}</span>
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* 社交链接 */}
-      {tokenInfo.extensions && Object.keys(tokenInfo.extensions).length > 0 && (
-        <div className="flex gap-2 text-xs">
-          {tokenInfo.extensions.website && (
-            <a href={tokenInfo.extensions.website} target="_blank" rel="noopener noreferrer"
-              className="text-[#53b991] hover:underline">官网</a>
-          )}
-          {tokenInfo.extensions.twitter && (
-            <a href={tokenInfo.extensions.twitter} target="_blank" rel="noopener noreferrer"
-              className="text-[#53b991] hover:underline">Twitter</a>
-          )}
-          {tokenInfo.extensions.discord && (
-            <a href={tokenInfo.extensions.discord} target="_blank" rel="noopener noreferrer"
-              className="text-[#53b991] hover:underline">Discord</a>
-          )}
-        </div>
-      )}
     </div>
   );
 }
