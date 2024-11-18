@@ -7,6 +7,7 @@ import TradeBox from '@/components/trade/TradeBox';
 import { TransactionList } from '@/components/transactions/TransactionList';
 import { KLineChart } from '@/components/charts/KLineChart';
 import { fetchRoomInfo, Room } from '@/api/twocat-core/room';
+import { TokenInfo } from '@/components/token/TokenInfo';
 
 export function BaseLayout({ children }: { children: React.ReactNode }) {
   const [selectedTokenAddress, setSelectedTokenAddress] = useState<string | null>(null);
@@ -62,10 +63,7 @@ export function BaseLayout({ children }: { children: React.ReactNode }) {
 
               {/* token信息区域 */}
               <div className="bg-discord-secondary rounded-lg p-4 border border-discord-divider">
-                <h3 className="text-lg font-medium mb-2">token info</h3>
-                <div className="h-[calc(100%-2rem)] overflow-y-auto">
-                  {/* token信息内容 */}
-                </div>
+                <TokenInfo tokenAddress={selectedTokenAddress} />
               </div>
             </div>
           </div>

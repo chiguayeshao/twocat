@@ -1,5 +1,11 @@
 const API_BASE_URL = "http://localhost:3000";
 
+export interface MonitoredWallet {
+  _id: string;
+  address: string;
+  description: string;
+}
+
 export interface Room {
   _id: string;
   roomName: string;
@@ -8,7 +14,7 @@ export interface Room {
   creatorWallet: string;
   memberCount: number;
   members: string[];
-  monitoredWallets: string[];
+  monitoredWallets: MonitoredWallet[];
   channels: string[];
   avatarUrl: string;
   createdAt: string;

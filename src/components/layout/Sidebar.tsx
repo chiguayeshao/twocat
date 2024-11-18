@@ -201,9 +201,9 @@ export function Sidebar() {
                                                                 暂无监控地址
                                                             </div>
                                                         ) : (
-                                                            room?.monitoredWallets.map((address, index) => (
+                                                            room?.monitoredWallets.map((wallet, index) => (
                                                                 <motion.div
-                                                                    key={index}
+                                                                    key={wallet._id}
                                                                     initial={{ opacity: 0, y: 20 }}
                                                                     animate={{ opacity: 1, y: 0 }}
                                                                     transition={{
@@ -211,34 +211,44 @@ export function Sidebar() {
                                                                         delay: index * 0.05,
                                                                         ease: "easeOut"
                                                                     }}
-                                                                    className="flex items-center gap-2 p-2 rounded-lg bg-[#2f2f2f] hover:bg-[#353535] 
-                                                                         transition-all duration-200 cursor-pointer transform hover:-translate-y-0.5"
+                                                                    className="flex flex-col p-2 rounded-lg bg-[#2f2f2f] hover:bg-[#353535] 
+                                                                             transition-all duration-200 cursor-pointer transform hover:-translate-y-0.5"
                                                                 >
-                                                                    {/* 头像 */}
-                                                                    <div className="shrink-0">
-                                                                        <div className="w-7 h-7 rounded-full bg-discord-primary/30 
-                                                                              flex items-center justify-center">
-                                                                            <WalletIcon className="h-4 w-4 text-gray-400" />
+                                                                    {/* 钱包地址行 */}
+                                                                    <div className="flex items-center gap-2">
+                                                                        {/* 头像 */}
+                                                                        <div className="shrink-0">
+                                                                            <div className="w-7 h-7 rounded-full bg-discord-primary/30 
+                                                                                  flex items-center justify-center">
+                                                                                <WalletIcon className="h-4 w-4 text-gray-400" />
+                                                                            </div>
+                                                                        </div>
+
+                                                                        {/* 地址信息 */}
+                                                                        <div className="flex-1 min-w-0">
+                                                                            <div className="flex items-center justify-between">
+                                                                                <button
+                                                                                    onClick={() => window.open(`https://solscan.io/account/${wallet.address}`, '_blank')}
+                                                                                    className="text-sm font-medium text-[#53b991] hover:underline"
+                                                                                >
+                                                                                    {formatWalletAddress(wallet.address)}
+                                                                                </button>
+                                                                                <button
+                                                                                    onClick={() => window.open(`https://solscan.io/account/${wallet.address}`, '_blank')}
+                                                                                    className="text-gray-400 hover:text-white"
+                                                                                >
+                                                                                    <ExternalLink className="h-3.5 w-3.5" />
+                                                                                </button>
+                                                                            </div>
                                                                         </div>
                                                                     </div>
 
-                                                                    {/* 地址信息 */}
-                                                                    <div className="flex-1 min-w-0">
-                                                                        <div className="flex items-center justify-between">
-                                                                            <button
-                                                                                onClick={() => window.open(`https://solscan.io/account/${address}`, '_blank')}
-                                                                                className="text-sm font-medium text-[#53b991] hover:underline"
-                                                                            >
-                                                                                {formatWalletAddress(address)}
-                                                                            </button>
-                                                                            <button
-                                                                                onClick={() => window.open(`https://solscan.io/account/${address}`, '_blank')}
-                                                                                className="text-gray-400 hover:text-white"
-                                                                            >
-                                                                                <ExternalLink className="h-3.5 w-3.5" />
-                                                                            </button>
+                                                                    {/* 描述信息 */}
+                                                                    {wallet.description && (
+                                                                        <div className="mt-1 ml-9 text-xs text-gray-400">
+                                                                            {wallet.description}
                                                                         </div>
-                                                                    </div>
+                                                                    )}
                                                                 </motion.div>
                                                             ))
                                                         )}
