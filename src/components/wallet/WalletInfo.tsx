@@ -138,14 +138,14 @@ export function WalletInfo({ walletAddress }: WalletInfoProps) {
                                         onClick={() => window.open(`https://solscan.io/token/${token.address}`, '_blank')}
                                     >
                                         {/* 代币图标 */}
-                                        <div className="shrink-0 w-[32px] h-[32px] bg-discord-primary/30 rounded-full flex items-center justify-center">
+                                        <div className="shrink-0 w-[32px] h-[32px] bg-discord-primary/30 rounded-full flex items-center justify-center overflow-hidden">
                                             {token.logoURI ? (
                                                 <Image
                                                     src={token.logoURI}
                                                     alt={token.symbol}
                                                     width={32}
                                                     height={32}
-                                                    className="rounded-full"
+                                                    className="rounded-full w-full h-full object-cover"
                                                     unoptimized
                                                 />
                                             ) : (
