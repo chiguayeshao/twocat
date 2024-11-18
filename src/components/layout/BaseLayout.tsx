@@ -63,10 +63,7 @@ export function BaseLayout({ children }: { children: React.ReactNode }) {
 
               <div className="bg-discord-secondary rounded-lg border border-discord-divider flex flex-col overflow-hidden">
                 <div className="flex-1 min-h-0 overflow-auto">
-                  <TokenStats
-                    tokenAddress={
-                      'CBdCxKo9QavR9hfShgpEBG3zekorAeD7W1jfq2o3pump'
-                    }
+                  <TokenStats tokenAddress={selectedTokenAddress}
                   />
                 </div>
               </div>
@@ -84,7 +81,7 @@ export function BaseLayout({ children }: { children: React.ReactNode }) {
               <h3 className="text-lg font-medium mb-2">交易</h3>
               <div className="h-[calc(100%-2rem)] overflow-auto">
                 <TradeBox
-                  tokenAddress={'CBdCxKo9QavR9hfShgpEBG3zekorAeD7W1jfq2o3pump'}
+                  tokenAddress={selectedTokenAddress}
                 />
               </div>
             </div>

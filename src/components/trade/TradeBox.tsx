@@ -43,7 +43,7 @@ const SOL_AMOUNT_OPTIONS = [0.01, 0.1, 0.5, 1];
 const DEVELOPER_ADDRESS = 'Hv66YTLHXUWNq7KeMboFkonu8YjJUygMstgAeB1htD24'; // 替换为实际的开发者钱包地址
 const FEE_PERCENTAGE = 0.01; // 1% 手续费
 
-export default function TradeBox({ tokenAddress }: { tokenAddress: string }) {
+export default function TradeBox({ tokenAddress }: { tokenAddress: string | null }) {
   const MONKEY_MINT_ADDRESS = tokenAddress;
   const { publicKey, signTransaction, signMessage, connected } = useWallet();
   const { connection } = useConnection();
@@ -72,7 +72,7 @@ export default function TradeBox({ tokenAddress }: { tokenAddress: string }) {
     tokenInfo: tokenInfo,
     refresh: refreshBalance,
   } = useTokenBalance({
-    tokenMintAddress: MONKEY_MINT_ADDRESS,
+    tokenMintAddress: MONKEY_MINT_ADDRESS || '',
     refreshInterval: 30000, // 可选: 每30秒自动刷新一次
   });
 
@@ -202,9 +202,11 @@ export default function TradeBox({ tokenAddress }: { tokenAddress: string }) {
       };
 
       console.log('正在获取报价...', quoteParams);
-      const quoteResponse = (await JupiterService.getQuote(
-        quoteParams
-      )) as QuoteResponse;
+      const quoteResponse = (await JupiterService.getQuote({
+        ...quoteParams,
+        inputMint: quoteParams.inputMint || '',
+        outputMint: quoteParams.outputMint || ''
+      })) as QuoteResponse;
 
       if (!quoteResponse) {
         throw new Error('无法获取交易报价');
@@ -219,29 +221,27 @@ export default function TradeBox({ tokenAddress }: { tokenAddress: string }) {
       const inputAmount =
         mode === 'buy'
           ? (atomicAmount / Math.pow(10, tokenInfo.solDecimals)).toFixed(
-              tokenInfo.solDecimals
-            )
+            tokenInfo.solDecimals
+          )
           : (atomicAmount / Math.pow(10, tokenInfo.monkeyDecimals)).toFixed(
-              tokenInfo.monkeyDecimals
-            );
+            tokenInfo.monkeyDecimals
+          );
       const outputAmount =
         mode === 'buy'
           ? (
-              Number(quoteResponse.outAmount) /
-              Math.pow(10, tokenInfo.monkeyDecimals)
-            ).toFixed(tokenInfo.monkeyDecimals)
+            Number(quoteResponse.outAmount) /
+            Math.pow(10, tokenInfo.monkeyDecimals)
+          ).toFixed(tokenInfo.monkeyDecimals)
           : (
-              Number(quoteResponse.outAmount) /
-              Math.pow(10, tokenInfo.solDecimals)
-            ).toFixed(tokenInfo.solDecimals);
+            Number(quoteResponse.outAmount) /
+            Math.pow(10, tokenInfo.solDecimals)
+          ).toFixed(tokenInfo.solDecimals);
 
       console.log('交易预览:', {
-        输入: `${inputAmount} ${
-          mode === 'buy' ? tokenInfo.solSymbol : tokenInfo.monkeySymbol
-        }`,
-        输出: `${outputAmount} ${
-          mode === 'buy' ? tokenInfo.monkeySymbol : tokenInfo.solSymbol
-        }`,
+        输入: `${inputAmount} ${mode === 'buy' ? tokenInfo.solSymbol : tokenInfo.monkeySymbol
+          }`,
+        输出: `${outputAmount} ${mode === 'buy' ? tokenInfo.monkeySymbol : tokenInfo.solSymbol
+          }`,
         滑点: `${slippage / 10}%`,
         优先费: `${priorityFee} ${tokenInfo.solSymbol}`,
         手续费: `${(feeAmount / 1e9).toFixed(9)} ${tokenInfo.solSymbol}`,
@@ -255,8 +255,8 @@ export default function TradeBox({ tokenAddress }: { tokenAddress: string }) {
           userPublicKey: publicKey.toBase58(),
           prioritizationFeeLamports: isAntiMEV
             ? {
-                jitoTipLamports: Math.floor(parseFloat(priorityFee) * 1e9),
-              }
+              jitoTipLamports: Math.floor(parseFloat(priorityFee) * 1e9),
+            }
             : Math.floor(parseFloat(priorityFee) * 1e9),
           dynamicComputeUnitLimit: true,
           asLegacyTransaction: false,
@@ -649,33 +649,33 @@ export default function TradeBox({ tokenAddress }: { tokenAddress: string }) {
         <div className="grid grid-cols-4 gap-2">
           {mode === 'buy'
             ? SOL_AMOUNT_OPTIONS.map((solAmount) => (
-                <button
-                  key={solAmount}
-                  className={cn(
-                    'py-1.5 rounded-lg text-sm font-medium transition-all duration-200',
-                    'bg-discord-button-secondary hover:bg-discord-button-secondary-hover',
-                    'text-gray-300 hover:text-white'
-                  )}
-                  onClick={() => handleAmountPercentageClick(solAmount)}
-                >
-                  {solAmount}
-                </button>
-              ))
+              <button
+                key={solAmount}
+                className={cn(
+                  'py-1.5 rounded-lg text-sm font-medium transition-all duration-200',
+                  'bg-discord-button-secondary hover:bg-discord-button-secondary-hover',
+                  'text-gray-300 hover:text-white'
+                )}
+                onClick={() => handleAmountPercentageClick(solAmount)}
+              >
+                {solAmount}
+              </button>
+            ))
             : [25, 50, 75, 100].map((percentage) => (
-                <button
-                  key={percentage}
-                  className={cn(
-                    'py-1.5 rounded-lg text-sm font-medium transition-all duration-200',
-                    'bg-discord-button-secondary hover:bg-discord-button-secondary-hover',
-                    'text-gray-300 hover:text-white'
-                  )}
-                  onClick={() =>
-                    handleAmountPercentageClick(percentage as AmountPercentage)
-                  }
-                >
-                  {percentage}%
-                </button>
-              ))}
+              <button
+                key={percentage}
+                className={cn(
+                  'py-1.5 rounded-lg text-sm font-medium transition-all duration-200',
+                  'bg-discord-button-secondary hover:bg-discord-button-secondary-hover',
+                  'text-gray-300 hover:text-white'
+                )}
+                onClick={() =>
+                  handleAmountPercentageClick(percentage as AmountPercentage)
+                }
+              >
+                {percentage}%
+              </button>
+            ))}
         </div>
       </div>
 

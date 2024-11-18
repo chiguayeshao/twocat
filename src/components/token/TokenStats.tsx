@@ -4,54 +4,41 @@ import { useEffect, useState } from 'react';
 import { formatNumber, formatPercent, formatUSD } from '@/lib/utils';
 import { Copy } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import Image from 'next/image';
+import { Button } from '@/components/ui/button';
 
 interface TokenStatsProps {
-  tokenAddress: string;
+  tokenAddress: string | null;
 }
 
 interface TokenInfo {
-  // 基础信息
   symbol: string;
   name: string;
   price: number;
   logoURI: string;
-
-  // 价格变化
   priceChange1m: number;
   priceChange5m: number;
   priceChange1h: number;
   priceChange24h: number;
-
-  // 交易数据
   volume24h: number;
   liquidity: number;
   marketCap: number;
-
-  // 买卖压力
   buy24h: number;
   buyVolume24h: number;
   sell24h: number;
   sellVolume24h: number;
   netBuyVolume24h: number;
-
-  // 安全信息
   top10HolderPercent: number;
   totalHolders: number;
   isToken2022: boolean;
   transferFeeEnable: boolean | null;
   freezeable: boolean | null;
-
-  // 社交链接
   extensions: {
-    website: string;
-    twitter: string;
-    discord: string;
+    website?: string;
+    twitter?: string;
+    discord?: string;
   } | null;
-
-  // 市场排名
   numberMarkets: number;
-
-  // 历史数据
   history30mPrice: number;
   priceChange30mPercent: number;
   v30mUSD: number;
@@ -62,8 +49,6 @@ interface TokenInfo {
   vSell30mUSD: number;
   uniqueWallet30m: number;
   uniqueWallet30mChangePercent: number;
-
-  // 添加缺失的属性
   v30m: number;
   v30mChangePercent: number;
   trade30mChangePercent: number;
@@ -87,8 +72,6 @@ interface TokenInfo {
   uniqueWallet24h: number;
   uniqueWallet24hChangePercent: number;
   v24hUSD: number;
-
-  // 2h data
   history2hPrice: number;
   priceChange2hPercent: number;
   v2h: number;
@@ -102,8 +85,6 @@ interface TokenInfo {
   vSell2hUSD: number;
   uniqueWallet2h: number;
   uniqueWallet2hChangePercent: number;
-
-  // 4h data
   history4hPrice: number;
   priceChange4hPercent: number;
   v4h: number;
@@ -117,8 +98,6 @@ interface TokenInfo {
   vSell4hUSD: number;
   uniqueWallet4h: number;
   uniqueWallet4hChangePercent: number;
-
-  // 8h data
   history8hPrice: number;
   priceChange8hPercent: number;
   v8h: number;
@@ -148,7 +127,10 @@ interface TimeFrameData {
   sellVolume: number;
   uniqueWallets: number;
   walletChange: number;
+  highPrice: number;
+  lowPrice: number;
 }
+
 
 // 添加一个缩写地址的辅助函数
 function shortenAddress(address: string): string {
@@ -156,9 +138,9 @@ function shortenAddress(address: string): string {
 }
 
 export function TokenStats({ tokenAddress }: TokenStatsProps) {
+  const [loading, setLoading] = useState(false);
   const [tokenInfo, setTokenInfo] = useState<TokenInfo | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [selectedTime, setSelectedTime] = useState('30m');
+  const [selectedTime, setSelectedTime] = useState<'30m' | '1h' | '2h' | '4h' | '8h' | '24h'>('24h');
   const { toast } = useToast();
 
   useEffect(() => {
@@ -309,7 +291,7 @@ export function TokenStats({ tokenAddress }: TokenStatsProps) {
 
   async function handleCopy() {
     try {
-      await navigator.clipboard.writeText(tokenAddress);
+      await navigator.clipboard.writeText(tokenAddress || '');
       toast({
         title: '复制成功',
         description: '地址已复制到剪贴板',
@@ -329,272 +311,192 @@ export function TokenStats({ tokenAddress }: TokenStatsProps) {
     }
   }
 
+  // 获取当前选中时间段的价格变化
+  const getCurrentPriceChange = (info: TokenInfo, timeFrame: string): number => {
+    switch (timeFrame) {
+      case '30m':
+        return info.priceChange30mPercent;
+      case '1h':
+        return info.priceChange1h;
+      case '2h':
+        return info.priceChange2hPercent;
+      case '4h':
+        return info.priceChange4hPercent;
+      case '8h':
+        return info.priceChange8hPercent;
+      default:
+        return info.priceChange24h;
+    }
+  };
+
+  const timeOptions = [
+    { value: '30m', label: '30分钟' },
+    { value: '1h', label: '1小时' },
+    { value: '2h', label: '2小时' },
+    { value: '4h', label: '4小时' },
+    { value: '8h', label: '8小时' },
+    { value: '24h', label: '24小时' },
+  ];
+
   return (
-    <div className="flex flex-col h-full">
-      {/* 顶部基础信息 */}
-      <div className="flex-shrink-0 p-3 border-b border-gray-800">
-        <div className="flex items-center space-x-3 mb-2">
-          <img
-            src={tokenInfo.logoURI}
-            alt={tokenInfo.symbol}
-            className="w-9 h-9 rounded-full ring-1 ring-gray-700"
-          />
-          <div className="flex-1 min-w-0">
-            <h2 className="text-base font-bold truncate flex items-center gap-2">
-              {tokenInfo.symbol}
-              <span className="text-xs text-gray-400">
-                #{formatNumber(tokenInfo.numberMarkets)}
+    <div className="p-4 space-y-4">
+      {/* 代币基本信息 */}
+      <div className="flex items-center justify-between">
+        {/* 代币图标和名称 */}
+        <div className="flex items-center gap-2">
+          <div className="w-8 h-8 rounded-full bg-discord-primary/30 
+                              flex items-center justify-center overflow-hidden">
+            {tokenInfo.logoURI ? (
+              <Image
+                src={tokenInfo.logoURI}
+                alt={tokenInfo.symbol}
+                width={32}
+                height={32}
+                className="rounded-full w-full h-full object-cover"
+                unoptimized
+              />
+            ) : (
+              <span className="text-sm text-gray-400">
+                {tokenInfo.symbol?.[0] || '?'}
               </span>
-              <button
-                onClick={() => handleCopy()}
-                className="flex items-center gap-1 px-1.5 py-0.5 text-xs text-gray-400 hover:text-gray-300 bg-gray-800/50 rounded-full"
-              >
-                {shortenAddress(tokenAddress)}
-                <Copy className="w-3 h-3" />
-              </button>
-            </h2>
-            <p className="text-xs text-gray-400 truncate">{tokenInfo.name}</p>
+            )}
           </div>
-          <div className="text-right">
-            <div className="text-base font-bold">
-              ${formatNumber(tokenInfo.price)}
-            </div>
-            <div
-              className={`text-xs font-medium
-              ${
-                tokenInfo.priceChange24h >= 0
-                  ? 'text-green-400'
-                  : 'text-red-400'
+          <div>
+            <div className="font-medium text-[#acc97e]">{tokenInfo.symbol}</div>
+            <div className="text-xs text-gray-400">{tokenInfo.name}</div>
+          </div>
+        </div>
+
+        {/* 价格信息 */}
+        <div className="text-right">
+          <div className="text-lg font-medium text-[#53b991]">
+            ${tokenInfo.price.toFixed(4)}
+          </div>
+          <div className="text-xs text-gray-400">
+            当前价格
+          </div>
+        </div>
+      </div>
+
+      {/* 时间选择器 */}
+      <div className="flex gap-2 mb-4">
+        {timeOptions.map((option) => (
+          <Button
+            key={option.value}
+            variant={selectedTime === option.value ? 'default' : 'ghost'}
+            size="sm"
+            onClick={() => setSelectedTime(option.value as '30m' | '1h' | '2h' | '4h' | '8h' | '24h')}
+            className={`${selectedTime === option.value
+              ? 'bg-discord-primary text-white'
+              : 'text-gray-400 hover:bg-discord-primary/30'
               }`}
-            >
-              {tokenInfo.priceChange24h >= 0 ? '↑' : '↓'}{' '}
-              {formatPercent(tokenInfo.priceChange24h)}%
+          >
+            {option.label}
+          </Button>
+        ))}
+      </div>
+
+      {/* 统计数据卡片 */}
+      <div className="grid grid-cols-2 gap-4">
+        {/* 交易数据卡片 */}
+        <div className="bg-[#2f2f2f] rounded-lg p-4 space-y-4">
+          <div className="flex justify-between">
+            <span className="text-gray-400">活跃钱包</span>
+            <div className="text-right">
+              <div className="text-[#acc97e]">
+                {formatCompactNumber(getTimeFrameData(selectedTime, tokenInfo).uniqueWallets)}
+              </div>
+            </div>
+          </div>
+
+          {/* 买卖统计 */}
+          <div className="space-y-1.5 text-sm">
+            <div className="flex justify-between">
+              <span className="text-[#9ad499]">
+                买入 ({formatCompactNumber(getTimeFrameData(selectedTime, tokenInfo).buys)}笔)
+              </span>
+              <span className="text-[#53b991]">
+                ${formatCompactNumber(getTimeFrameData(selectedTime, tokenInfo).buyVolume)}
+              </span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-[#de5569]">
+                卖出 ({formatCompactNumber(getTimeFrameData(selectedTime, tokenInfo).sells)}笔)
+              </span>
+              <span className="text-[#53b991]">
+                ${formatCompactNumber(getTimeFrameData(selectedTime, tokenInfo).sellVolume)}
+              </span>
             </div>
           </div>
         </div>
 
-        {/* 市场概览 */}
-        <div className="grid grid-cols-4 gap-2 text-sm">
-          <div className="flex flex-col">
-            <span className="text-gray-400">市值</span>
-            <span className="font-medium">
-              ${formatCompactNumber(tokenInfo.marketCap)}
-            </span>
+        {/* 价格数据卡片 */}
+        <div className="bg-[#2f2f2f] rounded-lg p-4 space-y-4">
+          <div className="flex justify-between items-center">
+            <span className="text-gray-400">价格变化</span>
+            {tokenInfo && (
+              <div className={`text-right ${getCurrentPriceChange(tokenInfo, selectedTime) >= 0 ? 'text-[#9ad499]' : 'text-[#de5569]'}`}>
+                {getCurrentPriceChange(tokenInfo, selectedTime) >= 0 ? '+' : ''}
+                {getCurrentPriceChange(tokenInfo, selectedTime).toFixed(2)}%
+              </div>
+            )}
           </div>
-          <div className="flex flex-col">
-            <span className="text-gray-400">24h成交</span>
-            <span className="font-medium">
-              ${formatCompactNumber(tokenInfo.volume24h)}
-            </span>
-          </div>
-          <div className="flex flex-col">
-            <span className="text-gray-400">流动性</span>
-            <span className="font-medium">
-              ${formatCompactNumber(tokenInfo.liquidity)}
-            </span>
-          </div>
-          <div className="flex flex-col">
-            <span className="text-gray-400">持有人</span>
-            <span className="font-medium">
-              {formatCompactNumber(tokenInfo.totalHolders)}
-            </span>
+
+          <div className="space-y-1.5 text-sm">
+            <div className="flex justify-between">
+              <span className="text-gray-400">最高价</span>
+              <span className="text-[#53b991]">
+                ${getTimeFrameData(selectedTime, tokenInfo).highPrice.toFixed(4)}
+              </span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-gray-400">最低价</span>
+              <span className="text-[#53b991]">
+                ${getTimeFrameData(selectedTime, tokenInfo).lowPrice.toFixed(4)}
+              </span>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* 时间维度分析 */}
-      <div className="flex-1 overflow-auto">
-        <div className="p-2 space-y-2">
-          {/* 时间选择器 */}
-          <div className="flex gap-1 text-sm border-b border-gray-800 pb-2">
-            {['30m', '1h', '2h', '4h', '8h', '24h'].map((time) => (
-              <button
-                key={time}
-                className={`px-2 py-1 rounded ${
-                  selectedTime === time
-                    ? 'bg-blue-500/20 text-blue-400'
-                    : 'text-gray-400'
-                }`}
-                onClick={() => setSelectedTime(time)}
+      {/* 社交链接 */}
+      {tokenInfo.extensions && (
+        <div className="bg-[#2f2f2f] rounded-lg p-4">
+          <div className="text-gray-400 mb-2">相关链接</div>
+          <div className="flex flex-wrap gap-2">
+            {tokenInfo.extensions.website && (
+              <a
+                href={tokenInfo.extensions.website}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[#53b991] hover:underline"
               >
-                {time}
-              </button>
-            ))}
+                官网
+              </a>
+            )}
+            {tokenInfo.extensions.twitter && (
+              <a
+                href={tokenInfo.extensions.twitter}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[#53b991] hover:underline"
+              >
+                Twitter
+              </a>
+            )}
+            {tokenInfo.extensions.discord && (
+              <a
+                href={tokenInfo.extensions.discord}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[#53b991] hover:underline"
+              >
+                Discord
+              </a>
+            )}
           </div>
-
-          {/* 交易数据 */}
-          <div className="grid grid-cols-2 gap-2">
-            <div className="p-2 border border-gray-800 rounded-lg">
-              <div className="text-sm text-gray-400 mb-2">交易概览</div>
-              <div className="space-y-1.5 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-gray-400">成交额</span>
-                  <div className="text-right">
-                    <div>
-                      $
-                      {formatCompactNumber(
-                        getTimeFrameData(selectedTime, tokenInfo).volumeUSD
-                      )}
-                    </div>
-                    <div
-                      className={`text-[10px] ${
-                        getTimeFrameData(selectedTime, tokenInfo)
-                          .volumeChange >= 0
-                          ? 'text-green-400'
-                          : 'text-red-400'
-                      }`}
-                    >
-                      {formatPercent(
-                        getTimeFrameData(selectedTime, tokenInfo).volumeChange
-                      )}
-                      %
-                    </div>
-                  </div>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-400">交易笔数</span>
-                  <div className="text-right">
-                    <div>
-                      {formatCompactNumber(
-                        getTimeFrameData(selectedTime, tokenInfo).trades
-                      )}
-                    </div>
-                    <div
-                      className={`text-[10px] ${
-                        getTimeFrameData(selectedTime, tokenInfo)
-                          .tradesChange >= 0
-                          ? 'text-green-400'
-                          : 'text-red-400'
-                      }`}
-                    >
-                      {formatPercent(
-                        getTimeFrameData(selectedTime, tokenInfo).tradesChange
-                      )}
-                      %
-                    </div>
-                  </div>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-400">活跃钱包</span>
-                  <div className="text-right">
-                    <div>
-                      {formatCompactNumber(
-                        getTimeFrameData(selectedTime, tokenInfo).uniqueWallets
-                      )}
-                    </div>
-                    <div
-                      className={`text-[10px] ${
-                        getTimeFrameData(selectedTime, tokenInfo)
-                          .walletChange >= 0
-                          ? 'text-green-400'
-                          : 'text-red-400'
-                      }`}
-                    >
-                      {formatPercent(
-                        getTimeFrameData(selectedTime, tokenInfo).walletChange
-                      )}
-                      %
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="p-2 border border-gray-800 rounded-lg">
-              <div className="text-sm text-gray-400 mb-2">买卖压力</div>
-              <div className="space-y-1.5 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-green-400">
-                    买入 (
-                    {formatCompactNumber(
-                      getTimeFrameData(selectedTime, tokenInfo).buys
-                    )}
-                    笔)
-                  </span>
-                  <span>
-                    $
-                    {formatCompactNumber(
-                      getTimeFrameData(selectedTime, tokenInfo).buyVolume
-                    )}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-red-400">
-                    卖出 (
-                    {formatCompactNumber(
-                      getTimeFrameData(selectedTime, tokenInfo).sells
-                    )}
-                    笔)
-                  </span>
-                  <span>
-                    $
-                    {formatCompactNumber(
-                      getTimeFrameData(selectedTime, tokenInfo).sellVolume
-                    )}
-                  </span>
-                </div>
-                <div className="flex justify-between pt-1 border-t border-gray-800">
-                  <span className="text-gray-400">净买入</span>
-                  <span
-                    className={
-                      getTimeFrameData(selectedTime, tokenInfo).buyVolume -
-                        getTimeFrameData(selectedTime, tokenInfo).sellVolume >=
-                      0
-                        ? 'text-green-400'
-                        : 'text-red-400'
-                    }
-                  >
-                    $
-                    {formatCompactNumber(
-                      getTimeFrameData(selectedTime, tokenInfo).buyVolume -
-                        getTimeFrameData(selectedTime, tokenInfo).sellVolume
-                    )}
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* 社交链接 */}
-          {tokenInfo.extensions && (
-            <div className="text-sm p-2 border border-gray-800 rounded-lg">
-              <div className="text-gray-400 mb-2">相关链接</div>
-              <div className="flex flex-wrap gap-2">
-                {tokenInfo.extensions.website && (
-                  <a
-                    href={tokenInfo.extensions.website}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-blue-400 hover:underline"
-                  >
-                    官网
-                  </a>
-                )}
-                {tokenInfo.extensions.twitter && (
-                  <a
-                    href={tokenInfo.extensions.twitter}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-blue-400 hover:underline"
-                  >
-                    Twitter
-                  </a>
-                )}
-                {tokenInfo.extensions.discord && (
-                  <a
-                    href={tokenInfo.extensions.discord}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-blue-400 hover:underline"
-                  >
-                    Discord
-                  </a>
-                )}
-              </div>
-            </div>
-          )}
         </div>
-      </div>
+      )}
     </div>
   );
 }
@@ -634,6 +536,8 @@ function getTimeFrameData(
         sellVolume: tokenInfo.vSell30mUSD,
         uniqueWallets: tokenInfo.uniqueWallet30m,
         walletChange: tokenInfo.uniqueWallet30mChangePercent,
+        highPrice: tokenInfo.history30mPrice,
+        lowPrice: tokenInfo.history30mPrice,
       };
     case '1h':
       return {
@@ -650,6 +554,8 @@ function getTimeFrameData(
         sellVolume: tokenInfo.vSell1hUSD,
         uniqueWallets: tokenInfo.uniqueWallet1h,
         walletChange: tokenInfo.uniqueWallet1hChangePercent,
+        highPrice: tokenInfo.history1hPrice,
+        lowPrice: tokenInfo.history1hPrice,
       };
     case '2h':
       return {
@@ -666,6 +572,8 @@ function getTimeFrameData(
         sellVolume: tokenInfo.vSell2hUSD,
         uniqueWallets: tokenInfo.uniqueWallet2h,
         walletChange: tokenInfo.uniqueWallet2hChangePercent,
+        highPrice: tokenInfo.history2hPrice,
+        lowPrice: tokenInfo.history2hPrice,
       };
     case '4h':
       return {
@@ -682,6 +590,8 @@ function getTimeFrameData(
         sellVolume: tokenInfo.vSell4hUSD,
         uniqueWallets: tokenInfo.uniqueWallet4h,
         walletChange: tokenInfo.uniqueWallet4hChangePercent,
+        highPrice: tokenInfo.history4hPrice,
+        lowPrice: tokenInfo.history4hPrice,
       };
     case '8h':
       return {
@@ -698,6 +608,8 @@ function getTimeFrameData(
         sellVolume: tokenInfo.vSell8hUSD,
         uniqueWallets: tokenInfo.uniqueWallet8h,
         walletChange: tokenInfo.uniqueWallet8hChangePercent,
+        highPrice: tokenInfo.history8hPrice,
+        lowPrice: tokenInfo.history8hPrice,
       };
     default:
       return {
@@ -714,6 +626,8 @@ function getTimeFrameData(
         sellVolume: tokenInfo.sellVolume24h,
         uniqueWallets: tokenInfo.uniqueWallet24h,
         walletChange: tokenInfo.uniqueWallet24hChangePercent,
+        highPrice: tokenInfo.history24hPrice,
+        lowPrice: tokenInfo.history24hPrice,
       };
   }
 }
