@@ -1,45 +1,35 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from "next/server";
 
-const API_BASE_URL = 'https://public-api.birdeye.so';
-const API_KEY = process.env.NEXT_PUBLIC_BIRDEYE_API_KEY || '';
+const BACKEND_API_URL = process.env.BACKEND_API_URL || "http://localhost:3000";
 
-export async function GET(request: Request) {
-  const { searchParams } = new URL(request.url);
-  const address = searchParams.get('address');
-
-  if (!address) {
-    return NextResponse.json(
-      { success: false, error: 'Address is required' },
-      { status: 400 }
-    );
-  }
-
+export async function GET(request: NextRequest) {
   try {
+    const { searchParams } = new URL(request.url);
+    const address = searchParams.get("address");
+
+    if (!address) {
+      return NextResponse.json({ error: "缺少代币地址参数" }, { status: 400 });
+    }
+
     const response = await fetch(
-      `${API_BASE_URL}/defi/token_security?address=${address}`,
+      `${BACKEND_API_URL}/tokens/security?address=${address}`,
       {
         headers: {
-          'X-API-KEY': API_KEY,
-          'x-chain': 'solana',
-          Accept: 'application/json',
+          "Content-Type": "application/json",
         },
       }
     );
 
     if (!response.ok) {
-      return NextResponse.json(
-        { success: false, error: `API error: ${response.status}` },
-        { status: response.status }
-      );
+      throw new Error(`Backend API responded with status: ${response.status}`);
     }
-    console.log(response, 'response');
-    console.log(response.status, 'response status');
+
     const data = await response.json();
     return NextResponse.json(data);
   } catch (error) {
-    console.error('Birdeye API error:', error);
+    console.error("Token security API error:", error);
     return NextResponse.json(
-      { success: false, error: 'Internal server error' },
+      { error: "获取代币安全信息失败" },
       { status: 500 }
     );
   }
