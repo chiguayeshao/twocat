@@ -41,6 +41,10 @@ export function BaseLayout({ children }: { children: React.ReactNode }) {
     setSelectedTokenAddress(tokenAddress);
   };
 
+  const handleWalletTokenClick = (tokenAddress: string) => {
+    setSelectedTokenAddress(tokenAddress);
+  };
+
   return (
     <div className="flex h-screen bg-discord-primary text-white overflow-hidden">
       <Sidebar />
@@ -73,7 +77,10 @@ export function BaseLayout({ children }: { children: React.ReactNode }) {
           <div className="col-span-4 grid grid-rows-2 gap-4 min-h-0">
             <div className="bg-discord-secondary rounded-lg border border-discord-divider overflow-hidden">
               <div className="h-full overflow-auto">
-                <WalletInfo walletAddress={selectedWalletAddress} />
+                <WalletInfo
+                  walletAddress={selectedWalletAddress}
+                  onTokenSelect={handleWalletTokenClick}
+                />
               </div>
             </div>
 

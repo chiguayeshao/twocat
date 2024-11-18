@@ -500,10 +500,10 @@ export function TokenStats({ tokenAddress }: TokenStatsProps) {
         <div className="flex items-center gap-4">
           <div className="text-right">
             <div className="text-lg font-medium text-[#53b991]">
-              ${tokenInfo.price.toFixed(12)}
+              ${(tokenInfo.price || 0).toFixed(12)}
             </div>
             <div className="text-xs text-gray-400">
-              24h成交额 ${formatCompactNumber(tokenInfo.v24hUSD)}
+              24h成交额 ${formatCompactNumber(tokenInfo.v24hUSD || 0)}
             </div>
           </div>
           <Button

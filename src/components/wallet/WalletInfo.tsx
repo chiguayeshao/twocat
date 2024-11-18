@@ -9,6 +9,7 @@ import { motion } from 'framer-motion';
 
 interface WalletInfoProps {
     walletAddress: string | null;
+    onTokenSelect?: (tokenAddress: string) => void;
 }
 
 interface TokenHolding {
@@ -47,7 +48,7 @@ const TokenSkeleton = () => (
     </div>
 );
 
-export function WalletInfo({ walletAddress }: WalletInfoProps) {
+export function WalletInfo({ walletAddress, onTokenSelect }: WalletInfoProps) {
     const [loading, setLoading] = useState(false);
     const [walletTokens, setWalletTokens] = useState<WalletTokens | null>(null);
     const [isCopied, setIsCopied] = useState(false);
@@ -93,6 +94,13 @@ export function WalletInfo({ walletAddress }: WalletInfoProps) {
         navigator.clipboard.writeText(walletAddress);
         setIsCopied(true);
         setTimeout(() => setIsCopied(false), 2000);
+    };
+
+    const handleTokenClick = (token: TokenHolding) => {
+        if (token.symbol === 'SOL' || token.address === 'So11111111111111111111111111111111111111111') {
+            return;
+        }
+        onTokenSelect?.(token.address);
     };
 
     if (!walletAddress) {
@@ -189,7 +197,7 @@ export function WalletInfo({ walletAddress }: WalletInfoProps) {
                                             scale: 1.02,
                                             transition: { duration: 0.2, ease: "easeOut" }
                                         }}
-                                        onClick={() => window.open(`https://solscan.io/token/${token.address}`, '_blank')}
+                                        onClick={() => handleTokenClick(token)}
                                     >
                                         {/* 代币图标 */}
                                         <div className="shrink-0 w-[32px] h-[32px] bg-discord-primary/30 rounded-full flex items-center justify-center overflow-hidden">
