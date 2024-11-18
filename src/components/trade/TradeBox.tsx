@@ -558,28 +558,6 @@ export default function TradeBox({ tokenAddress }: { tokenAddress: string | null
         >
           卖出
         </button>
-        <div className="flex items-center gap-2 px-3 bg-discord-secondary rounded-lg">
-          <span className="text-sm text-gray-300">自动</span>
-          <label className="relative inline-flex items-center cursor-pointer">
-            <input
-              type="checkbox"
-              className="sr-only peer"
-              checked={isAutoMode}
-              onChange={(e) => setIsAutoMode(e.target.checked)}
-            />
-            <div
-              className={cn(
-                'w-8 h-4 rounded-full peer transition-all duration-200',
-                'after:content-[""] after:absolute after:top-[2px] after:left-[2px]',
-                'after:bg-white after:rounded-full after:h-3 after:w-3',
-                'after:transition-all after:duration-200',
-                isAutoMode
-                  ? 'bg-blue-600 after:translate-x-full'
-                  : 'bg-gray-600'
-              )}
-            ></div>
-          </label>
-        </div>
       </div>
 
       {/* 余额显示 */}
