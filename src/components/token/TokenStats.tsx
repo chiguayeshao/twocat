@@ -140,7 +140,7 @@ function shortenAddress(address: string): string {
 export function TokenStats({ tokenAddress }: TokenStatsProps) {
   const [loading, setLoading] = useState(false);
   const [tokenInfo, setTokenInfo] = useState<TokenInfo | null>(null);
-  const [selectedTime, setSelectedTime] = useState<'30m' | '1h' | '2h' | '4h' | '8h' | '24h'>('24h');
+  const [selectedTime, setSelectedTime] = useState<'30m' | '1h' | '2h'>('2h');
   const { toast } = useToast();
 
   useEffect(() => {
@@ -333,32 +333,19 @@ export function TokenStats({ tokenAddress }: TokenStatsProps) {
     { value: '30m', label: '30分钟' },
     { value: '1h', label: '1小时' },
     { value: '2h', label: '2小时' },
-    { value: '4h', label: '4小时' },
-    { value: '8h', label: '8小时' },
-    { value: '24h', label: '24小时' },
   ];
 
   return (
-    <div className="p-4 space-y-4">
-      {/* 代币基本信息 */}
-      <div className="flex items-center justify-between">
-        {/* 代币图标和名称 */}
+    <div className="p-2 space-y-2">
+      {/* 顶部信息栏：代币信息 + 地址 */}
+      <div className="flex items-center justify-between bg-[#2f2f2f] rounded-lg p-2">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-full bg-discord-primary/30 
-                              flex items-center justify-center overflow-hidden">
+          <div className="w-8 h-8 rounded-full bg-discord-primary/30 flex items-center justify-center">
             {tokenInfo.logoURI ? (
-              <Image
-                src={tokenInfo.logoURI}
-                alt={tokenInfo.symbol}
-                width={32}
-                height={32}
-                className="rounded-full w-full h-full object-cover"
-                unoptimized
-              />
+              <Image src={tokenInfo.logoURI} alt={tokenInfo.symbol} width={32} height={32}
+                className="rounded-full" unoptimized />
             ) : (
-              <span className="text-sm text-gray-400">
-                {tokenInfo.symbol?.[0] || '?'}
-              </span>
+              <span className="text-sm text-gray-400">{tokenInfo.symbol?.[0] || '?'}</span>
             )}
           </div>
           <div>
@@ -367,134 +354,127 @@ export function TokenStats({ tokenAddress }: TokenStatsProps) {
           </div>
         </div>
 
-        {/* 价格信息 */}
-        <div className="text-right">
-          <div className="text-lg font-medium text-[#53b991]">
-            ${tokenInfo.price.toFixed(4)}
+        <div className="flex items-center gap-4">
+          <div className="text-right">
+            <div className="text-lg font-medium text-[#53b991]">
+              ${tokenInfo.price.toFixed(12)}
+            </div>
+            <div className={`text-xs ${tokenInfo.priceChange24h >= 0 ? 'text-[#9ad499]' : 'text-[#de5569]'}`}>
+              {tokenInfo.priceChange24h >= 0 ? '+' : ''}{tokenInfo.priceChange24h.toFixed(2)}%
+            </div>
           </div>
-          <div className="text-xs text-gray-400">
-            当前价格
+          <Button size="sm" variant="ghost" onClick={handleCopy}>
+            <Copy className="h-4 w-4" />
+          </Button>
+        </div>
+      </div>
+
+      {/* 关键指标网格 - 修改为单行显示 */}
+      <div className="bg-[#2f2f2f] rounded-lg p-2">
+        <div className="flex items-center divide-x divide-gray-700">
+          <div className="flex-1 px-3 first:pl-0 last:pr-0">
+            <div className="flex justify-between items-center">
+              <span className="text-xs text-gray-400">市值</span>
+              <span className="text-sm text-[#53b991]">${formatCompactNumber(tokenInfo.marketCap)}</span>
+            </div>
+          </div>
+          <div className="flex-1 px-3">
+            <div className="flex justify-between items-center">
+              <span className="text-xs text-gray-400">流动性</span>
+              <span className="text-sm text-[#53b991]">${formatCompactNumber(tokenInfo.liquidity)}</span>
+            </div>
+          </div>
+          <div className="flex-1 px-3 first:pl-0 last:pr-0">
+            <div className="flex justify-between items-center">
+              <span className="text-xs text-gray-400">持有人数</span>
+              <span className="text-sm text-[#53b991]">{formatCompactNumber(tokenInfo.totalHolders)}</span>
+            </div>
           </div>
         </div>
       </div>
 
       {/* 时间选择器 */}
-      <div className="flex gap-2 mb-4">
+      <div className="flex gap-1">
         {timeOptions.map((option) => (
           <Button
             key={option.value}
             variant={selectedTime === option.value ? 'default' : 'ghost'}
             size="sm"
-            onClick={() => setSelectedTime(option.value as '30m' | '1h' | '2h' | '4h' | '8h' | '24h')}
+            onClick={() => setSelectedTime(option.value as '30m' | '1h' | '2h')}
             className={`${selectedTime === option.value
               ? 'bg-discord-primary text-white'
-              : 'text-gray-400 hover:bg-discord-primary/30'
-              }`}
+              : 'text-gray-400 hover:bg-discord-primary/30'}`}
           >
             {option.label}
           </Button>
         ))}
       </div>
 
-      {/* 统计数据卡片 */}
-      <div className="grid grid-cols-2 gap-4">
-        {/* 交易数据卡片 */}
-        <div className="bg-[#2f2f2f] rounded-lg p-4 space-y-4">
-          <div className="flex justify-between">
-            <span className="text-gray-400">活跃钱包</span>
-            <div className="text-right">
-              <div className="text-[#acc97e]">
-                {formatCompactNumber(getTimeFrameData(selectedTime, tokenInfo).uniqueWallets)}
-              </div>
-            </div>
+      {/* 交易数据网格 */}
+      <div className="grid grid-cols-2 gap-2">
+        <div className="bg-[#2f2f2f] rounded-lg p-2">
+          <div className="flex justify-between text-xs mb-2">
+            <span className="text-gray-400">交易量</span>
+            <span className="text-[#53b991]">${formatCompactNumber(getTimeFrameData(selectedTime, tokenInfo).volumeUSD)}</span>
           </div>
-
-          {/* 买卖统计 */}
-          <div className="space-y-1.5 text-sm">
-            <div className="flex justify-between">
-              <span className="text-[#9ad499]">
-                买入 ({formatCompactNumber(getTimeFrameData(selectedTime, tokenInfo).buys)}笔)
-              </span>
-              <span className="text-[#53b991]">
-                ${formatCompactNumber(getTimeFrameData(selectedTime, tokenInfo).buyVolume)}
-              </span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-[#de5569]">
-                卖出 ({formatCompactNumber(getTimeFrameData(selectedTime, tokenInfo).sells)}笔)
-              </span>
-              <span className="text-[#53b991]">
-                ${formatCompactNumber(getTimeFrameData(selectedTime, tokenInfo).sellVolume)}
-              </span>
-            </div>
+          <div className="flex justify-between text-xs">
+            <span className="text-gray-400">交易笔数</span>
+            <span className="text-[#53b991]">{formatCompactNumber(getTimeFrameData(selectedTime, tokenInfo).trades)}</span>
           </div>
         </div>
-
-        {/* 价格数据卡片 */}
-        <div className="bg-[#2f2f2f] rounded-lg p-4 space-y-4">
-          <div className="flex justify-between items-center">
-            <span className="text-gray-400">价格变化</span>
-            {tokenInfo && (
-              <div className={`text-right ${getCurrentPriceChange(tokenInfo, selectedTime) >= 0 ? 'text-[#9ad499]' : 'text-[#de5569]'}`}>
-                {getCurrentPriceChange(tokenInfo, selectedTime) >= 0 ? '+' : ''}
-                {getCurrentPriceChange(tokenInfo, selectedTime).toFixed(2)}%
-              </div>
-            )}
+        <div className="bg-[#2f2f2f] rounded-lg p-2">
+          <div className="flex justify-between text-xs mb-2">
+            <span className="text-[#9ad499]">买入</span>
+            <span className="text-[#53b991]">${formatCompactNumber(getTimeFrameData(selectedTime, tokenInfo).buyVolume)}</span>
           </div>
-
-          <div className="space-y-1.5 text-sm">
-            <div className="flex justify-between">
-              <span className="text-gray-400">最高价</span>
-              <span className="text-[#53b991]">
-                ${getTimeFrameData(selectedTime, tokenInfo).highPrice.toFixed(4)}
-              </span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-gray-400">最低价</span>
-              <span className="text-[#53b991]">
-                ${getTimeFrameData(selectedTime, tokenInfo).lowPrice.toFixed(4)}
-              </span>
-            </div>
+          <div className="flex justify-between text-xs">
+            <span className="text-[#de5569]">卖出</span>
+            <span className="text-[#53b991]">${formatCompactNumber(getTimeFrameData(selectedTime, tokenInfo).sellVolume)}</span>
           </div>
         </div>
       </div>
 
-      {/* 社交链接 */}
-      {tokenInfo.extensions && (
-        <div className="bg-[#2f2f2f] rounded-lg p-4">
-          <div className="text-gray-400 mb-2">相关链接</div>
-          <div className="flex flex-wrap gap-2">
-            {tokenInfo.extensions.website && (
-              <a
-                href={tokenInfo.extensions.website}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-[#53b991] hover:underline"
-              >
-                官网
-              </a>
-            )}
-            {tokenInfo.extensions.twitter && (
-              <a
-                href={tokenInfo.extensions.twitter}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-[#53b991] hover:underline"
-              >
-                Twitter
-              </a>
-            )}
-            {tokenInfo.extensions.discord && (
-              <a
-                href={tokenInfo.extensions.discord}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-[#53b991] hover:underline"
-              >
-                Discord
-              </a>
-            )}
+      {/* 安全信息 */}
+      <div className="bg-[#2f2f2f] rounded-lg p-2">
+        <div className="grid grid-cols-2 gap-2 text-xs">
+          <div className="flex justify-between">
+            <span className="text-gray-400">前10持有比例</span>
+            <span className="text-[#53b991]">{formatPercent(tokenInfo.top10HolderPercent)}</span>
           </div>
+          <div className="flex justify-between">
+            <span className="text-gray-400">Token2022</span>
+            <span className="text-[#53b991]">{tokenInfo.isToken2022 ? '是' : '否'}</span>
+          </div>
+          {tokenInfo.transferFeeEnable !== null && (
+            <div className="flex justify-between">
+              <span className="text-gray-400">转账费用</span>
+              <span className="text-[#53b991]">{tokenInfo.transferFeeEnable ? '是' : '否'}</span>
+            </div>
+          )}
+          {tokenInfo.freezeable !== null && (
+            <div className="flex justify-between">
+              <span className="text-gray-400">可冻结</span>
+              <span className="text-[#53b991]">{tokenInfo.freezeable ? '是' : '否'}</span>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* 社交链接 */}
+      {tokenInfo.extensions && Object.keys(tokenInfo.extensions).length > 0 && (
+        <div className="flex gap-2 text-xs">
+          {tokenInfo.extensions.website && (
+            <a href={tokenInfo.extensions.website} target="_blank" rel="noopener noreferrer"
+              className="text-[#53b991] hover:underline">官网</a>
+          )}
+          {tokenInfo.extensions.twitter && (
+            <a href={tokenInfo.extensions.twitter} target="_blank" rel="noopener noreferrer"
+              className="text-[#53b991] hover:underline">Twitter</a>
+          )}
+          {tokenInfo.extensions.discord && (
+            <a href={tokenInfo.extensions.discord} target="_blank" rel="noopener noreferrer"
+              className="text-[#53b991] hover:underline">Discord</a>
+          )}
         </div>
       )}
     </div>
