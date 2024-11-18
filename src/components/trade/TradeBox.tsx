@@ -17,6 +17,9 @@ import { MessageV0 } from '@solana/web3.js';
 import { TradeSettings } from './TradeSettings';
 import { TrendingUp, TrendingDown } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { Skeleton } from "@/components/ui/skeleton";
+import { Wallet } from 'lucide-react';
+import { BarChart3 } from 'lucide-react';
 
 type TradeMode = 'buy' | 'sell';
 type AmountPercentage = 25 | 50 | 75 | 100;
@@ -74,9 +77,10 @@ export default function TradeBox({ tokenAddress }: { tokenAddress: string | null
     WalletState.DISCONNECTED
   );
   const [showSettingsDialog, setShowSettingsDialog] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const {
-    isLoading,
+    isLoading: isBalanceLoading,
     error,
     solBalance: solBalance,
     tokenBalance: tokenBalance,
@@ -357,7 +361,7 @@ export default function TradeBox({ tokenAddress }: { tokenAddress: string | null
         errorDescription = '网络响应超时，请检查您的网络连接后重试';
       } else if (tradeError.message?.includes('rejected')) {
         errorTitle = '交易被拒绝';
-        errorDescription = '您取消了交易签名';
+        errorDescription = '您取消了交���签名';
       } else if (tradeError.message?.includes('blockhash')) {
         errorTitle = '区块链网络繁忙';
         errorDescription = '请稍后重试';
@@ -555,8 +559,145 @@ export default function TradeBox({ tokenAddress }: { tokenAddress: string | null
     return tokenBalance.symbol || tokenInfo.tokenSymbol;
   }, [mode, tokenInfo.solSymbol, tokenInfo.tokenSymbol, tokenBalance.symbol]);
 
+  // 添加 useEffect 来处理 tokenAddress 变化
+  useEffect(() => {
+    if (tokenAddress) {
+      setIsLoading(true);
+      // 模拟加载时间，实际项目中替换为真实的数据加载
+      const timer = setTimeout(() => {
+        setIsLoading(false);
+      }, 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [tokenAddress]);
+
+  // 添加骨架屏组件
+  const TradeBoxSkeleton = () => (
+    <div className="p-2 space-y-2">
+      {/* 交易模式选择骨架屏 */}
+      <div className="flex gap-1">
+        <Skeleton className="flex-1 h-10 bg-gray-500/20" />
+        <Skeleton className="flex-1 h-10 bg-gray-500/20" />
+      </div>
+
+      {/* 余额显示骨架屏 */}
+      <div className="bg-[#2f2f2f] rounded-lg p-1.5">
+        <div className="flex justify-between items-center mb-0.5">
+          <Skeleton className="h-4 w-16 bg-gray-500/20" />
+          <Skeleton className="h-4 w-12 bg-gray-500/20" />
+        </div>
+        <div className="grid grid-cols-2 gap-1">
+          <Skeleton className="h-8 bg-gray-500/20" />
+          <Skeleton className="h-8 bg-gray-500/20" />
+        </div>
+      </div>
+
+      {/* 数量输入骨架屏 */}
+      <div className="space-y-1">
+        <div className="flex justify-between">
+          <Skeleton className="h-4 w-20 bg-gray-500/20" />
+          <Skeleton className="h-4 w-24 bg-gray-500/20" />
+        </div>
+        <Skeleton className="h-10 w-full bg-gray-500/20" />
+        <div className="grid grid-cols-4 gap-1">
+          {[1, 2, 3, 4].map((i) => (
+            <Skeleton key={i} className="h-8 bg-gray-500/20" />
+          ))}
+        </div>
+      </div>
+
+      {/* 设置按钮骨架屏 */}
+      <Skeleton className="h-10 w-full bg-gray-500/20" />
+
+      {/* 交易按钮骨架屏 */}
+      <Skeleton className="h-12 w-full bg-gray-500/20" />
+    </div>
+  );
+
+  // 未选择代币时的提示界面
+  const EmptyState = () => (
+    <div className="h-full min-h-[400px] p-4 flex items-center justify-center">
+      <motion.div
+        className={cn(
+          "w-full flex flex-col items-center justify-center",
+          "bg-[#2f2f2f] rounded-lg p-8",
+          "space-y-4"
+        )}
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3 }}
+      >
+        <motion.div
+          initial={{ scale: 0.8 }}
+          animate={{ scale: 1 }}
+          transition={{ delay: 0.1, duration: 0.3 }}
+        >
+          <BarChart3 className="h-16 w-16 text-gray-400" />
+        </motion.div>
+
+        <div className="space-y-2 text-center">
+          <h3 className="text-xl font-medium text-gray-300">
+            开始交易
+          </h3>
+          <p className="text-sm text-gray-400 max-w-[240px] mx-auto leading-relaxed">
+            点击交易记录选择代币开始交易
+          </p>
+        </div>
+
+        <motion.div
+          className="mt-4 opacity-50"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 0.5 }}
+          transition={{ delay: 0.2, duration: 0.3 }}
+        >
+          <div className="text-xs text-gray-500">
+            或者从交易记录中选择代币
+          </div>
+        </motion.div>
+      </motion.div>
+    </div>
+  );
+
+  // 根据状态返回不同的内容
+  if (!tokenAddress) {
+    return <EmptyState />;
+  }
+
+  if (isLoading) {
+    return <TradeBoxSkeleton />;
+  }
+
+  if (walletState === WalletState.DISCONNECTED) {
+    return (
+      <div className="p-2">
+        <motion.div
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+        >
+          <UnifiedWalletButton
+            buttonClassName={cn(
+              "w-full py-3 rounded-lg font-medium text-sm",
+              "bg-[#2f2f2f] hover:bg-[#353535]",
+              "text-[#acc97e] hover:text-[#53b991]",
+              "transition-all duration-200 ease-out",
+              "flex items-center justify-center gap-2",
+              "shadow-lg shadow-black/5"
+            )}
+            overrideContent={
+              <div className="flex items-center gap-2">
+                <Wallet className="h-4 w-4" />
+                <span>连接钱包开始交易</span>
+              </div>
+            }
+          />
+        </motion.div>
+      </div>
+    );
+  }
+
+  // 原有的交易界面渲染
   return (
-    <div className="p-4 space-y-2">
+    <div className="p-2 space-y-2">
       {/* 交易模式选择 - 更紧凑的样式 */}
       <div className="flex gap-1">
         <motion.button
