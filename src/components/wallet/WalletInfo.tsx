@@ -52,65 +52,63 @@ export function WalletInfo({ walletAddress }: WalletInfoProps) {
 
     return (
         <div className="p-4 space-y-4">
-            {/* 钱包地址 */}
+            {/* 顶部区域：钱包地址和总资产 */}
             <div className="flex items-center justify-between">
+                {/* 钱包地址部分 */}
                 <div className="flex items-center gap-2">
                     <div className="w-8 h-8 rounded-full bg-discord-primary/30 
                                   flex items-center justify-center">
                         <Wallet className="h-4 w-4 text-gray-400" />
                     </div>
                     <div>
-                        <div className="text-sm font-medium">
+                        <div className="text-sm font-medium text-[#53b991]">
                             {`${walletAddress.slice(0, 4)}...${walletAddress.slice(-4)}`}
-                        </div>
-                        <div className="text-xs text-gray-400">
-                            钱包地址
                         </div>
                     </div>
                 </div>
-                <div className="flex gap-1">
-                    <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-8 w-8 hover:bg-discord-primary/30"
-                        onClick={handleCopyAddress}
-                    >
-                        {isCopied ? (
-                            <Check className="h-4 w-4 text-green-400" />
-                        ) : (
-                            <Copy className="h-4 w-4 text-gray-400" />
-                        )}
-                    </Button>
-                    <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-8 w-8 hover:bg-discord-primary/30"
-                        onClick={() => window.open(`https://solscan.io/account/${walletAddress}`, '_blank')}
-                    >
-                        <ExternalLink className="h-4 w-4 text-gray-400" />
-                    </Button>
-                </div>
-            </div>
 
-            {/* 总资产卡片 */}
-            <div className="bg-discord-primary/30 rounded-lg p-4">
-                <div className="flex items-center justify-between mb-2">
-                    <span className="text-gray-400">总资产</span>
-                    {loading ? (
-                        <Skeleton className="h-6 w-24" />
-                    ) : (
-                        <span className="text-lg font-medium">
-                            ${(walletTokens?.totalUsd || 0).toLocaleString(undefined, {
-                                minimumFractionDigits: 2,
-                                maximumFractionDigits: 2
-                            })}
-                        </span>
-                    )}
+                {/* 总资产显示 */}
+                <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-2">
+                        <span className="text-gray-400 text-sm">总资产</span>
+                        {loading ? (
+                            <Skeleton className="h-6 w-24" />
+                        ) : (
+                            <span className="text-lg font-medium text-[#acc97e]">
+                                ${(walletTokens?.totalUsd || 0).toLocaleString(undefined, {
+                                    minimumFractionDigits: 2,
+                                    maximumFractionDigits: 2
+                                })}
+                            </span>
+                        )}
+                    </div>
+                    <div className="flex gap-1">
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 hover:bg-discord-primary/30"
+                            onClick={handleCopyAddress}
+                        >
+                            {isCopied ? (
+                                <Check className="h-4 w-4 text-green-400" />
+                            ) : (
+                                <Copy className="h-4 w-4 text-gray-400" />
+                            )}
+                        </Button>
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 hover:bg-discord-primary/30"
+                            onClick={() => window.open(`https://solscan.io/account/${walletAddress}`, '_blank')}
+                        >
+                            <ExternalLink className="h-4 w-4 text-gray-400" />
+                        </Button>
+                    </div>
                 </div>
             </div>
 
             {/* 代币列表 */}
-            <div className="space-y-1.5">
+            <div className="space-y-1.5 mt-6">
                 <div className="text-sm text-gray-400 mb-2">持仓代币</div>
                 {loading ? (
                     // 初始显示3个骨架屏
