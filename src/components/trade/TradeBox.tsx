@@ -53,7 +53,7 @@ export default function TradeBox({ tokenAddress }: { tokenAddress: string | null
   const [amount, setAmount] = useState<string>(
     SOL_AMOUNT_OPTIONS[0].toString()
   );
-  const [slippage, setSlippage] = useState<number>(150); // 3.0%
+  const [slippage, setSlippage] = useState<number>(2.5); // 2.5%
   const [isAutoMode, setIsAutoMode] = useState<boolean>(false);
   const [isEditingSlippage, setIsEditingSlippage] = useState<boolean>(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
@@ -111,8 +111,8 @@ export default function TradeBox({ tokenAddress }: { tokenAddress: string | null
 
   const handleSlippageChange = (value: string) => {
     const numValue = parseFloat(value);
-    if (!isNaN(numValue) && numValue >= 0 && numValue <= 100) {
-      setSlippage(numValue * 10); // 转换为内部表示（30 = 3.0%）
+    if (!isNaN(numValue)) {
+      setSlippage(numValue);
     }
   };
 
@@ -684,7 +684,7 @@ export default function TradeBox({ tokenAddress }: { tokenAddress: string | null
       {/* 设置按钮和概览 */}
       <div className="relative w-full flex items-center justify-between bg-discord-secondary rounded-lg px-4 py-2.5">
         <div className="flex items-center gap-4 text-sm text-gray-300">
-          <span>滑点: {(slippage / 10).toFixed(1)}%</span>
+          <span>滑点: {slippage.toFixed(1)}%</span>
           <span>优先费: {priorityFee}</span>
           <span>防夹: {isAntiMEV ? '开' : '关'}</span>
         </div>

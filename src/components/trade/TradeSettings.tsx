@@ -20,6 +20,7 @@ interface TradeSettingsProps {
 }
 
 const DEFAULT_PRIORITY_FEE = '0.018';
+const DEFAULT_SLIPPAGE = 2.5;
 
 export function TradeSettings({
     open,
@@ -73,11 +74,27 @@ export function TradeSettings({
         }
     };
 
+    // 修改内部的滑点处理函数
+    const handleSlippageInputChange = (value: string) => {
+        // 如果输入为空，使用默认值
+        if (!value.trim()) {
+            setIsEditingSlippage(false);
+            handleSlippageChange(DEFAULT_SLIPPAGE.toString());
+            return;
+        }
+
+        // 只允许输入数字和小数点
+        if (/^\d*\.?\d*$/.test(value)) {
+            setIsEditingSlippage(true);
+            handleSlippageChange(value);
+        }
+    };
+
     // 处理取消
     const handleCancel = () => {
         // 恢复到初始值
         setIsEditingSlippage(initialValues.isEditingSlippage);
-        handleSlippageChange((initialValues.slippage / 10).toString());
+        handleSlippageChange(initialValues.slippage.toString());
         setIsCustomPriorityFee(initialValues.isCustomPriorityFee);
         setPriorityFee(initialValues.priorityFee);
         setIsAntiMEV(initialValues.isAntiMEV);
@@ -88,6 +105,17 @@ export function TradeSettings({
 
     // 修改确认处理函数
     const handleConfirm = () => {
+        // 处理滑点
+        if (isEditingSlippage) {
+            const slippageValue = parseFloat(slippage.toString());
+            if (!slippageValue || isNaN(slippageValue)) {
+                setIsEditingSlippage(false);
+                handleSlippageChange(DEFAULT_SLIPPAGE.toString());
+            } else if (slippageValue > 100) {
+                handleSlippageChange('100');
+            }
+        }
+
         // 如果自定义优先费为空，使用默认值
         if (isCustomPriorityFee) {
             if (!priorityFee.trim()) {
@@ -194,34 +222,45 @@ export function TradeSettings({
                     {/* 滑点设置 */}
                     <div className="space-y-2">
                         <div className="text-base text-gray-300">滑点限制</div>
-                        <div className="flex gap-3">
-                            <button
-                                className={cn(
-                                    'px-6 py-3 rounded-lg transition-colors',
-                                    'border border-gray-700',
-                                    !isEditingSlippage
-                                        ? 'bg-gray-800 border-blue-500'
-                                        : 'hover:border-gray-600'
-                                )}
-                                onClick={() => setIsEditingSlippage(false)}
-                            >
-                                自动 {(slippage / 10).toFixed(1)}%
-                            </button>
-                            <input
-                                type="text"
-                                className={cn(
-                                    'flex-1 bg-gray-900 rounded-lg px-4',
-                                    'text-white placeholder-gray-500',
-                                    'border border-gray-700',
-                                    'focus:outline-none focus:border-blue-500'
-                                )}
-                                placeholder="自定义滑点"
-                                value={isEditingSlippage ? (slippage / 10).toFixed(1) : ''}
-                                onChange={(e) => handleSlippageChange(e.target.value)}
-                                onFocus={() => setIsEditingSlippage(true)}
-                            />
-                            <div className="flex items-center px-4 text-gray-400">%</div>
+                        <button
+                            className={cn(
+                                'w-[120px] p-4 rounded-lg border border-gray-700 transition-colors',
+                                'flex flex-col items-center justify-center',
+                                !isEditingSlippage
+                                    ? 'bg-gray-800 border-blue-500'
+                                    : 'hover:border-gray-600'
+                            )}
+                            onClick={() => {
+                                setIsEditingSlippage(false);
+                                handleSlippageChange(DEFAULT_SLIPPAGE.toString());
+                            }}
+                        >
+                            <div className="font-medium">自动</div>
+                            <div className="text-sm text-gray-400">2.5%</div>
+                        </button>
+
+                        <div className="text-sm text-gray-400 mt-2">
+                            支持自定义滑点 (最大: 100%)
                         </div>
+
+                        <input
+                            type="text"
+                            className={cn(
+                                'w-full bg-gray-900 rounded-lg px-4 py-3',
+                                'text-white placeholder-gray-500 border border-gray-700',
+                                'focus:outline-none focus:border-blue-500',
+                                isEditingSlippage && parseFloat(slippage.toString()) > 100 && 'border-red-500'
+                            )}
+                            placeholder="自定义滑点"
+                            value={isEditingSlippage ? slippage : ''}
+                            onChange={(e) => handleSlippageInputChange(e.target.value)}
+                        />
+
+                        {isEditingSlippage && parseFloat(slippage.toString()) > 100 && (
+                            <div className="text-sm text-red-500">
+                                超过最大值 100%，确认时将自动调整为 100%
+                            </div>
+                        )}
                     </div>
                 </div>
 
