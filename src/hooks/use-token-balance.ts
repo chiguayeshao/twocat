@@ -13,13 +13,15 @@ interface TokenBalance {
   symbol: string;
   balance: number;
   usdValue: number;
+  decimals: number;
+  name?: string;
 }
 
 interface TokenInfo {
   solDecimals: number;
   solSymbol: string;
-  monkeyDecimals: number;
-  monkeySymbol: string;
+  tokenDecimals: number;
+  tokenSymbol: string;
 }
 
 interface UseTokenBalanceProps {
@@ -39,15 +41,16 @@ export function useTokenBalance({
   const [error, setError] = useState<Error | null>(null);
   const [solBalance, setSolBalance] = useState<number>(0);
   const [tokenBalance, setTokenBalance] = useState<TokenBalance>({
-    symbol: "MONKEY",
+    symbol: "",
     balance: 0,
     usdValue: 0,
+    decimals: 9,
   });
   const [tokenInfo, setTokenInfo] = useState<TokenInfo>({
     solDecimals: 9,
     solSymbol: "SOL",
-    monkeyDecimals: 6,
-    monkeySymbol: "MONKEY",
+    tokenDecimals: 9,
+    tokenSymbol: "...",
   });
 
   // 使用 useMemo 缓存 Metaplex 实例
@@ -68,15 +71,7 @@ export function useTokenBalance({
 
   // 获取余额的主函数
   const fetchBalance = useCallback(async () => {
-    if (!publicKey || !connection || !metaplex) return;
-    if (!isValidAddress) {
-      setTokenBalance({
-        symbol: tokenInfo.monkeySymbol,
-        balance: 0,
-        usdValue: 0,
-      });
-      return;
-    }
+    if (!publicKey || !connection || !metaplex || !isValidAddress) return;
 
     setIsLoading(true);
     setError(null);
@@ -84,69 +79,71 @@ export function useTokenBalance({
     try {
       // 获取 SOL 余额
       const solBalance = await connection.getBalance(publicKey);
-      const solAmount = solBalance / Math.pow(10, tokenInfo.solDecimals);
-      setSolBalance(solAmount);
+      setSolBalance(solBalance / Math.pow(10, 9)); // SOL decimals 固定为 9
+
+      // 获取代币元数据
+      const mintPubkey = new PublicKey(tokenMintAddress);
+      const metadata = await metaplex
+        .nfts()
+        .findByMint({ mintAddress: mintPubkey });
+
+      // 更新代币信息
+      setTokenInfo((prev) => ({
+        ...prev,
+        tokenDecimals: metadata.mint.decimals,
+        tokenSymbol: metadata.symbol || "Unknown",
+      }));
+
+      // 先设置代币基本信息
+      const tokenMetadata = {
+        symbol: metadata.symbol || "Unknown",
+        name: metadata.name || "Unknown Token",
+        decimals: metadata.mint.decimals,
+      };
+
+      // 获取代币价格
+      const priceData = await JupiterService.getTokenPrice(tokenMintAddress);
 
       try {
-        // 确保 tokenMintAddress 是有效的
-        const mintPubkey = new PublicKey(tokenMintAddress);
-
-        // 获取关联代币账户地址
         const associatedTokenAddress = await getAssociatedTokenAddress(
           mintPubkey,
           publicKey
         );
 
-        // 检查账户是否存在
         const tokenAccount = await connection.getAccountInfo(
           associatedTokenAddress
         );
 
         if (!tokenAccount) {
+          // 账户不存在，但保留代币信息
           setTokenBalance({
-            symbol: tokenInfo.monkeySymbol,
+            ...tokenMetadata,
             balance: 0,
             usdValue: 0,
           });
           return;
         }
 
-        // 获取代币余额
-        const tokenBalance = await connection.getTokenAccountBalance(
+        // 账户存在，获取余额
+        const balance = await connection.getTokenAccountBalance(
           associatedTokenAddress
         );
-        const uiAmount = tokenBalance.value.uiAmount || 0;
-
-        // 获取价格数据
-        const priceData = await JupiterService.getTokenPrice(tokenMintAddress);
-        const usdValue = uiAmount * (priceData?.price || 0);
-
-        // 获取代币元数据
-        const metadata = await metaplex.nfts().findByMint({
-          mintAddress: new PublicKey(tokenMintAddress),
-        });
+        const uiAmount = balance.value.uiAmount || 0;
 
         setTokenBalance({
-          symbol: metadata.symbol || tokenInfo.monkeySymbol,
+          ...tokenMetadata,
           balance: uiAmount,
-          usdValue: usdValue,
+          usdValue: uiAmount * (priceData?.price || 0),
         });
-
-        // 更新代币信息
-        setTokenInfo((prev) => ({
-          ...prev,
-          monkeyDecimals: metadata.mint.decimals,
-          monkeySymbol: metadata.symbol || "MONKEY",
-        }));
       } catch (error) {
         if (
           error instanceof Error &&
           (error.message.includes("AccountNotFoundError") ||
-            error.message.includes("Account does not exist") ||
-            error.message.includes("Invalid public key"))
+            error.message.includes("Account does not exist"))
         ) {
+          // 账户不存在，但保留代币信息
           setTokenBalance({
-            symbol: tokenInfo.monkeySymbol,
+            ...tokenMetadata,
             balance: 0,
             usdValue: 0,
           });
@@ -159,34 +156,24 @@ export function useTokenBalance({
       setError(err);
       console.error("获取余额失败:", err);
 
-      // 根据错误类型显示不同的提示
-      if (err.message.includes("Invalid public key")) {
-        toast({
-          title: "地址无效",
-          description: "代币地址格式不正确",
-          variant: "destructive",
-        });
-      } else {
-        toast({
-          title: "余额信息",
-          description: "您还未持有该代币，余额显示为 0",
-          variant: "default",
-          className: "dark:bg-yellow-900 dark:text-white",
-        });
-      }
+      // 重置代币信息为默认值
+      setTokenBalance({
+        symbol: "Unknown",
+        balance: 0,
+        usdValue: 0,
+        decimals: 9,
+      });
+
+      toast({
+        title: "余额信息",
+        description: "无法获取代币信息，请稍后重试",
+        variant: "default",
+        className: "dark:bg-yellow-900 dark:text-white",
+      });
     } finally {
       setIsLoading(false);
     }
-  }, [
-    publicKey,
-    connection,
-    metaplex,
-    tokenMintAddress,
-    isValidAddress,
-    toast,
-    tokenInfo.solDecimals,
-    tokenInfo.monkeySymbol,
-  ]);
+  }, [publicKey, connection, metaplex, tokenMintAddress, isValidAddress]);
 
   // 监听钱包变化
   useEffect(() => {

@@ -140,7 +140,7 @@ export default function TradeBox({ tokenAddress }: { tokenAddress: string | null
     }
   };
 
-  // 验证签名
+  // 验证��名
   const verifySignature = async (
     signature: Uint8Array,
     message: string
@@ -188,7 +188,7 @@ export default function TradeBox({ tokenAddress }: { tokenAddress: string | null
 
       const atomicAmount = toAtomicUnits(
         amount,
-        mode === 'buy' ? tokenInfo.solDecimals : tokenInfo.monkeyDecimals
+        mode === 'buy' ? tokenInfo.solDecimals : tokenInfo.tokenDecimals
       );
 
       if (atomicAmount <= 0) {
@@ -230,24 +230,24 @@ export default function TradeBox({ tokenAddress }: { tokenAddress: string | null
           ? (atomicAmount / Math.pow(10, tokenInfo.solDecimals)).toFixed(
             tokenInfo.solDecimals
           )
-          : (atomicAmount / Math.pow(10, tokenInfo.monkeyDecimals)).toFixed(
-            tokenInfo.monkeyDecimals
+          : (atomicAmount / Math.pow(10, tokenInfo.tokenDecimals)).toFixed(
+            tokenInfo.tokenDecimals
           );
       const outputAmount =
         mode === 'buy'
           ? (
             Number(quoteResponse.outAmount) /
-            Math.pow(10, tokenInfo.monkeyDecimals)
-          ).toFixed(tokenInfo.monkeyDecimals)
+            Math.pow(10, tokenInfo.tokenDecimals)
+          ).toFixed(tokenInfo.tokenDecimals)
           : (
             Number(quoteResponse.outAmount) /
             Math.pow(10, tokenInfo.solDecimals)
           ).toFixed(tokenInfo.solDecimals);
 
       console.log('交易预览:', {
-        输入: `${inputAmount} ${mode === 'buy' ? tokenInfo.solSymbol : tokenInfo.monkeySymbol
+        输入: `${inputAmount} ${mode === 'buy' ? tokenInfo.solSymbol : tokenInfo.tokenSymbol
           }`,
-        输出: `${outputAmount} ${mode === 'buy' ? tokenInfo.monkeySymbol : tokenInfo.solSymbol
+        输出: `${outputAmount} ${mode === 'buy' ? tokenInfo.tokenSymbol : tokenInfo.solSymbol
           }`,
         滑点: `${slippage / 10}%`,
         优先费: `${priorityFee} ${tokenInfo.solSymbol}`,
@@ -307,11 +307,11 @@ export default function TradeBox({ tokenAddress }: { tokenAddress: string | null
             <span>交易已提交到区块链</span>
             <span>
               输入: {inputAmount}{' '}
-              {mode === 'buy' ? tokenInfo.solSymbol : tokenInfo.monkeySymbol}
+              {mode === 'buy' ? tokenInfo.solSymbol : tokenInfo.tokenSymbol}
             </span>
             <span>
               输出: {outputAmount}{' '}
-              {mode === 'buy' ? tokenInfo.monkeySymbol : tokenInfo.solSymbol}
+              {mode === 'buy' ? tokenInfo.tokenSymbol : tokenInfo.solSymbol}
             </span>
             <a
               href={`https://solscan.io/tx/${signature}`}
@@ -394,8 +394,8 @@ export default function TradeBox({ tokenAddress }: { tokenAddress: string | null
     toast,
     refreshBalance,
     isAntiMEV,
-    tokenInfo.monkeyDecimals,
-    tokenInfo.monkeySymbol,
+    tokenInfo.tokenDecimals,
+    tokenInfo.tokenSymbol,
     tokenInfo.solDecimals,
     tokenInfo.solSymbol,
   ]);
@@ -538,6 +538,21 @@ export default function TradeBox({ tokenAddress }: { tokenAddress: string | null
     }
   };
 
+  // 修改数量显示部分
+  const getDisplayDecimals = useCallback(() => {
+    if (mode === 'buy') {
+      return tokenInfo.solDecimals;
+    }
+    return tokenBalance.decimals || tokenInfo.tokenDecimals;
+  }, [mode, tokenInfo.solDecimals, tokenInfo.tokenDecimals, tokenBalance.decimals]);
+
+  const getDisplaySymbol = useCallback(() => {
+    if (mode === 'buy') {
+      return tokenInfo.solSymbol;
+    }
+    return tokenBalance.symbol || tokenInfo.tokenSymbol;
+  }, [mode, tokenInfo.solSymbol, tokenInfo.tokenSymbol, tokenBalance.symbol]);
+
   return (
     <div className="flex flex-col gap-3 w-full">
       {/* 交易模式选择 */}
@@ -586,11 +601,11 @@ export default function TradeBox({ tokenAddress }: { tokenAddress: string | null
           </div>
           <div className="flex justify-between items-center">
             <span className="text-sm text-gray-300">
-              {tokenInfo.monkeySymbol}
+              {tokenBalance.symbol || '加载中...'}
             </span>
             <div className="text-right">
               <div>
-                {tokenBalance.balance.toFixed(6)} {tokenInfo.monkeySymbol}
+                {tokenBalance.balance.toFixed(tokenBalance.decimals)} {tokenBalance.symbol}
               </div>
               <div className="text-xs text-gray-400">
                 ≈ ${tokenBalance.usdValue.toFixed(2)}
@@ -604,14 +619,13 @@ export default function TradeBox({ tokenAddress }: { tokenAddress: string | null
       <div className="space-y-2">
         <div className="flex justify-between items-center text-sm">
           <span className="text-gray-300">
-            数量 (
-            {mode === 'buy' ? tokenInfo.solSymbol : tokenInfo.monkeySymbol})
+            数量 ({getDisplaySymbol()})
           </span>
           <span className="text-gray-400">
             最大:{' '}
             {mode === 'buy'
-              ? solBalance.toFixed(6)
-              : tokenBalance.balance.toFixed(6)}
+              ? solBalance.toFixed(getDisplayDecimals())
+              : tokenBalance.balance.toFixed(getDisplayDecimals())}
           </span>
         </div>
         <div className="relative">
@@ -629,7 +643,7 @@ export default function TradeBox({ tokenAddress }: { tokenAddress: string | null
             placeholder="0.000000"
           />
           <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400">
-            {mode === 'buy' ? tokenInfo.solSymbol : tokenInfo.monkeySymbol}
+            {getDisplaySymbol()}
           </span>
         </div>
         <div className="grid grid-cols-4 gap-2">
@@ -658,6 +672,7 @@ export default function TradeBox({ tokenAddress }: { tokenAddress: string | null
                 onClick={() =>
                   handleAmountPercentageClick(percentage as AmountPercentage)
                 }
+                disabled={tokenBalance.balance === 0}
               >
                 {percentage}%
               </button>
