@@ -233,8 +233,8 @@ export function TokenStats({ tokenAddress }: TokenStatsProps) {
       setLoading(true);
       try {
         const [overviewRes, securityRes] = await Promise.all([
-          fetch(`/api/birdeye/token-overview?address=${tokenAddress}`),
-          fetch(`/api/birdeye/token-security?address=${tokenAddress}`),
+          fetch(`/api/twocat-core/token-overview?address=${tokenAddress}`),
+          fetch(`/api/twocat-core/token-security?address=${tokenAddress}`),
         ]);
 
         if (!overviewRes.ok || !securityRes.ok) {
