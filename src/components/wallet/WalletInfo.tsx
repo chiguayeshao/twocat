@@ -12,6 +12,28 @@ interface WalletInfoProps {
     walletAddress: string | null;
 }
 
+const TokenSkeleton = () => (
+    <div className="flex gap-2 p-2 rounded-lg bg-[#2f2f2f] mb-1.5
+                   transform transition-all duration-200 ease-out">
+        {/* 代币图标骨架屏 */}
+        <Skeleton className="h-8 w-8 rounded-full bg-gray-500/20" />
+
+        {/* 代币信息骨架屏 */}
+        <div className="flex-1">
+            <div className="flex items-center justify-between">
+                <div className="space-y-1">
+                    <Skeleton className="h-4 w-20 bg-gray-500/20" /> {/* 代币符号 */}
+                    <Skeleton className="h-3 w-32 bg-gray-500/20" /> {/* 代币名称 */}
+                </div>
+                <div className="text-right space-y-1">
+                    <Skeleton className="h-4 w-24 bg-gray-500/20" /> {/* 价值 */}
+                    <Skeleton className="h-3 w-16 bg-gray-500/20" /> {/* 数量 */}
+                </div>
+            </div>
+        </div>
+    </div>
+);
+
 export function WalletInfo({ walletAddress }: WalletInfoProps) {
     const [loading, setLoading] = useState(false);
     const [walletTokens, setWalletTokens] = useState<WalletTokens | null>(null);
@@ -109,11 +131,14 @@ export function WalletInfo({ walletAddress }: WalletInfoProps) {
 
             {/* 代币列表 */}
             <div className="space-y-1.5 mt-6">
-                <div className="text-sm text-gray-400 mb-2">持仓代币</div>
+                <div className="flex items-center gap-2 mb-2">
+                    <span className="text-sm text-gray-400">持仓代币</span>
+                    <span className="text-xs text-gray-500">(按持仓价值排序 · 显示前10)</span>
+                </div>
                 {loading ? (
-                    // 初始显示3个骨架屏
-                    Array(3).fill(0).map((_, i) => (
-                        <Skeleton key={i} className="h-[52px] w-full" />
+                    // 显示6个骨架屏
+                    Array(6).fill(0).map((_, i) => (
+                        <TokenSkeleton key={i} />
                     ))
                 ) : (
                     <div className="space-y-1.5">
@@ -157,17 +182,21 @@ export function WalletInfo({ walletAddress }: WalletInfoProps) {
                                         <div className="flex-1 min-w-0">
                                             <div className="flex items-center justify-between">
                                                 <div className="truncate">
-                                                    <div className="font-medium truncate">{token.symbol}</div>
-                                                    <div className="text-xs text-gray-400 truncate">{token.name}</div>
+                                                    <div className="font-medium truncate text-[#acc97e]">
+                                                        {token.symbol}
+                                                    </div>
+                                                    <div className="text-xs text-gray-400 truncate">
+                                                        {token.name}
+                                                    </div>
                                                 </div>
                                                 <div className="text-right shrink-0 ml-2">
-                                                    <div className="font-medium">
+                                                    <div className="font-medium text-[#53b991]">
                                                         ${(token.valueUsd || 0).toLocaleString(undefined, {
                                                             minimumFractionDigits: 2,
                                                             maximumFractionDigits: 2
                                                         })}
                                                     </div>
-                                                    <div className="text-xs text-gray-400">
+                                                    <div className="text-xs text-gray-300">
                                                         {(token.uiAmount || 0).toLocaleString(undefined, {
                                                             minimumFractionDigits: 2,
                                                             maximumFractionDigits: 6
