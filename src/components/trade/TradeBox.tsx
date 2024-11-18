@@ -280,7 +280,7 @@ export default function TradeBox({ tokenAddress }: { tokenAddress: string | null
         throw new Error('交易构建失败');
       }
 
-      // ��加手续费转账指令
+      // 加手续费转账指令
       const modifiedTransaction = JupiterService.addFeeInstruction(
         swapTransaction.swapTransaction,
         publicKey,
@@ -512,7 +512,7 @@ export default function TradeBox({ tokenAddress }: { tokenAddress: string | null
       if (walletState === WalletState.CONNECTED) {
         return 'bg-yellow-600';
       }
-      return mode === 'buy' ? 'bg-green-600' : 'bg-red-600';
+      return mode === 'buy' ? 'bg-[#53b991]' : 'bg-[#de5569]';
     };
 
     return (
@@ -556,13 +556,13 @@ export default function TradeBox({ tokenAddress }: { tokenAddress: string | null
   }, [mode, tokenInfo.solSymbol, tokenInfo.tokenSymbol, tokenBalance.symbol]);
 
   return (
-    <div className="p-4 space-y-4">
-      {/* 交易模式选择 - 优化样式 */}
-      <div className="flex gap-2">
+    <div className="p-4 space-y-2">
+      {/* 交易模式选择 - 更紧凑的样式 */}
+      <div className="flex gap-1">
         <motion.button
           className={cn(
-            'flex-1 py-3 rounded-lg font-medium transition-all duration-200',
-            'flex items-center justify-center gap-2',
+            'flex-1 py-2 rounded-lg font-medium',
+            'flex items-center justify-center gap-1',
             mode === 'buy'
               ? 'bg-[#53b991] text-white shadow-md'
               : 'bg-discord-button-secondary text-gray-300 hover:bg-discord-button-secondary-hover'
@@ -571,13 +571,13 @@ export default function TradeBox({ tokenAddress }: { tokenAddress: string | null
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
         >
-          <TrendingUp className="h-4 w-4" />
+          <TrendingUp className="h-3 w-3" />
           买入
         </motion.button>
         <motion.button
           className={cn(
-            'flex-1 py-3 rounded-lg font-medium transition-all duration-200',
-            'flex items-center justify-center gap-2',
+            'flex-1 py-2 rounded-lg font-medium',
+            'flex items-center justify-center gap-1',
             mode === 'sell'
               ? 'bg-[#de5569] text-white shadow-md'
               : 'bg-discord-button-secondary text-gray-300 hover:bg-discord-button-secondary-hover'
@@ -586,15 +586,15 @@ export default function TradeBox({ tokenAddress }: { tokenAddress: string | null
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
         >
-          <TrendingDown className="h-4 w-4" />
+          <TrendingDown className="h-3 w-3" />
           卖出
         </motion.button>
       </div>
 
-      {/* 余额显示 - 新的卡片样式 */}
-      <div className="bg-[#2f2f2f] rounded-lg p-4 space-y-2">
-        <div className="flex justify-between items-center">
-          <span className="text-sm text-gray-400">可用余额</span>
+      {/* 余额显示 - 更紧凑的卡片样式 */}
+      <div className="bg-[#2f2f2f] rounded-lg p-2">
+        <div className="flex justify-between items-center mb-1">
+          <span className="text-xs text-gray-400">可用余额</span>
           <motion.button
             onClick={refreshBalance}
             className="text-xs text-[#53b991] hover:text-[#acc97e] transition-colors"
@@ -604,22 +604,26 @@ export default function TradeBox({ tokenAddress }: { tokenAddress: string | null
             刷新
           </motion.button>
         </div>
-        <div className="flex flex-col gap-2">
-          <div className="flex justify-between items-center">
-            <span className="text-sm text-gray-300">{tokenInfo.solSymbol}</span>
-            <span className="text-[#acc97e]">
-              {solBalance.toFixed(6)} {tokenInfo.solSymbol}
-            </span>
+        <div className="grid grid-cols-2 gap-2">
+          <div className="bg-[#2a2a2a] rounded p-1.5">
+            <div className="flex justify-between items-center">
+              <span className="text-xs text-gray-300">{tokenInfo.solSymbol}</span>
+              <span className="text-xs text-[#acc97e]">
+                {solBalance.toFixed(6)} {tokenInfo.solSymbol}
+              </span>
+            </div>
           </div>
-          <div className="flex justify-between items-center">
-            <span className="text-sm text-gray-300">
-              {tokenBalance.symbol || '加载中...'}
-            </span>
-            <div className="text-right">
-              <div className="text-[#acc97e]">
-                {tokenBalance.balance.toFixed(tokenBalance.decimals)} {tokenBalance.symbol}
+          <div className="bg-[#2a2a2a] rounded p-1.5">
+            <div className="flex flex-col">
+              <div className="flex justify-between items-center">
+                <span className="text-xs text-gray-300">
+                  {tokenBalance.symbol || '加载中...'}
+                </span>
+                <span className="text-xs text-[#acc97e]">
+                  {tokenBalance.balance.toFixed(tokenBalance.decimals)}
+                </span>
               </div>
-              <div className="text-xs text-gray-400">
+              <div className="text-[10px] text-right text-gray-400">
                 ≈ ${tokenBalance.usdValue.toFixed(2)}
               </div>
             </div>
@@ -627,9 +631,9 @@ export default function TradeBox({ tokenAddress }: { tokenAddress: string | null
         </div>
       </div>
 
-      {/* 数量输入 - 优化样式 */}
-      <div className="space-y-2">
-        <div className="flex justify-between items-center text-sm">
+      {/* 数量输入 - 更紧凑的样式 */}
+      <div className="space-y-1">
+        <div className="flex justify-between items-center text-xs">
           <span className="text-gray-300">
             数量 ({getDisplaySymbol()})
           </span>
@@ -645,27 +649,27 @@ export default function TradeBox({ tokenAddress }: { tokenAddress: string | null
             value={amount}
             onChange={(e) => handleAmountChange(e.target.value)}
             className={cn(
-              'w-full bg-[#2f2f2f] px-4 py-3 rounded-lg',
-              'text-left pl-4 pr-16 text-base text-[#acc97e]',
-              'focus:outline-none focus:ring-2 focus:ring-[#53b991]/50',
+              'w-full bg-[#2f2f2f] px-3 py-2 rounded-lg',
+              'text-left pl-3 pr-14 text-sm text-[#acc97e]',
+              'focus:outline-none focus:ring-1 focus:ring-[#53b991]/50',
               'transition-all duration-200',
               'placeholder:text-gray-500'
             )}
             placeholder="0.000000"
           />
-          <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400">
+          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-400">
             {getDisplaySymbol()}
           </span>
         </div>
 
-        {/* 快捷金额按钮 - 优化样式 */}
-        <div className="grid grid-cols-4 gap-2">
+        {/* 快捷金额按钮 - 更紧凑的网格 */}
+        <div className="grid grid-cols-4 gap-1">
           {mode === 'buy'
             ? SOL_AMOUNT_OPTIONS.map((solAmount) => (
               <motion.button
                 key={solAmount}
                 className={cn(
-                  'py-2 rounded-lg text-sm font-medium',
+                  'py-1.5 rounded-lg text-xs font-medium',
                   'bg-[#2f2f2f] hover:bg-[#353535]',
                   'text-gray-300 hover:text-[#acc97e]',
                   'transition-all duration-200'
@@ -681,7 +685,7 @@ export default function TradeBox({ tokenAddress }: { tokenAddress: string | null
               <motion.button
                 key={percentage}
                 className={cn(
-                  'py-2 rounded-lg text-sm font-medium',
+                  'py-1.5 rounded-lg text-xs font-medium',
                   'bg-[#2f2f2f] hover:bg-[#353535]',
                   'text-gray-300 hover:text-[#acc97e]',
                   'transition-all duration-200'
@@ -697,32 +701,29 @@ export default function TradeBox({ tokenAddress }: { tokenAddress: string | null
         </div>
       </div>
 
-      {/* 设置按钮和概览 - 优化样式 */}
+      {/* 设置按钮和概览 - 更紧凑的样式 */}
       <motion.div
-        className="relative w-full flex items-center justify-between bg-[#2f2f2f] rounded-lg px-4 py-3"
+        className="relative w-full flex items-center justify-between bg-[#2f2f2f] rounded-lg px-3 py-2"
         whileHover={{ scale: 1.01 }}
       >
-        <div className="flex items-center gap-4 text-sm text-gray-300">
+        <div className="flex items-center gap-3 text-xs text-gray-300">
           <span>滑点: <span className="text-[#53b991]">{slippage.toFixed(1)}%</span></span>
           <span>优先费: <span className="text-[#53b991]">{priorityFee}</span></span>
           <span>防夹: <span className="text-[#53b991]">{isAntiMEV ? '开' : '关'}</span></span>
         </div>
         <motion.button
           onClick={() => setShowSettingsDialog(true)}
-          className={cn(
-            'p-2 rounded-full hover:bg-discord-primary/30',
-            'focus:outline-none focus:ring-2 focus:ring-[#53b991]/50'
-          )}
+          className="p-1.5 rounded-full hover:bg-discord-primary/30"
           whileHover={{ scale: 1.1 }}
           whileTap={{ scale: 0.9 }}
         >
-          <Settings size={16} className="text-gray-400" />
+          <Settings size={14} className="text-gray-400" />
         </motion.button>
       </motion.div>
 
-      {/* 交易按钮 - 优化样式 */}
+      {/* 交易按钮 - 保持原有大小以确保可用性 */}
       <motion.div
-        className="mt-2"
+        className="mt-1"
         whileHover={{ scale: 1.02 }}
         whileTap={{ scale: 0.98 }}
       >
