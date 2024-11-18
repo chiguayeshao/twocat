@@ -16,7 +16,7 @@ import { SystemProgram, PublicKey } from '@solana/web3.js';
 import { MessageV0 } from '@solana/web3.js';
 import { TradeSettings } from './TradeSettings';
 import { TrendingUp, TrendingDown } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Skeleton } from "@/components/ui/skeleton";
 import { Wallet } from 'lucide-react';
 import { BarChart3 } from 'lucide-react';
@@ -361,7 +361,7 @@ export default function TradeBox({ tokenAddress }: { tokenAddress: string | null
         errorDescription = '网络响应超时，请检查您的网络连接后重试';
       } else if (tradeError.message?.includes('rejected')) {
         errorTitle = '交易被拒绝';
-        errorDescription = '您取消了交���签名';
+        errorDescription = '您取消了签名';
       } else if (tradeError.message?.includes('blockhash')) {
         errorTitle = '区块链网络繁忙';
         errorDescription = '请稍后重试';
@@ -617,44 +617,34 @@ export default function TradeBox({ tokenAddress }: { tokenAddress: string | null
   // 未选择代币时的提示界面
   const EmptyState = () => (
     <div className="h-full min-h-[400px] p-4 flex items-center justify-center">
-      <motion.div
-        className={cn(
-          "w-full flex flex-col items-center justify-center",
-          "bg-[#2f2f2f] rounded-lg p-8",
-          "space-y-4"
-        )}
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3 }}
-      >
+      <AnimatePresence mode="wait">
         <motion.div
-          initial={{ scale: 0.8 }}
-          animate={{ scale: 1 }}
-          transition={{ delay: 0.1, duration: 0.3 }}
+          key="empty-state"
+          className={cn(
+            "w-full flex flex-col items-center justify-center",
+            "bg-[#2f2f2f] rounded-lg p-8",
+            "space-y-4"
+          )}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{
+            duration: 0.3,
+            ease: "linear"
+          }}
         >
           <BarChart3 className="h-16 w-16 text-gray-400" />
-        </motion.div>
 
-        <div className="space-y-2 text-center">
-          <h3 className="text-xl font-medium text-gray-300">
-            开始交易
-          </h3>
-          <p className="text-sm text-gray-400 max-w-[240px] mx-auto leading-relaxed">
-            点击交易记录选择代币开始交易
-          </p>
-        </div>
-
-        <motion.div
-          className="mt-4 opacity-50"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 0.5 }}
-          transition={{ delay: 0.2, duration: 0.3 }}
-        >
-          <div className="text-xs text-gray-500">
-            或者从交易记录中选择代币
+          <div className="space-y-2 text-center">
+            <h3 className="text-xl font-medium text-gray-300">
+              开始交易
+            </h3>
+            <p className="text-sm text-gray-400 max-w-[240px] mx-auto leading-relaxed">
+              点击交易记录选择代币开始交易
+            </p>
           </div>
         </motion.div>
-      </motion.div>
+      </AnimatePresence>
     </div>
   );
 

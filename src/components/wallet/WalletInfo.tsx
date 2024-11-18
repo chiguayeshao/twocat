@@ -5,7 +5,8 @@ import { ExternalLink, Copy, Check, Wallet, TrendingUp, BarChart3 } from 'lucide
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import Image from 'next/image';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
+import { cn } from '@/lib/utils';
 
 interface WalletInfoProps {
     walletAddress: string | null;
@@ -105,8 +106,35 @@ export function WalletInfo({ walletAddress, onTokenSelect }: WalletInfoProps) {
 
     if (!walletAddress) {
         return (
-            <div className="flex items-center justify-center h-full text-gray-400">
-                请选择一个钱包地址
+            <div className="h-full flex items-center justify-center p-4">
+                <AnimatePresence mode="wait">
+                    <motion.div
+                        key="empty-wallet"
+                        className={cn(
+                            "w-full flex flex-col items-center justify-center",
+                            "bg-[#2f2f2f] rounded-lg p-8",
+                            "space-y-4"
+                        )}
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        transition={{
+                            duration: 0.3,
+                            ease: "linear"
+                        }}
+                    >
+                        <Wallet className="h-16 w-16 text-gray-400" />
+
+                        <div className="space-y-2 text-center">
+                            <h3 className="text-xl font-medium text-gray-300">
+                                查看钱包
+                            </h3>
+                            <p className="text-sm text-gray-400 max-w-[240px] mx-auto leading-relaxed">
+                                点击交易记录查看钱包详情
+                            </p>
+                        </div>
+                    </motion.div>
+                </AnimatePresence>
             </div>
         );
     }

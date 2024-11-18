@@ -2,12 +2,14 @@
 
 import { useEffect, useState } from 'react';
 import { formatNumber, formatPercent, formatUSD } from '@/lib/utils';
-import { Copy, Info, Check } from 'lucide-react';
+import { Copy, Info, Check, BarChart3 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from "@/components/ui/tooltip";
 import { Skeleton } from "@/components/ui/skeleton";
+import { AnimatePresence, motion } from 'framer-motion';
+import { cn } from '@/lib/utils';
 
 interface TokenStatsProps {
   tokenAddress: string | null;
@@ -223,9 +225,10 @@ export function TokenStats({ tokenAddress }: TokenStatsProps) {
   const [loading, setLoading] = useState(false);
   const [tokenInfo, setTokenInfo] = useState<TokenInfo | null>(null);
   const [selectedTime, setSelectedTime] = useState<'30m' | '1h' | '2h'>('30m');
-  const { toast } = useToast();
   const [isCopied, setIsCopied] = useState(false);
+  const { toast } = useToast();
 
+  // 将所有 useEffect 放在其他 hooks 之后，条件判断之前
   useEffect(() => {
     async function fetchData() {
       if (!tokenAddress) return;
@@ -372,7 +375,42 @@ export function TokenStats({ tokenAddress }: TokenStatsProps) {
     fetchData();
   }, [tokenAddress]);
 
-  // 如果正在加载，显示骨架屏
+  // 条件渲染放在 hooks 之后
+  if (!tokenAddress) {
+    return (
+      <div className="h-full flex items-center justify-center p-4">
+        <AnimatePresence mode="wait">
+          <motion.div
+            key="empty-token-stats"
+            className={cn(
+              "w-full flex flex-col items-center justify-center",
+              "bg-[#2f2f2f] rounded-lg p-8",
+              "space-y-4"
+            )}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{
+              duration: 0.3,
+              ease: "linear"
+            }}
+          >
+            <BarChart3 className="h-16 w-16 text-gray-400" />
+
+            <div className="space-y-2 text-center">
+              <h3 className="text-xl font-medium text-gray-300">
+                查看代币数据
+              </h3>
+              <p className="text-sm text-gray-400 max-w-[240px] mx-auto leading-relaxed">
+                点击交易记录查看代币详细数据
+              </p>
+            </div>
+          </motion.div>
+        </AnimatePresence>
+      </div>
+    );
+  }
+
   if (loading) {
     return <TokenStatsSkeleton />;
   }
