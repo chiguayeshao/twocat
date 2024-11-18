@@ -2,7 +2,7 @@
 
 import { useWallet } from '@solana/wallet-adapter-react';
 import { useConnection } from '@solana/wallet-adapter-react';
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { cn } from '@/lib/utils';
 import { ChevronUp, ChevronDown, Settings } from 'lucide-react';
 import { VersionedTransaction } from '@solana/web3.js';
@@ -35,7 +35,6 @@ enum WalletState {
 }
 
 const SOL_MINT_ADDRESS = 'So11111111111111111111111111111111111111112';
-// let MONKEY_MINT_ADDRESS = 'CBdCxKo9QavR9hfShgpEBG3zekorAeD7W1jfq2o3pump';
 
 // 添加 SOL 固定金额选项
 const SOL_AMOUNT_OPTIONS = [0.01, 0.1, 0.5, 1];
@@ -45,7 +44,15 @@ const DEVELOPER_ADDRESS = 'Hv66YTLHXUWNq7KeMboFkonu8YjJUygMstgAeB1htD24'; // 替
 const FEE_PERCENTAGE = 0.01; // 1% 手续费
 
 export default function TradeBox({ tokenAddress }: { tokenAddress: string | null }) {
-  const MONKEY_MINT_ADDRESS = tokenAddress;
+  const isValidAddress = useMemo(() => {
+    try {
+      if (!tokenAddress) return false;
+      return PublicKey.isOnCurve(new PublicKey(tokenAddress));
+    } catch {
+      return false;
+    }
+  }, [tokenAddress]);
+
   const { publicKey, signTransaction, signMessage, connected } = useWallet();
   const { connection } = useConnection();
   const { toast } = useToast();
@@ -74,7 +81,7 @@ export default function TradeBox({ tokenAddress }: { tokenAddress: string | null
     tokenInfo: tokenInfo,
     refresh: refreshBalance,
   } = useTokenBalance({
-    tokenMintAddress: MONKEY_MINT_ADDRESS || '',
+    tokenMintAddress: isValidAddress ? tokenAddress! : '',
     refreshInterval: 30000, // 可选: 每30秒自动刷新一次
   });
 
@@ -163,17 +170,15 @@ export default function TradeBox({ tokenAddress }: { tokenAddress: string | null
         title: '钱包未连接',
         description: '请先连接您的钱包',
         variant: 'destructive',
-        className: 'dark:bg-red-900 dark:text-white',
       });
       return;
     }
 
-    if (!amount || parseFloat(amount) <= 0) {
+    if (!tokenAddress || !isValidAddress) {
       toast({
-        title: '无效金额',
-        description: '请输入有效的交易金额',
+        title: '无效代币',
+        description: '代币地址无效',
         variant: 'destructive',
-        className: 'dark:bg-red-900 dark:text-white',
       });
       return;
     }
@@ -193,12 +198,12 @@ export default function TradeBox({ tokenAddress }: { tokenAddress: string | null
       // 计算手续费金额 (1% of input amount)
       const feeAmount = Math.floor(Number(atomicAmount) * FEE_PERCENTAGE);
 
-      // 使用 Jupiter API 的类型
+      // 使用 tokenAddress 替代 MONKEY_MINT_ADDRESS
       const quoteParams = {
-        inputMint: mode === 'buy' ? SOL_MINT_ADDRESS : MONKEY_MINT_ADDRESS,
-        outputMint: mode === 'buy' ? MONKEY_MINT_ADDRESS : SOL_MINT_ADDRESS,
-        amount: Number(atomicAmount), // 将 atomicAmount 转换为数字
-        slippageBps: slippage,
+        inputMint: mode === 'buy' ? SOL_MINT_ADDRESS : tokenAddress,
+        outputMint: mode === 'buy' ? tokenAddress : SOL_MINT_ADDRESS,
+        amount: Number(atomicAmount),
+        slippageBps: Math.floor(slippage * 100), // 转换为基点 (1% = 100 基点)
         asLegacyTransaction: false,
         onlyDirectRoutes: false,
       };
@@ -380,7 +385,8 @@ export default function TradeBox({ tokenAddress }: { tokenAddress: string | null
     publicKey,
     connected,
     signTransaction,
-    connection,
+    tokenAddress,
+    isValidAddress,
     amount,
     mode,
     slippage,
