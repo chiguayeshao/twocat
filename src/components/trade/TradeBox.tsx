@@ -4,7 +4,7 @@ import { useWallet } from '@solana/wallet-adapter-react';
 import { useConnection } from '@solana/wallet-adapter-react';
 import React, { useState, useEffect, useCallback } from 'react';
 import { cn } from '@/lib/utils';
-import { ChevronUp, ChevronDown } from 'lucide-react';
+import { ChevronUp, ChevronDown, Settings } from 'lucide-react';
 import { VersionedTransaction } from '@solana/web3.js';
 import { UnifiedWalletButton } from '@jup-ag/wallet-adapter';
 import { useToast } from '@/hooks/use-toast';
@@ -14,6 +14,7 @@ import { QuoteResponse } from '@jup-ag/api';
 import { useTokenBalance } from '@/hooks/use-token-balance';
 import { SystemProgram, PublicKey } from '@solana/web3.js';
 import { MessageV0 } from '@solana/web3.js';
+import { TradeSettings } from './TradeSettings';
 
 type TradeMode = 'buy' | 'sell';
 type AmountPercentage = 25 | 50 | 75 | 100;
@@ -63,6 +64,7 @@ export default function TradeBox({ tokenAddress }: { tokenAddress: string | null
   const [walletState, setWalletState] = useState<WalletState>(
     WalletState.DISCONNECTED
   );
+  const [showSettingsDialog, setShowSettingsDialog] = useState(false);
 
   const {
     isLoading,
@@ -679,137 +681,39 @@ export default function TradeBox({ tokenAddress }: { tokenAddress: string | null
         </div>
       </div>
 
-      {/* 设置按钮和面板 */}
-      <div className="relative w-full">
+      {/* 设置按钮和概览 */}
+      <div className="relative w-full flex items-center justify-between bg-discord-secondary rounded-lg px-4 py-2.5">
+        <div className="flex items-center gap-4 text-sm text-gray-300">
+          <span>滑点: {(slippage / 10).toFixed(1)}%</span>
+          <span>优先费: {priorityFee}</span>
+          <span>防夹: {isAntiMEV ? '开' : '关'}</span>
+        </div>
         <button
-          onClick={() => setIsSettingsOpen(!isSettingsOpen)}
+          onClick={() => setShowSettingsDialog(true)}
           className={cn(
-            'w-full px-4 py-2.5 flex items-center justify-between',
-            'bg-discord-secondary rounded-lg transition-all duration-200',
-            'hover:bg-discord-secondary-hover',
-            isSettingsOpen && 'rounded-b-none'
+            'p-2 rounded-full hover:bg-discord-secondary-hover',
+            'focus:outline-none focus:ring-2 focus:ring-blue-500/50'
           )}
         >
-          <div className="flex items-center gap-4 text-sm text-gray-300">
-            <span>滑点: {(slippage / 10).toFixed(1)}%</span>
-            <span>优先费: {priorityFee}</span>
-            <span>防夹: {isAntiMEV ? '开' : '关'}</span>
-          </div>
-          <ChevronDown
-            size={16}
-            className={cn(
-              'text-gray-400 transition-transform duration-200',
-              isSettingsOpen && 'rotate-180'
-            )}
-          />
+          <Settings size={16} className="text-gray-400" />
         </button>
-
-        {isSettingsOpen && (
-          <div
-            className={cn(
-              'absolute left-0 right-0 z-10 w-full',
-              'bg-discord-secondary rounded-b-lg',
-              'border-t border-discord-divider',
-              'animate-slideDown'
-            )}
-          >
-            <div className="p-4 space-y-3 max-h-[300px] overflow-y-auto custom-scrollbar">
-              {/* 滑点设置 */}
-              <div className="space-y-2">
-                <div className="text-sm text-gray-300">滑点</div>
-                <div className="flex gap-2 w-full">
-                  <button
-                    className={cn(
-                      'px-4 py-2 rounded transition-colors duration-200 whitespace-nowrap',
-                      !isEditingSlippage
-                        ? 'bg-discord-button-primary text-white'
-                        : 'bg-discord-button-secondary text-gray-300'
-                    )}
-                    onClick={() => setIsEditingSlippage(false)}
-                  >
-                    自动 {(slippage / 10).toFixed(1)}%
-                  </button>
-                  <input
-                    type="text"
-                    className={cn(
-                      'flex-1 min-w-0 bg-discord-button-secondary px-4 py-2 rounded',
-                      'text-black placeholder-gray-500',
-                      'focus:outline-none focus:ring-2 focus:ring-blue-500/50',
-                      'transition-all duration-200'
-                    )}
-                    placeholder="自定义滑点"
-                    value={isEditingSlippage ? (slippage / 10).toFixed(1) : ''}
-                    onChange={(e) => handleSlippageChange(e.target.value)}
-                    onFocus={() => setIsEditingSlippage(true)}
-                  />
-                </div>
-              </div>
-
-              {/* 优先费设置 */}
-              <div className="space-y-2">
-                <div className="text-sm text-gray-300">优先费 (SOL)</div>
-                <div className="flex gap-2 w-full">
-                  <button
-                    className={cn(
-                      'px-4 py-2 rounded transition-colors duration-200 whitespace-nowrap',
-                      !isCustomPriorityFee
-                        ? 'bg-discord-button-primary text-white'
-                        : 'bg-discord-button-secondary text-gray-300'
-                    )}
-                    onClick={() => {
-                      setIsCustomPriorityFee(false);
-                      setPriorityFee('0.012');
-                    }}
-                  >
-                    ×10 0.012
-                  </button>
-                  <input
-                    type="text"
-                    className={cn(
-                      'flex-1 min-w-0 bg-discord-button-secondary px-4 py-2 rounded',
-                      'text-black placeholder-gray-500',
-                      'focus:outline-none focus:ring-2 focus:ring-blue-500/50',
-                      'transition-all duration-200'
-                    )}
-                    placeholder="自定义优先费"
-                    value={isCustomPriorityFee ? priorityFee : ''}
-                    onChange={(e) => {
-                      setIsCustomPriorityFee(true);
-                      handlePriorityFeeChange(e.target.value);
-                    }}
-                  />
-                </div>
-              </div>
-
-              {/* 防夹设置 */}
-              <div className="flex items-center justify-between py-2">
-                <span className="text-sm text-gray-300">
-                  防夹模式(Anti-MEV)
-                </span>
-                <label className="relative inline-flex items-center cursor-pointer">
-                  <input
-                    type="checkbox"
-                    className="sr-only peer"
-                    checked={isAntiMEV}
-                    onChange={(e) => setIsAntiMEV(e.target.checked)}
-                  />
-                  <div
-                    className={cn(
-                      'w-11 h-6 rounded-full peer transition-colors duration-200',
-                      'after:content-[""] after:absolute after:top-[2px] after:left-[2px]',
-                      'after:bg-white after:rounded-full after:h-5 after:w-5',
-                      'after:transition-all after:duration-200',
-                      isAntiMEV
-                        ? 'bg-green-600 after:translate-x-full'
-                        : 'bg-gray-600'
-                    )}
-                  ></div>
-                </label>
-              </div>
-            </div>
-          </div>
-        )}
       </div>
+
+      {/* 设置弹框组件 */}
+      <TradeSettings
+        open={showSettingsDialog}
+        onOpenChange={setShowSettingsDialog}
+        slippage={slippage}
+        isEditingSlippage={isEditingSlippage}
+        setIsEditingSlippage={setIsEditingSlippage}
+        handleSlippageChange={handleSlippageChange}
+        priorityFee={priorityFee}
+        isCustomPriorityFee={isCustomPriorityFee}
+        setIsCustomPriorityFee={setIsCustomPriorityFee}
+        handlePriorityFeeChange={handlePriorityFeeChange}
+        isAntiMEV={isAntiMEV}
+        setIsAntiMEV={setIsAntiMEV}
+      />
 
       {/* 交易按钮 */}
       <div className="mt-1">{renderTradeButton()}</div>
