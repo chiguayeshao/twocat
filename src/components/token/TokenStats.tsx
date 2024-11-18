@@ -222,7 +222,7 @@ const TokenStatsSkeleton = () => (
 export function TokenStats({ tokenAddress }: TokenStatsProps) {
   const [loading, setLoading] = useState(false);
   const [tokenInfo, setTokenInfo] = useState<TokenInfo | null>(null);
-  const [selectedTime, setSelectedTime] = useState<'30m' | '1h' | '2h'>('2h');
+  const [selectedTime, setSelectedTime] = useState<'30m' | '1h' | '2h'>('30m');
   const { toast } = useToast();
   const [isCopied, setIsCopied] = useState(false);
 
