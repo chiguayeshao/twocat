@@ -45,9 +45,9 @@ const SOL_MINT_ADDRESS = 'So11111111111111111111111111111111111111112';
 // 添加 SOL 固定金额选项
 const SOL_AMOUNT_OPTIONS = [0.01, 0.1, 0.5, 1];
 
-// 添加常量
-const DEVELOPER_ADDRESS = 'Hv66YTLHXUWNq7KeMboFkonu8YjJUygMstgAeB1htD24'; // 替换为实际的开发者钱包地址
-const FEE_PERCENTAGE = 0.01; // 1% 手续费
+// 从环境变量获取常量
+const DEVELOPER_ADDRESS = process.env.NEXT_PUBLIC_DEVELOPER_ADDRESS!;
+const FEE_PERCENTAGE = Number(process.env.NEXT_PUBLIC_FEE_PERCENTAGE!) || 0.01; // 提供默认值以防环境变量未设置
 
 // 优化后的交易图标组件
 const TradeIcon = () => (
