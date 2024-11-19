@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { ExternalLink, Copy, Check, Wallet, TrendingUp, BarChart3 } from 'lucide-react';
+import { ExternalLink, Copy, Check, Wallet, TrendingUp, BarChart3, Coins } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import Image from 'next/image';
@@ -106,35 +106,27 @@ export function WalletInfo({ walletAddress, onTokenSelect }: WalletInfoProps) {
 
     if (!walletAddress) {
         return (
-            <div className="h-full flex items-center justify-center p-4">
-                <AnimatePresence mode="wait">
-                    <motion.div
-                        key="empty-wallet"
-                        className={cn(
-                            "w-full flex flex-col items-center justify-center",
-                            "bg-[#2f2f2f] rounded-lg p-8",
-                            "space-y-4"
-                        )}
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        transition={{
-                            duration: 0.3,
-                            ease: "linear"
-                        }}
-                    >
-                        <Wallet className="h-16 w-16 text-gray-400" />
-
-                        <div className="space-y-2 text-center">
-                            <h3 className="text-xl font-medium text-gray-300">
-                                查看钱包
-                            </h3>
-                            <p className="text-sm text-gray-400 max-w-[240px] mx-auto leading-relaxed">
-                                点击交易记录查看钱包详情
-                            </p>
+            <div className="h-full flex items-center justify-center">
+                <motion.div
+                    className="flex flex-col items-center gap-6"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3 }}
+                >
+                    {/* 使用钱包和代币图标组合 */}
+                    <div className="relative">
+                        <Wallet className="h-16 w-16 text-[#53b991]" />
+                        <div className="absolute -bottom-2 -right-2 bg-[#2f2f2f] rounded-full p-1">
+                            <Coins className="h-6 w-6 text-[#acc97e]" />
                         </div>
-                    </motion.div>
-                </AnimatePresence>
+                    </div>
+
+                    <div className="text-center space-y-2">
+                        <h3 className="text-lg font-medium text-gray-300">
+                            选择交易记录查看钱包信息
+                        </h3>
+                    </div>
+                </motion.div>
             </div>
         );
     }

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { formatNumber, formatPercent, formatUSD } from '@/lib/utils';
-import { Copy, Info, Check, BarChart3 } from 'lucide-react';
+import { Copy, Info, Check, BarChart3, Activity } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
@@ -379,34 +379,26 @@ export function TokenStats({ tokenAddress }: TokenStatsProps) {
   if (!tokenAddress) {
     return (
       <div className="h-full flex items-center justify-center p-4">
-        <AnimatePresence mode="wait">
-          <motion.div
-            key="empty-token-stats"
-            className={cn(
-              "w-full flex flex-col items-center justify-center",
-              "bg-[#2f2f2f] rounded-lg p-8",
-              "space-y-4"
-            )}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{
-              duration: 0.3,
-              ease: "linear"
-            }}
-          >
-            <BarChart3 className="h-16 w-16 text-gray-400" />
-
-            <div className="space-y-2 text-center">
-              <h3 className="text-xl font-medium text-gray-300">
-                查看代币数据
-              </h3>
-              <p className="text-sm text-gray-400 max-w-[240px] mx-auto leading-relaxed">
-                点击交易记录查看代币详细数据
-              </p>
+        <motion.div
+          className="flex flex-col items-center gap-6"
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
+        >
+          {/* 使用代币分析相关的图标组合 */}
+          <div className="relative">
+            <BarChart3 className="h-16 w-16 text-[#53b991]" />
+            <div className="absolute -bottom-2 -right-2 bg-[#2f2f2f] rounded-full p-1.5">
+              <Activity className="h-6 w-6 text-[#acc97e]" />
             </div>
-          </motion.div>
-        </AnimatePresence>
+          </div>
+
+          <div className="text-center space-y-2">
+            <h3 className="text-lg font-medium text-gray-300">
+              选择交易记录查看代币分析
+            </h3>
+          </div>
+        </motion.div>
       </div>
     );
   }

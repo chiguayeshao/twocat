@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { BarChart2 } from 'lucide-react';
+import { LineChart, TrendingUp, BarChart } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from '@/lib/utils';
@@ -13,14 +13,7 @@ interface KLineChartProps {
 // 添加骨架屏组件
 const KLineChartSkeleton = () => (
     <div className="p-4 space-y-4">
-        {/* K线图区域骨架屏 */}
-        <div className="space-y-2">
-
-            {/* K线图主体骨架屏 */}
-            <div className="space-y-2">
-                <Skeleton className="h-[220px] w-full bg-gray-500/20 rounded-lg" />
-            </div>
-        </div>
+        <Skeleton className="h-[220px] w-full bg-gray-500/20 rounded-lg" />
     </div>
 );
 
@@ -29,7 +22,6 @@ export function KLineChart({ tokenAddress }: KLineChartProps) {
     const [iframeLoaded, setIframeLoaded] = useState(false);
 
     useEffect(() => {
-        // 当 tokenAddress 改变时重置状态
         if (tokenAddress) {
             setIsLoading(true);
             setIframeLoaded(false);
@@ -43,34 +35,25 @@ export function KLineChart({ tokenAddress }: KLineChartProps) {
 
     if (!tokenAddress) {
         return (
-            <div className="h-full flex items-center justify-center p-4">
-                <AnimatePresence mode="wait">
-                    <motion.div
-                        key="empty-kline"
-                        className={cn(
-                            "w-full flex flex-col items-center justify-center",
-                            "bg-[#2f2f2f] rounded-lg p-8",
-                            "space-y-4"
-                        )}
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        transition={{
-                            duration: 0.3,
-                            ease: "linear"
-                        }}
-                    >
-                        <BarChart2 className="h-16 w-16 text-gray-400" />
-                        <div className="space-y-2 text-center">
-                            <h3 className="text-xl font-medium text-gray-300">
-                                查看K线图
-                            </h3>
-                            <p className="text-sm text-gray-400 max-w-[240px] mx-auto leading-relaxed">
-                                点击交易记录查看代币K线图
-                            </p>
-                        </div>
-                    </motion.div>
-                </AnimatePresence>
+            <div className="h-full flex items-center justify-center">
+                <motion.div
+                    className="flex flex-col items-center gap-6"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3 }}
+                >
+                    {/* 使用 Lucide 图标组合 */}
+                    <div className="relative">
+                        <BarChart className="h-16 w-16 text-[#53b991]" />
+                        <TrendingUp className="h-8 w-8 text-[#acc97e] absolute -bottom-2 -right-2" />
+                    </div>
+
+                    <div className="text-center space-y-1">
+                        <h3 className="text-lg font-medium text-gray-300">
+                            选择交易记录查看K线
+                        </h3>
+                    </div>
+                </motion.div>
             </div>
         );
     }

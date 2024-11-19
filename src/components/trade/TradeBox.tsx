@@ -20,6 +20,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Skeleton } from "@/components/ui/skeleton";
 import { Wallet } from 'lucide-react';
 import { BarChart3 } from 'lucide-react';
+import { ArrowLeftRight, Coins, Info } from 'lucide-react';
 
 type TradeMode = 'buy' | 'sell';
 type AmountPercentage = 25 | 50 | 75 | 100;
@@ -47,6 +48,90 @@ const SOL_AMOUNT_OPTIONS = [0.01, 0.1, 0.5, 1];
 // 添加常量
 const DEVELOPER_ADDRESS = 'Hv66YTLHXUWNq7KeMboFkonu8YjJUygMstgAeB1htD24'; // 替换为实际的开发者钱包地址
 const FEE_PERCENTAGE = 0.01; // 1% 手续费
+
+// 优化后的交易图标组件
+const TradeIcon = () => (
+  <div className="relative">
+    <motion.div
+      className="relative h-24 w-24 flex items-center justify-center"
+      initial="hidden"
+      animate="visible"
+    >
+      {/* 左侧代币 */}
+      <motion.div
+        className="absolute left-0 w-10 h-10 rounded-full bg-[#53b991] flex items-center justify-center"
+        initial={{ x: -20, opacity: 0 }}
+        animate={{ x: 0, opacity: 1 }}
+        transition={{ duration: 0.5, ease: "easeOut" }}
+      >
+        <span className="text-white font-medium">SOL</span>
+      </motion.div>
+
+      {/* 右侧代币 */}
+      <motion.div
+        className="absolute right-0 w-10 h-10 rounded-full bg-[#acc97e] flex items-center justify-center"
+        initial={{ x: 20, opacity: 0 }}
+        animate={{ x: 0, opacity: 1 }}
+        transition={{ duration: 0.5, ease: "easeOut" }}
+      >
+        <span className="text-white font-medium">代币</span>
+      </motion.div>
+
+      {/* 中间交换箭头 */}
+      <motion.div
+        className="absolute inset-0 flex items-center justify-center"
+        initial={{ scale: 0, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        transition={{ duration: 0.5, delay: 0.3 }}
+      >
+        <div className="relative w-8 h-8">
+          {/* 双向箭头 */}
+          <motion.div
+            className="absolute inset-0"
+            animate={{ rotate: 360 }}
+            transition={{
+              duration: 2,
+              repeat: Infinity,
+              ease: "linear"
+            }}
+          >
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1 h-full bg-white rounded-full" />
+            <div className="absolute top-1/2 left-0 -translate-y-1/2 w-full h-1 bg-white rounded-full" />
+            {/* 箭头头部 */}
+            <div className="absolute -right-1 top-1/2 -translate-y-1/2 w-2 h-2 bg-white"
+              style={{ clipPath: "polygon(0 0, 100% 50%, 0 100%)" }} />
+            <div className="absolute left-1/2 -top-1 -translate-x-1/2 w-2 h-2 bg-white"
+              style={{ clipPath: "polygon(50% 0, 100% 100%, 0 100%)" }} />
+          </motion.div>
+        </div>
+      </motion.div>
+    </motion.div>
+  </div>
+);
+
+// 简化的空状态组件
+const EmptyState = () => (
+  <div className="h-full flex items-center justify-center">
+    <motion.div
+      className="flex flex-col items-center gap-6"
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3 }}
+    >
+      {/* 使用现成的图标组合 */}
+      <div className="relative">
+        <Coins className="h-16 w-16 text-[#53b991]" />
+        <ArrowLeftRight className="h-8 w-8 text-[#acc97e] absolute -bottom-2 -right-2" />
+      </div>
+
+      <div className="text-center space-y-1">
+        <h3 className="text-lg font-medium text-gray-300">
+          选择交易记录开始交易
+        </h3>
+      </div>
+    </motion.div>
+  </div>
+);
 
 export default function TradeBox({ tokenAddress }: { tokenAddress: string | null }) {
   const isValidAddress = useMemo(() => {
@@ -615,40 +700,6 @@ export default function TradeBox({ tokenAddress }: { tokenAddress: string | null
 
       {/* 交易按钮骨架屏 */}
       <Skeleton className="h-12 w-full bg-gray-500/20" />
-    </div>
-  );
-
-  // 未选择代币时的提示界面
-  const EmptyState = () => (
-    <div className="h-full flex items-center justify-center p-4">
-      <AnimatePresence mode="wait">
-        <motion.div
-          key="empty-state"
-          className={cn(
-            "w-full flex flex-col items-center justify-center",
-            "bg-[#2f2f2f] rounded-lg p-8",
-            "space-y-4"
-          )}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{
-            duration: 0.3,
-            ease: "linear"
-          }}
-        >
-          <BarChart3 className="h-16 w-16 text-gray-400" />
-
-          <div className="space-y-2 text-center">
-            <h3 className="text-xl font-medium text-gray-300">
-              开始交易
-            </h3>
-            <p className="text-sm text-gray-400 max-w-[240px] mx-auto leading-relaxed">
-              点击交易记录选择代币开始交易
-            </p>
-          </div>
-        </motion.div>
-      </AnimatePresence>
     </div>
   );
 
