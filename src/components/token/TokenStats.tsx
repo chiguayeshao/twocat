@@ -516,7 +516,7 @@ export function TokenStats({ tokenAddress }: TokenStatsProps) {
                   <TooltipProvider delayDuration={100}>
                     <Tooltip>
                       <TooltipTrigger>
-                        <Info className="h-3 w-3 text-gray-400 hover:text-[#53b991]" />
+                        <Info className="h-3 w-3 text-gray-400 hover:text-[#acc97e]" />
                       </TooltipTrigger>
                       <TooltipContent
                         className="bg-[#2f2f2f] border-gray-700 p-2"
@@ -537,7 +537,7 @@ export function TokenStats({ tokenAddress }: TokenStatsProps) {
 
         <div className="flex items-center gap-4">
           <div className="text-right">
-            <div className="text-lg font-medium text-[#53b991]">
+            <div className="text-lg font-medium text-[#acc97e]">
               ${(tokenInfo.price || 0).toFixed(12)}
             </div>
             <div className="text-xs text-gray-400">
@@ -565,19 +565,19 @@ export function TokenStats({ tokenAddress }: TokenStatsProps) {
           <div className="flex-1 px-3 first:pl-0 last:pr-0">
             <div className="flex justify-between items-center">
               <span className="text-xs text-gray-400">市值</span>
-              <span className="text-sm text-[#53b991]">${formatCompactNumber(tokenInfo.marketCap)}</span>
+              <span className="text-sm text-[#acc97e]">${formatCompactNumber(tokenInfo.marketCap)}</span>
             </div>
           </div>
           <div className="flex-1 px-3">
             <div className="flex justify-between items-center">
               <span className="text-xs text-gray-400">流动性</span>
-              <span className="text-sm text-[#53b991]">${formatCompactNumber(tokenInfo.liquidity)}</span>
+              <span className="text-sm text-[#acc97e]">${formatCompactNumber(tokenInfo.liquidity)}</span>
             </div>
           </div>
           <div className="flex-1 px-3 first:pl-0 last:pr-0">
             <div className="flex justify-between items-center">
               <span className="text-xs text-gray-400">持有人数</span>
-              <span className="text-sm text-[#53b991]">{formatCompactNumber(tokenInfo.totalHolders)}</span>
+              <span className="text-sm text-[#acc97e]">{formatCompactNumber(tokenInfo.totalHolders)}</span>
             </div>
           </div>
         </div>
@@ -606,13 +606,13 @@ export function TokenStats({ tokenAddress }: TokenStatsProps) {
         <div className="flex gap-4">
           <div className="flex flex-col items-center">
             <span className="text-xs text-gray-400">创建者持仓</span>
-            <span className="text-xs text-[#53b991]">
+            <span className="text-xs text-[#acc97e]">
               {formatPercent(tokenInfo.creatorPercentage)} %
             </span>
           </div>
           <div className="flex flex-col items-center">
             <span className="text-xs text-gray-400">Top10持仓</span>
-            <span className="text-xs text-[#53b991]">
+            <span className="text-xs text-[#acc97e]">
               {formatPercent(tokenInfo.top10HolderPercent)} %
             </span>
           </div>
@@ -670,31 +670,31 @@ export function TokenStats({ tokenAddress }: TokenStatsProps) {
         <div className="bg-[#2f2f2f] rounded-lg p-2">
           <div className="flex justify-between text-xs mb-2">
             <span className="text-gray-400">交易量</span>
-            <span className="text-[#53b991]">${formatCompactNumber(getTimeFrameData(selectedTime, tokenInfo).volumeUSD)}</span>
+            <span className="text-[#acc97e]">${formatCompactNumber(getTimeFrameData(selectedTime, tokenInfo).volumeUSD)}</span>
           </div>
           <div className="flex justify-between text-xs">
             <span className="text-gray-400">交易笔数</span>
-            <span className="text-[#53b991]">{formatCompactNumber(getTimeFrameData(selectedTime, tokenInfo).trades)}</span>
+            <span className="text-[#acc97e]">{formatCompactNumber(getTimeFrameData(selectedTime, tokenInfo).trades)}</span>
           </div>
         </div>
         <div className="bg-[#2f2f2f] rounded-lg p-2">
           <div className="flex justify-between text-xs mb-2">
-            <span className="text-[#9ad499]">买入额</span>
-            <span className="text-[#53b991]">${formatCompactNumber(getTimeFrameData(selectedTime, tokenInfo).buyVolume)}</span>
+            <span className="text-[#acc97e]">买入额</span>
+            <span className="text-[#acc97e]">${formatCompactNumber(getTimeFrameData(selectedTime, tokenInfo).buyVolume)}</span>
           </div>
           <div className="flex justify-between text-xs">
             <span className="text-[#de5569]">卖出额</span>
-            <span className="text-[#53b991]">${formatCompactNumber(getTimeFrameData(selectedTime, tokenInfo).sellVolume)}</span>
+            <span className="text-[#de5569]">${formatCompactNumber(getTimeFrameData(selectedTime, tokenInfo).sellVolume)}</span>
           </div>
         </div>
         <div className="bg-[#2f2f2f] rounded-lg p-2">
           <div className="flex justify-between text-xs mb-2">
-            <span className="text-[#9ad499]">买入钱包数量</span>
-            <span className="text-[#53b991]">{formatCompactNumber(tokenInfo.buyHistory24h)}</span>
+            <span className="text-[#acc97e]">买入钱包数量</span>
+            <span className="text-[#acc97e]">{formatCompactNumber(tokenInfo.buyHistory24h)}</span>
           </div>
           <div className="flex justify-between text-xs mb-2">
             <span className="text-[#de5569]">卖出钱包数量</span>
-            <span className="text-[#53b991]">{formatCompactNumber(tokenInfo.sellHistory24h)}</span>
+            <span className="text-[#de5569]">{formatCompactNumber(tokenInfo.sellHistory24h)}</span>
           </div>
         </div>
       </div>
