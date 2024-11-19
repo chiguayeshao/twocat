@@ -57,7 +57,7 @@ export function WalletContextProvider({
     env: 'mainnet-beta',
     metadata: {
       name: 'TwoCat',
-      description: 'Solana Wallet Monitor DApp',
+      description: 'Solana Smart Money Fucker',
       url: 'https://twocat.com',
       iconUrls: ['/favicon.ico'],
     },

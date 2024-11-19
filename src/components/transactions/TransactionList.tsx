@@ -250,7 +250,7 @@ export function TransactionList({ onTransactionClick }: TransactionListProps) {
                                 {/* 头像 */}
                                 <div className="shrink-0">
                                     <Image
-                                        src="https://twocat-room-avatars.s3.ap-southeast-1.amazonaws.com/room-avatars/1731764573897-default-avatar.png"
+                                        src={process.env.NEXT_PUBLIC_DEFAULT_AVATAR_URL || ""}
                                         alt="Avatar"
                                         width={20}
                                         height={20}
