@@ -23,8 +23,6 @@ import {
 interface TransactionListProps {
     onTransactionClick: (walletAddress: string, tokenAddress: string) => void;
 }
-
-// 删除 wallet.ts 的导入，直接在组件中定义接口
 interface Transaction {
     _id: string;
     walletAddress: string;
