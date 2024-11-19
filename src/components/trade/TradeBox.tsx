@@ -390,7 +390,6 @@ export default function TradeBox({ tokenAddress }: { tokenAddress: string | null
 
       console.log('交易已发送:', signature);
 
-      // 显示成功消息
       toast({
         title: '交易成功',
         description: (
