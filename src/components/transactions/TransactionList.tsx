@@ -266,10 +266,10 @@ export function TransactionList({ onTransactionClick }: TransactionListProps) {
                                             {/* 地址和描述 */}
                                             <div className="flex items-center gap-1">
                                                 <button
-                                                    onClick={(e) => {
-                                                        e.stopPropagation();
-                                                        window.open(`https://solscan.io/account/${tx.walletAddress}`, '_blank');
-                                                    }}
+                                                    // onClick={(e) => {
+                                                    //     e.stopPropagation();
+                                                    //     window.open(`https://solscan.io/account/${tx.walletAddress}`, '_blank');
+                                                    // }}
                                                     className="font-medium text-[#53b991] hover:underline transition-colors z-10"
                                                 >
                                                     {tx.walletAddress.slice(0, 4)}...{tx.walletAddress.slice(-4)}
@@ -302,10 +302,10 @@ export function TransactionList({ onTransactionClick }: TransactionListProps) {
                                             </span>
 
                                             <button
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    window.open(`https://solscan.io/token/${tx.tokenAddress}`, '_blank');
-                                                }}
+                                                // onClick={(e) => {
+                                                //     e.stopPropagation();
+                                                //     window.open(`https://solscan.io/token/${tx.tokenAddress}`, '_blank');
+                                                // }}
                                                 className="text-[#acc97e] hover:underline transition-colors z-10"
                                             >
                                                 {tx.symbol}
