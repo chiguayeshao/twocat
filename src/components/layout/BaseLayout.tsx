@@ -85,7 +85,7 @@ export function BaseLayout({ children }: { children: React.ReactNode }) {
             </div>
 
             <div className="bg-discord-secondary rounded-lg border border-discord-divider overflow-hidden">
-              <div className="h-[calc(100%-2rem)] overflow-auto">
+              <div className="h-full overflow-auto">
                 <TradeBox
                   tokenAddress={selectedTokenAddress}
                 />
