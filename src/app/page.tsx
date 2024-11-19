@@ -10,7 +10,6 @@ export default function Home() {
           <p className="text-muted-foreground">交易信息交易信息交易信息</p>
         </div>
 
-        {/* 其他概览内容 */}
       </div>
     </BaseLayout>
   );
