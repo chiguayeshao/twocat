@@ -143,7 +143,6 @@ export function Sidebar() {
                 </div>
             </div>
 
-            {/* 频道区域 */}
             <div className="flex-1 overflow-y-auto">
                 <div className="p-2">
                     {/* 频道标题和监控按钮 */}
