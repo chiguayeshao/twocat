@@ -452,83 +452,87 @@ export default function TradeBox({ tokenAddress }: { tokenAddress: string | null
     if (publicKey) {
       if (walletState === WalletState.DISCONNECTED) {
         setWalletState(WalletState.CONNECTED);
-        handleSignIn();
+        // handleSignIn();
       }
     } else {
       setWalletState(WalletState.DISCONNECTED);
       setAuthToken(null);
     }
-  }, [publicKey, walletState, handleSignIn]);
+  }, [publicKey, walletState]);
 
   // 处理交易按钮点击
   const handleTradeButtonClick = useCallback(async () => {
-    switch (walletState) {
-      case WalletState.CONNECTED:
-        await handleSignIn();
-        break;
-      case WalletState.SIGNED:
-        setWalletState(WalletState.TRADING);
-        try {
-          await executeJupiterTrade();
-        } catch (error) {
-          console.error('Trade execution failed:', error);
-          toast({
-            title: '交易失败',
-            description: '请重试',
-            variant: 'destructive',
-            className: 'dark:bg-red-900 dark:text-white',
-          });
-        } finally {
-          setWalletState(WalletState.SIGNED);
-        }
-        break;
-    }
-  }, [walletState, handleSignIn, executeJupiterTrade, toast]);
+    if (!connected) return;
 
-  // 渲染交易按钮
+    setWalletState(WalletState.TRADING);
+    try {
+      await executeJupiterTrade();
+    } catch (error) {
+      console.error('Trade execution failed:', error);
+      toast({
+        title: '交易失败',
+        description: '请重试',
+        variant: 'destructive',
+        className: 'dark:bg-red-900 dark:text-white',
+      });
+    } finally {
+      setWalletState(WalletState.CONNECTED); // 改为 CONNECTED 状态
+    }
+  }, [connected, executeJupiterTrade, toast]);
+
+  // 添加交易条件判断
+  const canTrade = useMemo(() => {
+    if (!connected || !tokenAddress || !amount || isBalanceLoading) return false;
+
+    const numAmount = Number(amount);
+    if (isNaN(numAmount) || numAmount <= 0) return false;
+
+    // 检查余额是否足够
+    if (mode === 'buy') {
+      return numAmount <= solBalance;
+    } else {
+      return numAmount <= tokenBalance.balance;
+    }
+  }, [connected, tokenAddress, amount, mode, solBalance, tokenBalance.balance, isBalanceLoading]);
+
+  // 修改渲染交易按钮的逻辑
   const renderTradeButton = () => {
-    if (walletState === WalletState.DISCONNECTED) {
+    if (!connected) {
       return <UnifiedWalletButton />;
     }
 
-    const getButtonText = () => {
-      switch (walletState) {
-        case WalletState.SIGNING:
-          return '签名中...';
-        case WalletState.CONNECTED:
-          return '点击签名';
-        case WalletState.TRADING:
-          return '交易中...';
-        case WalletState.SIGNED:
-          return mode === 'buy' ? '买入' : '卖出';
-        default:
-          return '连接钱包';
-      }
-    };
+    if (isBalanceLoading) {
+      return (
+        <button
+          disabled
+          className={cn(
+            'w-full px-4 py-3 rounded-lg',
+            'bg-[#2f2f2f] text-gray-500',
+            'cursor-not-allowed opacity-50',
+            'text-sm font-medium'
+          )}
+        >
+          加载中...
+        </button>
+      );
+    }
 
-    const getButtonStyle = () => {
-      if (
-        walletState === WalletState.SIGNING ||
-        walletState === WalletState.TRADING
-      ) {
-        return 'bg-gray-600';
-      }
-      if (walletState === WalletState.CONNECTED) {
-        return 'bg-yellow-600';
-      }
-      return mode === 'buy' ? 'bg-[#53b991]' : 'bg-[#de5569]';
-    };
+    const isTrading = walletState === WalletState.TRADING;
 
     return (
       <button
-        className={cn('w-full py-2 rounded', getButtonStyle())}
         onClick={handleTradeButtonClick}
-        disabled={
-          walletState === WalletState.SIGNING ||
-          walletState === WalletState.TRADING
-        }
+        disabled={!canTrade || isTrading || isBalanceLoading}
+        className={cn(
+          'w-full px-4 py-3 rounded-lg',
+          'text-sm font-medium',
+          'transition-all duration-200',
+          canTrade && !isTrading && !isBalanceLoading
+            ? 'bg-[#53b991] text-white hover:bg-[#53b991]/90'
+            : 'bg-[#2f2f2f] text-gray-500 cursor-not-allowed opacity-50'
+        )}
       >
-        {getButtonText()}
+        {isTrading ? '交易中...' : mode === 'buy' ? '买入' : '卖出'}
       </button>
     );
   };
