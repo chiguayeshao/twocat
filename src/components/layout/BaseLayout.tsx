@@ -6,9 +6,27 @@ import { Header } from './Header';
 import TradeBox from '@/components/trade/TradeBox';
 import { TransactionList } from '@/components/transactions/TransactionList';
 import { KLineChart } from '@/components/charts/KLineChart';
-import { fetchRoomInfo, Room } from '@/api/twocat-core/room';
 import { TokenStats } from '@/components/token/TokenStats';
 import { WalletInfo } from '@/components/wallet/WalletInfo';
+
+interface Room {
+  _id: string;
+  roomName: string;
+  description: string;
+  isPrivate: boolean;
+  creatorWallet: string;
+  memberCount: number;
+  members: string[];
+  monitoredWallets: {
+    _id: string;
+    address: string;
+    description: string;
+  }[];
+  channels: string[];
+  avatarUrl: string;
+  createdAt: string;
+  updatedAt: string;
+}
 
 export function BaseLayout({ children }: { children: React.ReactNode }) {
   const [selectedTokenAddress, setSelectedTokenAddress] = useState<
@@ -21,8 +39,12 @@ export function BaseLayout({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const loadRoomInfo = async () => {
       try {
-        const roomData = await fetchRoomInfo('6738a22ba1a70d5fd0d14f29');
-        setRoom(roomData);
+        const response = await fetch('/api/twocat-core/rooms');
+        if (!response.ok) {
+          throw new Error('Failed to fetch room info');
+        }
+        const responseData = await response.json();
+        setRoom(responseData.data);
       } catch (error) {
         console.error('Failed to load room info:', error);
       } finally {

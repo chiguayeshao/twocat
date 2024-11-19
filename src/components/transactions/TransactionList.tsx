@@ -12,7 +12,6 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { ChevronLeft, ChevronRight, Filter, SortAsc, Loader2, MoreVertical, ExternalLink, Info } from 'lucide-react';
 import Image from 'next/image';
-import { fetchWalletTransactions, Transaction } from '@/api/twocat-core/wallet';
 import { Skeleton } from "@/components/ui/skeleton";
 import {
     Tooltip,
@@ -23,6 +22,34 @@ import {
 
 interface TransactionListProps {
     onTransactionClick: (walletAddress: string, tokenAddress: string) => void;
+}
+
+// 删除 wallet.ts 的导入，直接在组件中定义接口
+interface Transaction {
+    _id: string;
+    walletAddress: string;
+    type: "buy" | "sell";
+    solAmount: number;
+    tokenAmount: number;
+    tokenAddress: string;
+    signature: string;
+    timestamp: number;
+    symbol: string;
+    tokenName: string;
+    createdAt?: string;
+    updatedAt?: string;
+    walletDescription?: string;
+}
+
+interface TransactionResponse {
+    transactions: Transaction[];
+    pagination: {
+        total: number;
+        page: number;
+        limit: number;
+        totalPages: number;
+        hasMore: boolean;
+    };
 }
 
 export function TransactionList({ onTransactionClick }: TransactionListProps) {
@@ -37,59 +64,64 @@ export function TransactionList({ onTransactionClick }: TransactionListProps) {
     const [loading, setLoading] = useState(false);
     const [isNewPage, setIsNewPage] = useState(false);
 
-    // 添加 fetchTransactions 函数
     const fetchTransactions = useCallback(async (page: number) => {
         if (loading || page < 1) return;
 
         setLoading(true);
         setIsNewPage(true);
         try {
-            const result = await fetchWalletTransactions({
-                roomId: '67331cdeb2a6f4d517951bdb',
-                page,
-                limit: pagination.limit
+            const response = await fetch('/api/twocat-core/transactions/wallets', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    roomId: '67331cdeb2a6f4d517951bdb',
+                    page,
+                    limit: pagination.limit,
+                }),
             });
-            setTransactions(result.transactions);
-            setPagination(prev => ({
-                ...prev,
-                ...result.pagination,
-                page
-            }));
+
+            if (!response.ok) {
+                throw new Error('Failed to fetch transactions');
+            }
+
+            const data = await response.json();
+            setTransactions(data.transactions);
+            setPagination(data.pagination);
         } catch (error) {
             console.error('Failed to fetch transactions:', error);
         } finally {
             setLoading(false);
-            setTimeout(() => {
-                setIsNewPage(false);
-            }, 100);
+            setTimeout(() => setIsNewPage(false), 300);
         }
     }, [loading, pagination.limit]);
 
     const pollTransactions = useCallback(async () => {
-        if (pagination.page !== 1) return;
-
         try {
-            const result = await fetchWalletTransactions({
-                roomId: '67331cdeb2a6f4d517951bdb',
-                page: 1,
-                limit: pagination.limit
+            const response = await fetch('/api/twocat-core/transactions/wallets', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    roomId: '67331cdeb2a6f4d517951bdb',
+                    page: 1,
+                    limit: pagination.limit,
+                }),
             });
 
-            setIsNewPage(false);
-            setTransactions(prev => {
-                const newTransactions = result.transactions;
-                const newUniqueTransactions = newTransactions.filter(
-                    (newTx: Transaction) => !prev.some((existingTx: Transaction) => existingTx._id === newTx._id)
-                );
+            if (!response.ok) {
+                throw new Error('Failed to poll transactions');
+            }
 
-                if (newUniqueTransactions.length === 0) return prev;
-
-                return [...newUniqueTransactions, ...prev].slice(0, pagination.limit);
-            });
+            const data = await response.json();
+            setTransactions(data.transactions);
+            setPagination(data.pagination);
         } catch (error) {
             console.error('Failed to poll transactions:', error);
         }
-    }, [pagination.page, pagination.limit]);
+    }, [pagination.limit]);
 
     useEffect(() => {
         // 初始加载，只在组件挂载时执行一次

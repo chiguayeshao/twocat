@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { fetchRoomInfo, Room } from '@/api/twocat-core/room';
 import { cn } from "@/lib/utils";
 import {
     HomeIcon,
@@ -57,6 +56,27 @@ const channel: Channel = {
     ]
 };
 
+interface MonitoredWallet {
+    _id: string;
+    address: string;
+    description: string;
+}
+
+interface Room {
+    _id: string;
+    roomName: string;
+    description: string;
+    isPrivate: boolean;
+    creatorWallet: string;
+    memberCount: number;
+    members: string[];
+    monitoredWallets: MonitoredWallet[];
+    channels: string[];
+    avatarUrl: string;
+    createdAt: string;
+    updatedAt: string;
+}
+
 export function Sidebar() {
     const pathname = usePathname();
     const [room, setRoom] = useState<Room | null>(null);
@@ -66,8 +86,12 @@ export function Sidebar() {
     useEffect(() => {
         const loadRoomInfo = async () => {
             try {
-                const roomData = await fetchRoomInfo('6738a22ba1a70d5fd0d14f29');
-                setRoom(roomData);
+                const response = await fetch('/api/twocat-core/rooms');
+                if (!response.ok) {
+                    throw new Error('Failed to fetch room info');
+                }
+                const responseData = await response.json();
+                setRoom(responseData.data);
             } catch (error) {
                 console.error('Failed to load room info:', error);
             } finally {
