@@ -76,7 +76,7 @@ export function TransactionList({ onTransactionClick }: TransactionListProps) {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    roomId: '67331cdeb2a6f4d517951bdb',
+                    roomId: '673c95ae1723f24444385454',
                     page,
                     limit: pagination.limit,
                 }),
@@ -105,7 +105,7 @@ export function TransactionList({ onTransactionClick }: TransactionListProps) {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    roomId: '67331cdeb2a6f4d517951bdb',
+                    roomId: '673c95ae1723f24444385454',
                     page: 1,
                     limit: pagination.limit,
                 }),
