@@ -28,6 +28,7 @@ import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from "@/components/ui/skeleton";
+import Image from 'next/image';
 
 // 定义视图类型
 type View = {
@@ -121,8 +122,24 @@ export function Sidebar() {
         <div className="w-60 h-screen bg-discord-secondary flex flex-col">
             {/* 顶部区域 */}
             <div className="p-3 border-b border-discord-divider">
-                <div className="bg-discord-primary rounded-md p-2">
-                    Two Cat Beta
+                <div className="bg-discord-primary rounded-md p-2 flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                        <div className="rounded-full overflow-hidden">
+                            <Image
+                                src="/images/twocatlogo.jpg"
+                                alt="Two Cat Logo"
+                                width={28}
+                                height={28}
+                                className="object-cover"
+                            />
+                        </div>
+                        <div className="flex items-center gap-1.5">
+                            <span className="font-semibold text-[15px]">Two Cat</span>
+                            <div className="px-1.5 py-0.5 bg-[#53b991]/10 rounded-md border border-[#53b991]/20">
+                                <span className="text-xs font-medium text-[#53b991]">BETA</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -203,10 +220,10 @@ export function Sidebar() {
                                     </>
                                 ) : (
                                     <>
-                                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                        {/* <div className="flex items-center gap-2 text-sm text-muted-foreground">
                                             <UsersIcon className="h-4 w-4" />
                                             <span>{room?.memberCount || 0} 位成员</span>
-                                        </div>
+                                        </div> */}
                                         <div className="flex items-center gap-2 text-sm text-muted-foreground">
                                             <ListIcon className="h-4 w-4" />
                                             <Dialog>
@@ -316,7 +333,7 @@ export function Sidebar() {
                                     )
                                 )}
                             >
-                                {/* 添加选中指示器 */}
+                                {/* 添加选指示器 */}
                                 {isGeneralActive && (
                                     <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-4 bg-white rounded-r-full" />
                                 )}
