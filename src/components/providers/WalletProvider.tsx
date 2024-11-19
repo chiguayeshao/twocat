@@ -10,7 +10,6 @@ import { useEffect, useState } from 'react';
 
 const WALLET_CONNECTED_KEY = 'wallet_connected';
 
-// 定义错误处理函数类型
 type WalletErrorHandler = (error: WalletError) => void;
 
 const handleWalletError: WalletErrorHandler = (error) => {
