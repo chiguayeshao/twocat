@@ -19,6 +19,7 @@ export interface Transaction {
   tokenName: string;
   createdAt?: string;
   updatedAt?: string;
+  walletDescription?: string;
 }
 
 interface TransactionResponse {

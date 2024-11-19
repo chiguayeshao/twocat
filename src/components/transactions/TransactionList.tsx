@@ -10,10 +10,16 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { ChevronLeft, ChevronRight, Filter, SortAsc, Loader2, MoreVertical, ExternalLink } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Filter, SortAsc, Loader2, MoreVertical, ExternalLink, Info } from 'lucide-react';
 import Image from 'next/image';
 import { fetchWalletTransactions, Transaction } from '@/api/twocat-core/wallet';
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipProvider,
+    TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface TransactionListProps {
     onTransactionClick: (walletAddress: string, tokenAddress: string) => void;
@@ -225,16 +231,33 @@ export function TransactionList({ onTransactionClick }: TransactionListProps) {
                                 <div className="flex-1 min-w-0 pr-7">
                                     <div className="flex items-center justify-between">
                                         <div className="flex items-center gap-2 text-xs">
-                                            {/* 地址 */}
-                                            <button
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    window.open(`https://solscan.io/account/${tx.walletAddress}`, '_blank');
-                                                }}
-                                                className="font-medium text-[#53b991] hover:underline transition-colors z-10"
-                                            >
-                                                {tx.walletAddress.slice(0, 4)}...{tx.walletAddress.slice(-4)}
-                                            </button>
+                                            {/* 地址和描述 */}
+                                            <div className="flex items-center gap-1">
+                                                <button
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        window.open(`https://solscan.io/account/${tx.walletAddress}`, '_blank');
+                                                    }}
+                                                    className="font-medium text-[#53b991] hover:underline transition-colors z-10"
+                                                >
+                                                    {tx.walletAddress.slice(0, 4)}...{tx.walletAddress.slice(-4)}
+                                                </button>
+
+                                                {tx.walletDescription && (
+                                                    <TooltipProvider delayDuration={0}>
+                                                        <Tooltip>
+                                                            <TooltipTrigger asChild>
+                                                                <span className="text-gray-400 max-w-[150px] truncate cursor-help">
+                                                                    ({tx.walletDescription})
+                                                                </span>
+                                                            </TooltipTrigger>
+                                                            <TooltipContent>
+                                                                <p className="text-sm">{tx.walletDescription}</p>
+                                                            </TooltipContent>
+                                                        </Tooltip>
+                                                    </TooltipProvider>
+                                                )}
+                                            </div>
 
                                             {/* 交易类型 */}
                                             <span className={tx.type === 'buy' ? 'text-[#9ad499]' : 'text-[#de5569]'}>
