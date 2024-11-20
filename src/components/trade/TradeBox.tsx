@@ -94,7 +94,7 @@ export default function TradeBox({
   const [amount, setAmount] = useState<string>(
     SOL_AMOUNT_OPTIONS[0].toString()
   );
-  const [slippage, setSlippage] = useState<number>(5); // 5%
+  const [slippage, setSlippage] = useState<number>(150); // 5%
   const [isAutoMode, setIsAutoMode] = useState<boolean>(false);
   const [isEditingSlippage, setIsEditingSlippage] = useState<boolean>(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
@@ -238,7 +238,7 @@ export default function TradeBox({
         inputMint: mode === 'buy' ? SOL_MINT_ADDRESS : tokenAddress,
         outputMint: mode === 'buy' ? tokenAddress : SOL_MINT_ADDRESS,
         amount: Number(atomicAmount),
-        slippageBps: Math.floor(slippage * 100), // 转换为基点 (1% = 100 基点)
+        slippageBps: Math.floor(slippage * 1), // 转换为基点 (1% = 100 基点)
         asLegacyTransaction: true,
         onlyDirectRoutes: false,
       };
