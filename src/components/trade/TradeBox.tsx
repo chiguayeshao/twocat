@@ -42,7 +42,7 @@ enum WalletState {
 
 const SOL_MINT_ADDRESS = 'So11111111111111111111111111111111111111112';
 
-// 添加 SOL 固定金额选项
+// 添加SOL固定金额选项
 const SOL_AMOUNT_OPTIONS = [0.01, 0.1, 0.5, 1];
 
 // 从环境变量获取常量
@@ -263,29 +263,27 @@ export default function TradeBox({
       const inputAmount =
         mode === 'buy'
           ? (atomicAmount / Math.pow(10, tokenInfo.solDecimals)).toFixed(
-              tokenInfo.solDecimals
-            )
+            tokenInfo.solDecimals
+          )
           : (atomicAmount / Math.pow(10, tokenInfo.tokenDecimals)).toFixed(
-              tokenInfo.tokenDecimals
-            );
+            tokenInfo.tokenDecimals
+          );
       const outputAmount =
         mode === 'buy'
           ? (
-              Number(quoteResponse.outAmount) /
-              Math.pow(10, tokenInfo.tokenDecimals)
-            ).toFixed(tokenInfo.tokenDecimals)
+            Number(quoteResponse.outAmount) /
+            Math.pow(10, tokenInfo.tokenDecimals)
+          ).toFixed(tokenInfo.tokenDecimals)
           : (
-              Number(quoteResponse.outAmount) /
-              Math.pow(10, tokenInfo.solDecimals)
-            ).toFixed(tokenInfo.solDecimals);
+            Number(quoteResponse.outAmount) /
+            Math.pow(10, tokenInfo.solDecimals)
+          ).toFixed(tokenInfo.solDecimals);
 
       console.log('交易预览:', {
-        输入: `${inputAmount} ${
-          mode === 'buy' ? tokenInfo.solSymbol : tokenInfo.tokenSymbol
-        }`,
-        输出: `${outputAmount} ${
-          mode === 'buy' ? tokenInfo.tokenSymbol : tokenInfo.solSymbol
-        }`,
+        输入: `${inputAmount} ${mode === 'buy' ? tokenInfo.solSymbol : tokenInfo.tokenSymbol
+          }`,
+        输出: `${outputAmount} ${mode === 'buy' ? tokenInfo.tokenSymbol : tokenInfo.solSymbol
+          }`,
         滑点: `${slippage / 10}%`,
         优先费: `${priorityFee} ${tokenInfo.solSymbol}`,
         手续费: `${(feeAmount / 1e9).toFixed(9)} ${tokenInfo.solSymbol}`,
@@ -299,8 +297,8 @@ export default function TradeBox({
           userPublicKey: publicKey.toBase58(),
           prioritizationFeeLamports: isAntiMEV
             ? {
-                jitoTipLamports: Math.floor(parseFloat(priorityFee) * 1e9),
-              }
+              jitoTipLamports: Math.floor(parseFloat(priorityFee) * 1e9),
+            }
             : Math.floor(parseFloat(priorityFee) * 1e9),
           dynamicComputeUnitLimit: true,
           asLegacyTransaction: true,
@@ -815,42 +813,42 @@ export default function TradeBox({
           <div className="grid grid-cols-4 gap-1">
             {mode === 'buy'
               ? SOL_AMOUNT_OPTIONS.map((solAmount) => (
-                  <motion.button
-                    key={solAmount}
-                    className={cn(
-                      'py-1.5 rounded-lg text-xs font-medium',
-                      'bg-[#2f2f2f] hover:bg-[#353535]',
-                      'text-gray-300 hover:text-[#acc97e]',
-                      'transition-all duration-200'
-                    )}
-                    onClick={() => handleAmountPercentageClick(solAmount)}
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                  >
-                    {solAmount}
-                  </motion.button>
-                ))
+                <motion.button
+                  key={solAmount}
+                  className={cn(
+                    'py-1.5 rounded-lg text-xs font-medium',
+                    'bg-[#2f2f2f] hover:bg-[#353535]',
+                    'text-gray-300 hover:text-[#acc97e]',
+                    'transition-all duration-200'
+                  )}
+                  onClick={() => handleAmountPercentageClick(solAmount)}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  {solAmount}
+                </motion.button>
+              ))
               : [25, 50, 75, 100].map((percentage) => (
-                  <motion.button
-                    key={percentage}
-                    className={cn(
-                      'py-1.5 rounded-lg text-xs font-medium',
-                      'bg-[#2f2f2f] hover:bg-[#353535]',
-                      'text-gray-300 hover:text-[#acc97e]',
-                      'transition-all duration-200'
-                    )}
-                    onClick={() =>
-                      handleAmountPercentageClick(
-                        percentage as AmountPercentage
-                      )
-                    }
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    disabled={tokenBalance.balance === 0}
-                  >
-                    {percentage}%
-                  </motion.button>
-                ))}
+                <motion.button
+                  key={percentage}
+                  className={cn(
+                    'py-1.5 rounded-lg text-xs font-medium',
+                    'bg-[#2f2f2f] hover:bg-[#353535]',
+                    'text-gray-300 hover:text-[#acc97e]',
+                    'transition-all duration-200'
+                  )}
+                  onClick={() =>
+                    handleAmountPercentageClick(
+                      percentage as AmountPercentage
+                    )
+                  }
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  disabled={tokenBalance.balance === 0}
+                >
+                  {percentage}%
+                </motion.button>
+              ))}
           </div>
         </div>
 
