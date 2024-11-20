@@ -43,6 +43,7 @@ export class JupiterService {
       prioritizationFeeLamports?: number | { jitoTipLamports: number };
       dynamicComputeUnitLimit?: boolean;
       asLegacyTransaction: boolean;
+      dynamicSlippage: { maxBps: number };
     };
   }): Promise<SwapResponse> {
     try {

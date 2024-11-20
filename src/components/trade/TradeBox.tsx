@@ -17,7 +17,7 @@ import { MessageV0 } from '@solana/web3.js';
 import { TradeSettings } from './TradeSettings';
 import { TrendingUp, TrendingDown } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Skeleton } from "@/components/ui/skeleton";
+import { Skeleton } from '@/components/ui/skeleton';
 import { Wallet } from 'lucide-react';
 import { BarChart3 } from 'lucide-react';
 import { ArrowLeftRight, Coins, Info } from 'lucide-react';
@@ -49,7 +49,6 @@ const SOL_AMOUNT_OPTIONS = [0.01, 0.1, 0.5, 1];
 const DEVELOPER_ADDRESS = process.env.NEXT_PUBLIC_DEVELOPER_ADDRESS!;
 const FEE_PERCENTAGE = Number(process.env.NEXT_PUBLIC_FEE_PERCENTAGE!) || 0.01; // 提供默认值以防环境变量未设置
 
-
 // 简化的空状态组件
 const EmptyState = () => (
   <div className="h-full flex items-center justify-center">
@@ -74,7 +73,11 @@ const EmptyState = () => (
   </div>
 );
 
-export default function TradeBox({ tokenAddress }: { tokenAddress: string | null }) {
+export default function TradeBox({
+  tokenAddress,
+}: {
+  tokenAddress: string | null;
+}) {
   const isValidAddress = useMemo(() => {
     try {
       if (!tokenAddress) return false;
@@ -91,7 +94,7 @@ export default function TradeBox({ tokenAddress }: { tokenAddress: string | null
   const [amount, setAmount] = useState<string>(
     SOL_AMOUNT_OPTIONS[0].toString()
   );
-  const [slippage, setSlippage] = useState<number>(2.5); // 2.5%
+  const [slippage, setSlippage] = useState<number>(5); // 5%
   const [isAutoMode, setIsAutoMode] = useState<boolean>(false);
   const [isEditingSlippage, setIsEditingSlippage] = useState<boolean>(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
@@ -244,7 +247,7 @@ export default function TradeBox({ tokenAddress }: { tokenAddress: string | null
       const quoteResponse = (await JupiterService.getQuote({
         ...quoteParams,
         inputMint: quoteParams.inputMint || '',
-        outputMint: quoteParams.outputMint || ''
+        outputMint: quoteParams.outputMint || '',
       })) as QuoteResponse;
 
       if (!quoteResponse) {
@@ -260,27 +263,29 @@ export default function TradeBox({ tokenAddress }: { tokenAddress: string | null
       const inputAmount =
         mode === 'buy'
           ? (atomicAmount / Math.pow(10, tokenInfo.solDecimals)).toFixed(
-            tokenInfo.solDecimals
-          )
+              tokenInfo.solDecimals
+            )
           : (atomicAmount / Math.pow(10, tokenInfo.tokenDecimals)).toFixed(
-            tokenInfo.tokenDecimals
-          );
+              tokenInfo.tokenDecimals
+            );
       const outputAmount =
         mode === 'buy'
           ? (
-            Number(quoteResponse.outAmount) /
-            Math.pow(10, tokenInfo.tokenDecimals)
-          ).toFixed(tokenInfo.tokenDecimals)
+              Number(quoteResponse.outAmount) /
+              Math.pow(10, tokenInfo.tokenDecimals)
+            ).toFixed(tokenInfo.tokenDecimals)
           : (
-            Number(quoteResponse.outAmount) /
-            Math.pow(10, tokenInfo.solDecimals)
-          ).toFixed(tokenInfo.solDecimals);
+              Number(quoteResponse.outAmount) /
+              Math.pow(10, tokenInfo.solDecimals)
+            ).toFixed(tokenInfo.solDecimals);
 
       console.log('交易预览:', {
-        输入: `${inputAmount} ${mode === 'buy' ? tokenInfo.solSymbol : tokenInfo.tokenSymbol
-          }`,
-        输出: `${outputAmount} ${mode === 'buy' ? tokenInfo.tokenSymbol : tokenInfo.solSymbol
-          }`,
+        输入: `${inputAmount} ${
+          mode === 'buy' ? tokenInfo.solSymbol : tokenInfo.tokenSymbol
+        }`,
+        输出: `${outputAmount} ${
+          mode === 'buy' ? tokenInfo.tokenSymbol : tokenInfo.solSymbol
+        }`,
         滑点: `${slippage / 10}%`,
         优先费: `${priorityFee} ${tokenInfo.solSymbol}`,
         手续费: `${(feeAmount / 1e9).toFixed(9)} ${tokenInfo.solSymbol}`,
@@ -294,11 +299,12 @@ export default function TradeBox({ tokenAddress }: { tokenAddress: string | null
           userPublicKey: publicKey.toBase58(),
           prioritizationFeeLamports: isAntiMEV
             ? {
-              jitoTipLamports: Math.floor(parseFloat(priorityFee) * 1e9),
-            }
+                jitoTipLamports: Math.floor(parseFloat(priorityFee) * 1e9),
+              }
             : Math.floor(parseFloat(priorityFee) * 1e9),
           dynamicComputeUnitLimit: true,
           asLegacyTransaction: true,
+          dynamicSlippage: { maxBps: 500 },
         },
       };
 
@@ -507,7 +513,8 @@ export default function TradeBox({ tokenAddress }: { tokenAddress: string | null
 
   // 添加交易条件判断
   const canTrade = useMemo(() => {
-    if (!connected || !tokenAddress || !amount || isBalanceLoading) return false;
+    if (!connected || !tokenAddress || !amount || isBalanceLoading)
+      return false;
 
     const numAmount = Number(amount);
     if (isNaN(numAmount) || numAmount <= 0) return false;
@@ -518,7 +525,15 @@ export default function TradeBox({ tokenAddress }: { tokenAddress: string | null
     } else {
       return numAmount <= tokenBalance.balance;
     }
-  }, [connected, tokenAddress, amount, mode, solBalance, tokenBalance.balance, isBalanceLoading]);
+  }, [
+    connected,
+    tokenAddress,
+    amount,
+    mode,
+    solBalance,
+    tokenBalance.balance,
+    isBalanceLoading,
+  ]);
 
   // 修改渲染交易按钮的逻辑
   const renderTradeButton = () => {
@@ -579,7 +594,12 @@ export default function TradeBox({ tokenAddress }: { tokenAddress: string | null
       return tokenInfo.solDecimals;
     }
     return tokenBalance.decimals || tokenInfo.tokenDecimals;
-  }, [mode, tokenInfo.solDecimals, tokenInfo.tokenDecimals, tokenBalance.decimals]);
+  }, [
+    mode,
+    tokenInfo.solDecimals,
+    tokenInfo.tokenDecimals,
+    tokenBalance.decimals,
+  ]);
 
   const getDisplaySymbol = useCallback(() => {
     if (mode === 'buy') {
@@ -662,12 +682,12 @@ export default function TradeBox({ tokenAddress }: { tokenAddress: string | null
         <motion.div className="w-full">
           <UnifiedWalletButton
             buttonClassName={cn(
-              "w-full py-3 rounded-lg font-medium text-sm",
-              "bg-[#2f2f2f] hover:bg-[#353535]",
-              "text-[#acc97e] hover:text-[#53b991]",
-              "transition-all duration-200 ease-out",
-              "flex items-center justify-center gap-2",
-              "shadow-lg shadow-black/5"
+              'w-full py-3 rounded-lg font-medium text-sm',
+              'bg-[#2f2f2f] hover:bg-[#353535]',
+              'text-[#acc97e] hover:text-[#53b991]',
+              'transition-all duration-200 ease-out',
+              'flex items-center justify-center gap-2',
+              'shadow-lg shadow-black/5'
             )}
             overrideContent={
               <div className="flex items-center gap-2">
@@ -735,7 +755,9 @@ export default function TradeBox({ tokenAddress }: { tokenAddress: string | null
           <div className="grid grid-cols-2 gap-2">
             <div className="bg-[#2a2a2a] rounded p-1.5">
               <div className="flex justify-between items-center">
-                <span className="text-xs text-gray-300">{tokenInfo.solSymbol}</span>
+                <span className="text-xs text-gray-300">
+                  {tokenInfo.solSymbol}
+                </span>
                 <span className="text-xs text-[#acc97e]">
                   {solBalance.toFixed(6)} {tokenInfo.solSymbol}
                 </span>
@@ -762,11 +784,10 @@ export default function TradeBox({ tokenAddress }: { tokenAddress: string | null
         {/* 数量输入 - 更紧凑的样式 */}
         <div className="space-y-2">
           <div className="flex justify-between items-center text-xs">
-            <span className="text-gray-300">
-              数量 ({getDisplaySymbol()})
-            </span>
+            <span className="text-gray-300">数量 ({getDisplaySymbol()})</span>
             <span className="text-gray-400">
-              最大: {mode === 'buy'
+              最大:{' '}
+              {mode === 'buy'
                 ? solBalance.toFixed(getDisplayDecimals())
                 : tokenBalance.balance.toFixed(getDisplayDecimals())}
             </span>
@@ -794,38 +815,42 @@ export default function TradeBox({ tokenAddress }: { tokenAddress: string | null
           <div className="grid grid-cols-4 gap-1">
             {mode === 'buy'
               ? SOL_AMOUNT_OPTIONS.map((solAmount) => (
-                <motion.button
-                  key={solAmount}
-                  className={cn(
-                    'py-1.5 rounded-lg text-xs font-medium',
-                    'bg-[#2f2f2f] hover:bg-[#353535]',
-                    'text-gray-300 hover:text-[#acc97e]',
-                    'transition-all duration-200'
-                  )}
-                  onClick={() => handleAmountPercentageClick(solAmount)}
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                >
-                  {solAmount}
-                </motion.button>
-              ))
+                  <motion.button
+                    key={solAmount}
+                    className={cn(
+                      'py-1.5 rounded-lg text-xs font-medium',
+                      'bg-[#2f2f2f] hover:bg-[#353535]',
+                      'text-gray-300 hover:text-[#acc97e]',
+                      'transition-all duration-200'
+                    )}
+                    onClick={() => handleAmountPercentageClick(solAmount)}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    {solAmount}
+                  </motion.button>
+                ))
               : [25, 50, 75, 100].map((percentage) => (
-                <motion.button
-                  key={percentage}
-                  className={cn(
-                    'py-1.5 rounded-lg text-xs font-medium',
-                    'bg-[#2f2f2f] hover:bg-[#353535]',
-                    'text-gray-300 hover:text-[#acc97e]',
-                    'transition-all duration-200'
-                  )}
-                  onClick={() => handleAmountPercentageClick(percentage as AmountPercentage)}
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  disabled={tokenBalance.balance === 0}
-                >
-                  {percentage}%
-                </motion.button>
-              ))}
+                  <motion.button
+                    key={percentage}
+                    className={cn(
+                      'py-1.5 rounded-lg text-xs font-medium',
+                      'bg-[#2f2f2f] hover:bg-[#353535]',
+                      'text-gray-300 hover:text-[#acc97e]',
+                      'transition-all duration-200'
+                    )}
+                    onClick={() =>
+                      handleAmountPercentageClick(
+                        percentage as AmountPercentage
+                      )
+                    }
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    disabled={tokenBalance.balance === 0}
+                  >
+                    {percentage}%
+                  </motion.button>
+                ))}
           </div>
         </div>
 
@@ -835,9 +860,17 @@ export default function TradeBox({ tokenAddress }: { tokenAddress: string | null
           whileHover={{ scale: 1.01 }}
         >
           <div className="flex items-center gap-3 text-xs text-gray-300">
-            <span>滑点: <span className="text-[#53b991]">{slippage.toFixed(1)}%</span></span>
-            <span>优先费: <span className="text-[#53b991]">{priorityFee}</span></span>
-            <span>防夹: <span className="text-[#53b991]">{isAntiMEV ? '开' : '关'}</span></span>
+            <span>
+              滑点:{' '}
+              <span className="text-[#53b991]">{slippage.toFixed(1)}%</span>
+            </span>
+            <span>
+              优先费: <span className="text-[#53b991]">{priorityFee}</span>
+            </span>
+            <span>
+              防夹:{' '}
+              <span className="text-[#53b991]">{isAntiMEV ? '开' : '关'}</span>
+            </span>
           </div>
           <motion.button
             onClick={() => setShowSettingsDialog(true)}
