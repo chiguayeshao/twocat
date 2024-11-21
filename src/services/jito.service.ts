@@ -52,7 +52,7 @@ export class JitoService {
       // 使用 Helius 获取最新区块信息
       const heliusConnection = new Connection(this.HELIUS_ENDPOINT, {
         commitment: "confirmed",
-        confirmTransactionInitialTimeout: 120000,
+        confirmTransactionInitialTimeout: 12000,
       });
 
       const { blockhash, lastValidBlockHeight: newLastValidBlockHeight } =
