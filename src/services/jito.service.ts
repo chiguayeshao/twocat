@@ -89,6 +89,7 @@ export class JitoService {
           signature,
           blockhash,
           lastValidBlockHeight: newLastValidBlockHeight,
+          abortSignal: AbortSignal.timeout(10000), // 10秒超时
         },
         "confirmed"
       );

@@ -279,15 +279,15 @@ export default function TradeBox({
             Math.pow(10, tokenInfo.solDecimals)
           ).toFixed(tokenInfo.solDecimals);
 
-      console.log('交易预览:', {
-        输入: `${inputAmount} ${mode === 'buy' ? tokenInfo.solSymbol : tokenInfo.tokenSymbol
-          }`,
-        输出: `${outputAmount} ${mode === 'buy' ? tokenInfo.tokenSymbol : tokenInfo.solSymbol
-          }`,
-        滑点: `${slippage / 10}%`,
-        优先费: `${priorityFee} ${tokenInfo.solSymbol}`,
-        手续费: `${(feeAmount / 1e9).toFixed(9)} ${tokenInfo.solSymbol}`,
-      });
+      // console.log('交易预览:', {
+      //   输入: `${inputAmount} ${mode === 'buy' ? tokenInfo.solSymbol : tokenInfo.tokenSymbol
+      //     }`,
+      //   输出: `${outputAmount} ${mode === 'buy' ? tokenInfo.tokenSymbol : tokenInfo.solSymbol
+      //     }`,
+      //   滑点: `${slippage / 10}%`,
+      //   优先费: `${priorityFee} ${tokenInfo.solSymbol}`,
+      //   手续费: `${(feeAmount / 1e9).toFixed(9)} ${tokenInfo.solSymbol}`,
+      // });
 
       console.log('正在准备交易...');
       // 使用 Jupiter API 的类型

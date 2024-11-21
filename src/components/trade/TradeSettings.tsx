@@ -97,7 +97,7 @@ export function TradeSettings({
         handleSlippageChange(initialValues.slippage.toString());
         setIsCustomPriorityFee(initialValues.isCustomPriorityFee);
         setPriorityFee(initialValues.priorityFee);
-        setIsAntiMEV(initialValues.isAntiMEV);
+        setIsAntiMEV(true);
 
         // 关闭弹框
         onOpenChange(false);
@@ -163,7 +163,7 @@ export function TradeSettings({
                                 type="checkbox"
                                 className="sr-only peer"
                                 checked={isAntiMEV}
-                                onChange={(e) => setIsAntiMEV(e.target.checked)}
+                                onChange={(e) => setIsAntiMEV(true)}
                             />
                             <div className={cn(
                                 'w-12 h-7 rounded-full peer transition-colors duration-200',
