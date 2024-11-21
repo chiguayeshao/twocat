@@ -11,7 +11,7 @@ interface WalletAdapter {
 
 export class JitoService {
   private static readonly HELIUS_ENDPOINT =
-    "https://mainnet.helius-rpc.com/?api-key=9194ce2f-0f46-4155-804f-204ad01be750";
+    "https://rpc-proxy.twocatteam.workers.dev/";
 
   private static readonly JITO_ENDPOINT =
     "https://mainnet.block-engine.jito.wtf";

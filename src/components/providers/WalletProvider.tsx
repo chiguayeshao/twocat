@@ -49,7 +49,7 @@ export function WalletContextProvider({
   }, []);
 
   const endpoint =
-    'https://mainnet.helius-rpc.com/?api-key=9194ce2f-0f46-4155-804f-204ad01be750';
+    'https://rpc-proxy.twocatteam.workers.dev/';
 
   const config: IUnifiedWalletConfig = {
     autoConnect: shouldAutoConnect,
