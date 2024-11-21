@@ -15,6 +15,8 @@ interface TradeSettingsProps {
     isCustomPriorityFee: boolean;
     setIsCustomPriorityFee: (value: boolean) => void;
     setPriorityFee: (value: string) => void;
+    isAntiMEV: boolean;
+    setIsAntiMEV: (value: boolean) => void;
 }
 
 const DEFAULT_PRIORITY_FEE = '0.018';
@@ -31,6 +33,8 @@ export function TradeSettings({
     isCustomPriorityFee,
     setIsCustomPriorityFee,
     setPriorityFee,
+    isAntiMEV,
+    setIsAntiMEV,
 }: TradeSettingsProps) {
     // 保存打开弹框时的初始值
     const [initialValues, setInitialValues] = useState({
@@ -38,6 +42,7 @@ export function TradeSettings({
         isEditingSlippage,
         priorityFee,
         isCustomPriorityFee,
+        isAntiMEV,
     });
 
     // 当弹框打开时，保存当前的设置值
@@ -48,6 +53,7 @@ export function TradeSettings({
                 isEditingSlippage,
                 priorityFee,
                 isCustomPriorityFee,
+                isAntiMEV,
             });
         }
     }, [open]);
@@ -91,6 +97,7 @@ export function TradeSettings({
         handleSlippageChange(initialValues.slippage.toString());
         setIsCustomPriorityFee(initialValues.isCustomPriorityFee);
         setPriorityFee(initialValues.priorityFee);
+        setIsAntiMEV(initialValues.isAntiMEV);
 
         // 关闭弹框
         onOpenChange(false);
@@ -129,7 +136,7 @@ export function TradeSettings({
     // 处理弹框关闭事件
     const handleOpenChange = (open: boolean) => {
         if (!open) {
-            handleCancel(); // 点击外部关闭时，调���取消处理函数
+            handleCancel(); // 点击外部关闭时，调用取消处理函数
         }
         onOpenChange(open);
     };
@@ -146,14 +153,28 @@ export function TradeSettings({
                 </div>
 
                 <div className="p-4 space-y-8">
-                    {/* 防夹设置 - 移除或显示为已启用且不可更改 */}
+                    {/* 防夹设置 */}
                     <div className="flex items-center justify-between">
                         <span className="text-base text-gray-300">
                             防夹模式(Anti-MEV)
                         </span>
-                        <div className="text-[#53b991] font-medium">
-                            已启用
-                        </div>
+                        <label className="relative inline-flex items-center cursor-pointer">
+                            <input
+                                type="checkbox"
+                                className="sr-only peer"
+                                checked={isAntiMEV}
+                                onChange={(e) => setIsAntiMEV(e.target.checked)}
+                            />
+                            <div className={cn(
+                                'w-12 h-7 rounded-full peer transition-colors duration-200',
+                                'after:content-[""] after:absolute after:top-[2px] after:left-[2px]',
+                                'after:bg-white after:rounded-full after:h-6 after:w-6',
+                                'after:transition-all after:duration-200',
+                                isAntiMEV
+                                    ? 'bg-[#53b991] after:translate-x-full'
+                                    : 'bg-[#2f2f2f]'
+                            )}></div>
+                        </label>
                     </div>
 
                     {/* 优先费设置 */}
