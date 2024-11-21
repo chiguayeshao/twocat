@@ -566,7 +566,9 @@ export default function TradeBox({
           'text-sm font-medium',
           'transition-all duration-200',
           canTrade && !isTrading && !isBalanceLoading
-            ? 'bg-[#53b991] text-white hover:bg-[#53b991]/90'
+            ? mode === 'buy'
+              ? 'bg-[#53b991] text-white hover:bg-[#53b991]/90'
+              : 'bg-[#de5569] text-white hover:bg-[#de5569]/90'
             : 'bg-[#2f2f2f] text-gray-500 cursor-not-allowed opacity-50'
         )}
       >
