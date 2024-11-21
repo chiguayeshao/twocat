@@ -100,7 +100,6 @@ export default function TradeBox({
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [priorityFee, setPriorityFee] = useState<string>('0.012');
   const [isCustomPriorityFee, setIsCustomPriorityFee] = useState(false);
-  const [isAntiMEV, setIsAntiMEV] = useState<boolean>(true);
   const [authToken, setAuthToken] = useState<string | null>(null);
   const [walletState, setWalletState] = useState<WalletState>(
     WalletState.DISCONNECTED
@@ -295,11 +294,7 @@ export default function TradeBox({
         swapRequest: {
           quoteResponse: quoteResponse as QuoteResponse,
           userPublicKey: publicKey.toBase58(),
-          prioritizationFeeLamports: isAntiMEV
-            ? {
-              jitoTipLamports: Math.floor(parseFloat(priorityFee) * 1e9),
-            }
-            : Math.floor(parseFloat(priorityFee) * 1e9),
+          prioritizationFeeLamports: Math.floor(parseFloat(priorityFee) * 1e9),
           dynamicComputeUnitLimit: true,
           asLegacyTransaction: true,
           dynamicSlippage: { maxBps: 500 },
@@ -428,7 +423,6 @@ export default function TradeBox({
     priorityFee,
     toast,
     refreshBalance,
-    isAntiMEV,
     tokenInfo.tokenDecimals,
     tokenInfo.tokenSymbol,
     tokenInfo.solDecimals,
@@ -867,7 +861,7 @@ export default function TradeBox({
             </span>
             <span>
               防夹:{' '}
-              <span className="text-[#53b991]">{isAntiMEV ? '开' : '关'}</span>
+              <span className="text-[#53b991]">已启用</span>
             </span>
           </div>
           <motion.button
@@ -902,8 +896,6 @@ export default function TradeBox({
         isCustomPriorityFee={isCustomPriorityFee}
         setIsCustomPriorityFee={setIsCustomPriorityFee}
         setPriorityFee={setPriorityFee}
-        isAntiMEV={isAntiMEV}
-        setIsAntiMEV={setIsAntiMEV}
       />
     </div>
   );
