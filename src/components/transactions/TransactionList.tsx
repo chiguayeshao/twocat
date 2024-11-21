@@ -334,7 +334,7 @@ export function TransactionList({ onTransactionClick }: TransactionListProps) {
                                         </div>
 
                                         {/* Emoji 反应 - 阻止冒泡 */}
-                                        <div className="flex gap-1 text-xs ml-2" onClick={(e) => e.stopPropagation()}>
+                                        {/* <div className="flex gap-1 text-xs ml-2" onClick={(e) => e.stopPropagation()}>
                                             <button className="hover:bg-discord-primary/50 px-1 rounded text-gray-400 hover:text-white transition-colors">
                                                 👍 <span className="ml-0.5">0</span>
                                             </button>
@@ -344,7 +344,7 @@ export function TransactionList({ onTransactionClick }: TransactionListProps) {
                                             <button className="hover:bg-discord-primary/50 px-1 rounded text-gray-400 hover:text-white transition-colors">
                                                 💰 <span className="ml-0.5">0</span>
                                             </button>
-                                        </div>
+                                        </div> */}
                                     </div>
                                 </div>
                             </motion.div>
