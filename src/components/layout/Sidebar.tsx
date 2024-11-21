@@ -112,7 +112,7 @@ export function Sidebar() {
     const isGeneralActive = pathname === '/' || pathname === '/general';
 
     const handleCopyLink = () => {
-        const roomLink = `http://localhost:3001/${room?._id}`;
+        const roomLink = `https://www.twocat.fun/${room?._id}`;
         navigator.clipboard.writeText(roomLink);
         setIsCopied(true);
         setTimeout(() => setIsCopied(false), 2000);
@@ -165,7 +165,7 @@ export function Sidebar() {
                                 <div className="space-y-4">
                                     <div className="flex items-center gap-2 p-3 bg-[#2f2f2f] rounded-lg">
                                         <span className="flex-1 text-sm text-[#acc97e] truncate">
-                                            {`http://localhost:3001/${room?._id}`}
+                                            {`https://www.twocat.fun/${room?._id}`}
                                         </span>
                                         <Button
                                             variant="ghost"
