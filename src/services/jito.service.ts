@@ -1,4 +1,5 @@
-import { Connection, VersionedTransaction, PublicKey } from '@solana/web3.js';
+import { Connection, VersionedTransaction, PublicKey } from "@solana/web3.js";
+import bs58 from "bs58";
 
 interface WalletAdapter {
   publicKey: PublicKey;
@@ -9,54 +10,97 @@ interface WalletAdapter {
 }
 
 export class JitoService {
+  private static readonly HELIUS_ENDPOINT =
+    "https://mainnet.helius-rpc.com/?api-key=9194ce2f-0f46-4155-804f-204ad01be750";
+
+  private static readonly JITO_ENDPOINT =
+    "https://mainnet.block-engine.jito.wtf";
+
+  private static async makeRequest(url: string, payload: any) {
+    try {
+      const res = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      if (!res.ok) {
+        const errorText = await res.text();
+        console.error(`Jito API 错误: ${errorText}`);
+        throw new Error(`Jito API 请求失败: ${res.status}`);
+      }
+
+      const json = await res.json();
+      if (json.error) {
+        console.error("Jito API 返回错误:", json.error);
+        throw new Error(json.error.message || "未知错误");
+      }
+
+      return json;
+    } catch (error) {
+      console.error("Jito API 请求失败:", error);
+      throw error;
+    }
+  }
+
   public static async sendTransaction(
     transaction: string,
     lastValidBlockHeight: number,
     wallet: WalletAdapter
   ): Promise<string> {
     try {
-      // 解码交易
+      // 使用 Helius 获取最新区块信息
+      const heliusConnection = new Connection(this.HELIUS_ENDPOINT, {
+        commitment: "confirmed",
+        confirmTransactionInitialTimeout: 120000,
+      });
+
+      const { blockhash, lastValidBlockHeight: newLastValidBlockHeight } =
+        await heliusConnection.getLatestBlockhash("confirmed");
+
+      // 解码并更新交易
       const tx = VersionedTransaction.deserialize(
-        Buffer.from(transaction, 'base64')
+        Buffer.from(transaction, "base64")
       );
+      tx.message.recentBlockhash = blockhash;
 
       // 签名交易
       const signedTx = await wallet.signTransaction(tx);
+      const serializedTx = signedTx.serialize();
 
-      // 发送已签名的交易
-      const signature = await wallet.connection.sendRawTransaction(
-        signedTx.serialize(),
+      // 使用 Jito API 发送交易
+      const encodedTx = bs58.encode(serializedTx);
+      const payload = {
+        jsonrpc: "2.0",
+        id: 1,
+        method: "sendTransaction",
+        params: [encodedTx],
+      };
+
+      const url = `${this.JITO_ENDPOINT}/api/v1/transactions?bundleOnly=true`;
+      console.log(`发送交易到 Jito: ${encodedTx.slice(0, 20)}...`);
+
+      const response = await this.makeRequest(url, payload);
+      const signature = response.result; // 假设返回的是签名
+
+      // 使用 Helius 确认交易
+      const confirmation = await heliusConnection.confirmTransaction(
         {
-          skipPreflight: true,
-          maxRetries: 3,
-          preflightCommitment: 'confirmed',
-        }
+          signature,
+          blockhash,
+          lastValidBlockHeight: newLastValidBlockHeight,
+        },
+        "confirmed"
       );
 
-      // 等待交易确认
-      await wallet.connection.confirmTransaction({
-        signature,
-        lastValidBlockHeight,
-        blockhash: tx.message.recentBlockhash,
-      });
+      if (confirmation.value.err) {
+        throw new Error(`Transaction failed: ${confirmation.value.err}`);
+      }
 
       return signature;
     } catch (error) {
-      console.error('Failed to send transaction:', error);
+      console.error("交易失败:", error);
       throw error;
     }
-  }
-
-  private static getRandomJitoEndpoint(): string {
-    const endpoints = {
-      mainnet: 'https://jito-mainnet.helius.xyz',
-      amsterdam: 'https://amsterdam.mainnet.block-engine.jito.wtf',
-      frankfurt: 'https://frankfurt.mainnet.block-engine.jito.wtf',
-      ny: 'https://ny.mainnet.block-engine.jito.wtf',
-      tokyo: 'https://tokyo.mainnet.block-engine.jito.wtf',
-    } as const;
-    const keys = Object.keys(endpoints) as (keyof typeof endpoints)[];
-    const index = Math.floor(Math.random() * keys.length);
-    return endpoints[keys[index]];
   }
 }
