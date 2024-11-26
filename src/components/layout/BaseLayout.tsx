@@ -8,6 +8,7 @@ import { TransactionList } from '@/components/transactions/TransactionList';
 import { KLineChart } from '@/components/charts/KLineChart';
 import { TokenStats } from '@/components/token/TokenStats';
 import { WalletInfo } from '@/components/wallet/WalletInfo';
+import { cn } from '@/lib/utils';
 
 interface Room {
   _id: string;
@@ -42,6 +43,7 @@ export function BaseLayout({ children, roomId }: BaseLayoutProps) {
   const [selectedWalletAddress, setSelectedWalletAddress] = useState<
     string | null
   >(null);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
   useEffect(() => {
     const loadRoomInfo = async () => {
@@ -74,15 +76,41 @@ export function BaseLayout({ children, roomId }: BaseLayoutProps) {
     setSelectedTokenAddress(tokenAddress);
   };
 
+  const toggleSidebar = () => {
+    setIsSidebarOpen(!isSidebarOpen);
+  };
+
   return (
     <div className="flex h-screen bg-discord-primary text-white overflow-hidden">
-      <Sidebar roomId={roomId} />
+      {isSidebarOpen && (
+        <div
+          className="lg:hidden fixed inset-0 bg-black/50 z-40"
+          onClick={() => setIsSidebarOpen(false)}
+        />
+      )}
+
+      <div className={cn(
+        "fixed lg:relative z-50 transition-transform duration-300 ease-in-out",
+        "h-screen",
+        isSidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
+      )}>
+        <Sidebar
+          roomId={roomId}
+          onClose={() => setIsSidebarOpen(false)}
+          isMobile={true}
+        />
+      </div>
 
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-        <Header room={room} loading={loading} />
+        <Header
+          room={room}
+          loading={loading}
+          onMenuClick={toggleSidebar}
+          isSidebarOpen={isSidebarOpen}
+        />
 
-        <main className="flex-1 grid grid-cols-12 gap-4 p-4 min-h-0 overflow-auto">
-          <div className="col-span-8 grid grid-rows-[2fr,1fr] gap-4 min-h-0">
+        <main className="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-4 p-4 min-h-0 overflow-auto">
+          <div className="lg:col-span-8 grid grid-rows-[2fr,1fr] gap-4 min-h-0">
             <div className="bg-discord-secondary rounded-lg flex flex-col border border-discord-divider min-h-0 overflow-hidden">
               <div className="flex-1 min-h-0 overflow-auto">
                 <TransactionList
@@ -92,7 +120,7 @@ export function BaseLayout({ children, roomId }: BaseLayoutProps) {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4 min-h-0">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 min-h-0">
               <div className="bg-discord-secondary rounded-lg overflow-hidden border border-discord-divider">
                 <KLineChart tokenAddress={selectedTokenAddress} />
               </div>
@@ -105,7 +133,7 @@ export function BaseLayout({ children, roomId }: BaseLayoutProps) {
             </div>
           </div>
 
-          <div className="col-span-4 grid grid-rows-2 gap-4 min-h-0">
+          <div className="lg:col-span-4 grid grid-rows-2 gap-4 min-h-0">
             <div className="bg-discord-secondary rounded-lg border border-discord-divider overflow-hidden">
               <div className="h-full overflow-auto">
                 <WalletInfo
