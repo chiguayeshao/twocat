@@ -111,13 +111,13 @@ export default function TradeBox({
   const {
     isLoading: isBalanceLoading,
     error,
-    solBalance: solBalance,
-    tokenBalance: tokenBalance,
-    tokenInfo: tokenInfo,
+    solBalance,
+    tokenBalance,
+    tokenInfo,
     refresh: refreshBalance,
   } = useTokenBalance({
     tokenMintAddress: isValidAddress ? tokenAddress! : '',
-    refreshInterval: 30000, // 可选: 每30秒自动刷新一次
+    refreshInterval: 30000, // 每30秒自动刷新
   });
 
   const handleAmountChange = (value: string) => {
@@ -263,21 +263,21 @@ export default function TradeBox({
       const inputAmount =
         mode === 'buy'
           ? (atomicAmount / Math.pow(10, tokenInfo.solDecimals)).toFixed(
-            tokenInfo.solDecimals
-          )
+              tokenInfo.solDecimals
+            )
           : (atomicAmount / Math.pow(10, tokenInfo.tokenDecimals)).toFixed(
-            tokenInfo.tokenDecimals
-          );
+              tokenInfo.tokenDecimals
+            );
       const outputAmount =
         mode === 'buy'
           ? (
-            Number(quoteResponse.outAmount) /
-            Math.pow(10, tokenInfo.tokenDecimals)
-          ).toFixed(tokenInfo.tokenDecimals)
+              Number(quoteResponse.outAmount) /
+              Math.pow(10, tokenInfo.tokenDecimals)
+            ).toFixed(tokenInfo.tokenDecimals)
           : (
-            Number(quoteResponse.outAmount) /
-            Math.pow(10, tokenInfo.solDecimals)
-          ).toFixed(tokenInfo.solDecimals);
+              Number(quoteResponse.outAmount) /
+              Math.pow(10, tokenInfo.solDecimals)
+            ).toFixed(tokenInfo.solDecimals);
 
       // console.log('交易预览:', {
       //   输入: `${inputAmount} ${mode === 'buy' ? tokenInfo.solSymbol : tokenInfo.tokenSymbol
@@ -297,8 +297,8 @@ export default function TradeBox({
           userPublicKey: publicKey.toBase58(),
           prioritizationFeeLamports: isAntiMEV
             ? {
-              jitoTipLamports: Math.floor(parseFloat(priorityFee) * 1e9),
-            }
+                jitoTipLamports: Math.floor(parseFloat(priorityFee) * 1e9),
+              }
             : Math.floor(parseFloat(priorityFee) * 1e9),
           dynamicComputeUnitLimit: true,
           asLegacyTransaction: true,
@@ -377,7 +377,7 @@ export default function TradeBox({
         errorTitle = '交易验证失败';
         errorDescription = '请检查交参数是否正确，或稍后重试';
       } else if (tradeError.message?.includes('insufficient balance')) {
-        errorTitle = '余额不足';
+        errorTitle = '余��不足';
         errorDescription = '请检查您的余额是否足够支付交易金额和手续费';
       } else if (tradeError.message?.includes('slippage')) {
         errorTitle = '滑点超出限制';
@@ -767,7 +767,7 @@ export default function TradeBox({
               <div className="flex flex-col">
                 <div className="flex justify-between items-center">
                   <span className="text-xs text-gray-300">
-                    {tokenBalance.symbol || '加载中...'}
+                    {tokenBalance.name || tokenBalance.symbol || '加载中...'}
                   </span>
                   <span className="text-xs text-[#acc97e]">
                     {tokenBalance.balance.toFixed(tokenBalance.decimals)}
@@ -815,42 +815,42 @@ export default function TradeBox({
           <div className="grid grid-cols-4 gap-1">
             {mode === 'buy'
               ? SOL_AMOUNT_OPTIONS.map((solAmount) => (
-                <motion.button
-                  key={solAmount}
-                  className={cn(
-                    'py-1.5 rounded-lg text-xs font-medium',
-                    'bg-[#2f2f2f] hover:bg-[#353535]',
-                    'text-gray-300 hover:text-[#acc97e]',
-                    'transition-all duration-200'
-                  )}
-                  onClick={() => handleAmountPercentageClick(solAmount)}
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                >
-                  {solAmount}
-                </motion.button>
-              ))
+                  <motion.button
+                    key={solAmount}
+                    className={cn(
+                      'py-1.5 rounded-lg text-xs font-medium',
+                      'bg-[#2f2f2f] hover:bg-[#353535]',
+                      'text-gray-300 hover:text-[#acc97e]',
+                      'transition-all duration-200'
+                    )}
+                    onClick={() => handleAmountPercentageClick(solAmount)}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    {solAmount}
+                  </motion.button>
+                ))
               : [25, 50, 75, 100].map((percentage) => (
-                <motion.button
-                  key={percentage}
-                  className={cn(
-                    'py-1.5 rounded-lg text-xs font-medium',
-                    'bg-[#2f2f2f] hover:bg-[#353535]',
-                    'text-gray-300 hover:text-[#acc97e]',
-                    'transition-all duration-200'
-                  )}
-                  onClick={() =>
-                    handleAmountPercentageClick(
-                      percentage as AmountPercentage
-                    )
-                  }
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  disabled={tokenBalance.balance === 0}
-                >
-                  {percentage}%
-                </motion.button>
-              ))}
+                  <motion.button
+                    key={percentage}
+                    className={cn(
+                      'py-1.5 rounded-lg text-xs font-medium',
+                      'bg-[#2f2f2f] hover:bg-[#353535]',
+                      'text-gray-300 hover:text-[#acc97e]',
+                      'transition-all duration-200'
+                    )}
+                    onClick={() =>
+                      handleAmountPercentageClick(
+                        percentage as AmountPercentage
+                      )
+                    }
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    disabled={tokenBalance.balance === 0}
+                  >
+                    {percentage}%
+                  </motion.button>
+                ))}
           </div>
         </div>
 

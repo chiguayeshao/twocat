@@ -1,9 +1,10 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 
-const API_BASE_URL = 'https://public-api.birdeye.so';
-const API_KEY = process.env.NEXT_PUBLIC_BIRDEYE_API_KEY || '';
+const API_BASE_URL = 'https://public-api.birdeye.so/v1';
+const API_KEY =
+  process.env.NEXT_PUBLIC_BIRDEYE_API_KEY || '22fb19fcc21944f89289e7ac27de4ccd';
 
-export async function GET(request: Request) {
+export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const wallet = searchParams.get('wallet');
   const address = searchParams.get('address');
