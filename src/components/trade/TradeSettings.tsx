@@ -143,19 +143,19 @@ export function TradeSettings({
 
     return (
         <Dialog open={open} onOpenChange={handleOpenChange}>
-            <DialogContent className="bg-[#1E1F22] border-none text-gray-100 max-w-md p-0">
+            <DialogContent className="bg-[#1E1F22] border-none text-gray-100 max-w-md p-0 w-[95vw] sm:w-full mx-auto">
                 {/* 标题栏 */}
-                <div className="flex items-center gap-2 p-4 pb-2">
-                    <Zap size={20} className="text-[#acc97e]" />
-                    <DialogTitle className="text-lg font-medium text-[#acc97e]">
+                <div className="flex items-center gap-1.5 sm:gap-2 p-3 sm:p-4 pb-2">
+                    <Zap className="w-[18px] h-[18px] sm:w-[20px] sm:h-[20px] text-[#acc97e]" />
+                    <DialogTitle className="text-base sm:text-lg font-medium text-[#acc97e]">
                         快速设置
                     </DialogTitle>
                 </div>
 
-                <div className="p-4 space-y-8">
+                <div className="p-3 sm:p-4 space-y-6 sm:space-y-8">
                     {/* 防夹设置 */}
                     <div className="flex items-center justify-between">
-                        <span className="text-base text-gray-300">
+                        <span className="text-sm sm:text-base text-gray-300">
                             防夹模式(Anti-MEV)
                         </span>
                         <label className="relative inline-flex items-center cursor-pointer">
@@ -166,9 +166,9 @@ export function TradeSettings({
                                 onChange={(e) => setIsAntiMEV(true)}
                             />
                             <div className={cn(
-                                'w-12 h-7 rounded-full peer transition-colors duration-200',
+                                'w-10 sm:w-12 h-6 sm:h-7 rounded-full peer transition-colors duration-200',
                                 'after:content-[""] after:absolute after:top-[2px] after:left-[2px]',
-                                'after:bg-white after:rounded-full after:h-6 after:w-6',
+                                'after:bg-white after:rounded-full after:h-5 sm:after:h-6 after:w-5 sm:after:w-6',
                                 'after:transition-all after:duration-200',
                                 isAntiMEV
                                     ? 'bg-[#53b991] after:translate-x-full'
@@ -179,10 +179,10 @@ export function TradeSettings({
 
                     {/* 优先费设置 */}
                     <div className="space-y-2">
-                        <div className="text-base text-gray-300">优先费</div>
+                        <div className="text-sm sm:text-base text-gray-300">优先费</div>
                         <button
                             className={cn(
-                                'w-[120px] p-4 rounded-lg border border-gray-700 transition-colors',
+                                'w-[100px] sm:w-[120px] p-3 sm:p-4 rounded-lg border border-gray-700 transition-colors',
                                 'flex flex-col items-center justify-center',
                                 !isCustomPriorityFee
                                     ? 'bg-gray-800 border-[#53b991]'
@@ -194,20 +194,20 @@ export function TradeSettings({
                             }}
                         >
                             <div className="font-medium text-[#acc97e]">×15</div>
-                            <div className="text-sm text-gray-400">{DEFAULT_PRIORITY_FEE} SOL</div>
-                            <div className="text-xs text-gray-500">≈ 2s</div>
+                            <div className="text-xs sm:text-sm text-gray-400">{DEFAULT_PRIORITY_FEE} SOL</div>
+                            <div className="text-[10px] sm:text-xs text-gray-500">≈ 2s</div>
                         </button>
 
-                        <div className="text-sm text-gray-400 mt-2">
+                        <div className="text-xs sm:text-sm text-gray-400 mt-1.5 sm:mt-2">
                             支持自定义优先费 (最大: 0.2 SOL)
                         </div>
 
-                        <div className="flex gap-3">
+                        <div className="flex gap-2 sm:gap-3">
                             <input
                                 type="text"
                                 className={cn(
-                                    'flex-1 bg-[#2f2f2f] rounded-lg px-4 py-3',
-                                    'text-[#acc97e] placeholder-gray-500',
+                                    'flex-1 bg-[#2f2f2f] rounded-lg px-3 sm:px-4 py-2.5 sm:py-3',
+                                    'text-sm sm:text-base text-[#acc97e] placeholder-gray-500',
                                     'border border-gray-700',
                                     'focus:outline-none focus:border-[#53b991]',
                                     'transition-all duration-200',
@@ -217,14 +217,14 @@ export function TradeSettings({
                                 value={isCustomPriorityFee ? priorityFee : ''}
                                 onChange={(e) => handlePriorityFeeChange(e.target.value)}
                             />
-                            <div className="flex items-center px-4 py-3 bg-[#2f2f2f] rounded-lg text-gray-400">
+                            <div className="flex items-center px-3 sm:px-4 py-2.5 sm:py-3 bg-[#2f2f2f] rounded-lg text-sm sm:text-base text-gray-400">
                                 SOL
                             </div>
                         </div>
 
                         {isCustomPriorityFee && parseFloat(priorityFee) > 0.2 && (
-                            <div className="text-sm text-[#de5569] flex items-center gap-1.5">
-                                <span className="w-1.5 h-1.5 rounded-full bg-[#de5569]"></span>
+                            <div className="text-xs sm:text-sm text-[#de5569] flex items-center gap-1.5">
+                                <span className="w-1 sm:w-1.5 h-1 sm:h-1.5 rounded-full bg-[#de5569]"></span>
                                 超过最大值 0.2 SOL，确认时将自动调整为 0.2 SOL
                             </div>
                         )}
@@ -232,10 +232,10 @@ export function TradeSettings({
 
                     {/* 滑点设置 */}
                     <div className="space-y-2">
-                        <div className="text-base text-gray-300">滑点限制</div>
+                        <div className="text-sm sm:text-base text-gray-300">滑点限制</div>
                         <button
                             className={cn(
-                                'w-[120px] p-4 rounded-lg border border-gray-700 transition-colors',
+                                'w-[100px] sm:w-[120px] p-3 sm:p-4 rounded-lg border border-gray-700 transition-colors',
                                 'flex flex-col items-center justify-center',
                                 !isEditingSlippage
                                     ? 'bg-gray-800 border-[#53b991]'
@@ -247,20 +247,20 @@ export function TradeSettings({
                             }}
                         >
                             <div className="font-medium text-[#acc97e]">自动</div>
-                            <div className="text-sm text-gray-400">{DEFAULT_SLIPPAGE}%</div>
-                            <div className="text-xs text-gray-500">推荐设置</div>
+                            <div className="text-xs sm:text-sm text-gray-400">{DEFAULT_SLIPPAGE}%</div>
+                            <div className="text-[10px] sm:text-xs text-gray-500">推荐设置</div>
                         </button>
 
-                        <div className="text-sm text-gray-400 mt-2">
+                        <div className="text-xs sm:text-sm text-gray-400 mt-1.5 sm:mt-2">
                             支持自定义滑点 (最大: 100%)
                         </div>
 
-                        <div className="flex gap-3">
+                        <div className="flex gap-2 sm:gap-3">
                             <input
                                 type="text"
                                 className={cn(
-                                    'flex-1 bg-[#2f2f2f] rounded-lg px-4 py-3',
-                                    'text-[#acc97e] placeholder-gray-500',
+                                    'flex-1 bg-[#2f2f2f] rounded-lg px-3 sm:px-4 py-2.5 sm:py-3',
+                                    'text-sm sm:text-base text-[#acc97e] placeholder-gray-500',
                                     'border border-gray-700',
                                     'focus:outline-none focus:border-[#53b991]',
                                     'transition-all duration-200',
@@ -270,14 +270,14 @@ export function TradeSettings({
                                 value={isEditingSlippage ? slippage : ''}
                                 onChange={(e) => handleSlippageInputChange(e.target.value)}
                             />
-                            <div className="flex items-center px-4 py-3 bg-[#2f2f2f] rounded-lg text-gray-400">
+                            <div className="flex items-center px-3 sm:px-4 py-2.5 sm:py-3 bg-[#2f2f2f] rounded-lg text-sm sm:text-base text-gray-400">
                                 %
                             </div>
                         </div>
 
                         {isEditingSlippage && parseFloat(slippage.toString()) > 100 && (
-                            <div className="text-sm text-[#de5569] flex items-center gap-1.5">
-                                <span className="w-1.5 h-1.5 rounded-full bg-[#de5569]"></span>
+                            <div className="text-xs sm:text-sm text-[#de5569] flex items-center gap-1.5">
+                                <span className="w-1 sm:w-1.5 h-1 sm:h-1.5 rounded-full bg-[#de5569]"></span>
                                 超过最大值 100%，确认时将自动调整为 100%
                             </div>
                         )}
@@ -285,17 +285,17 @@ export function TradeSettings({
                 </div>
 
                 {/* 底部按钮 */}
-                <div className="grid grid-cols-2 gap-3 p-4 mt-auto">
+                <div className="grid grid-cols-2 gap-2 sm:gap-3 p-3 sm:p-4 mt-auto">
                     <Button
                         variant="secondary"
                         onClick={handleCancel}
-                        className="w-full py-6 bg-[#2f2f2f] hover:bg-[#404249] text-gray-300 text-base"
+                        className="w-full py-4 sm:py-6 bg-[#2f2f2f] hover:bg-[#404249] text-gray-300 text-sm sm:text-base"
                     >
                         取消
                     </Button>
                     <Button
                         onClick={handleConfirm}
-                        className="w-full py-6 bg-[#53b991] hover:bg-[#4ca883] text-white text-base"
+                        className="w-full py-4 sm:py-6 bg-[#53b991] hover:bg-[#4ca883] text-white text-sm sm:text-base"
                     >
                         确认
                     </Button>
