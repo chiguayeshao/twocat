@@ -32,18 +32,23 @@ export function BaseLayout({ children, roomId }: BaseLayoutProps) {
 
   return (
     <div className="flex h-screen bg-discord-primary text-white overflow-hidden">
-      {/* 移动端侧边栏遮罩 */}
+      {/* 移动端遮罩 */}
       {isSidebarOpen && (
         <div
-          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+          className="fixed inset-0 bg-black/50 z-[998] lg:hidden"
           onClick={() => setIsSidebarOpen(false)}
         />
       )}
 
-      {/* 侧边栏 */}
+      {/* 侧边栏容器 */}
       <div
         className={cn(
-          "fixed inset-y-0 left-0 z-50 w-60 transform transition-transform duration-200 ease-in-out lg:relative lg:transform-none",
+          // 基础样式
+          "w-[280px] lg:w-60 shrink-0",
+          // 移动端样式
+          "fixed lg:relative inset-y-0 left-0 z-[999]",
+          "transform transition-transform duration-200 ease-in-out",
+          // 控制显示/隐藏
           isSidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
         )}
       >
@@ -53,15 +58,17 @@ export function BaseLayout({ children, roomId }: BaseLayoutProps) {
         />
       </div>
 
-      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-        {/* 顶部导航 */}
-        <div className="flex items-center lg:hidden bg-discord-secondary/50 px-4 h-14">
+      {/* 主内容区域 */}
+      <div className="flex-1 flex flex-col min-w-0">
+        {/* 移动端顶部导航栏 */}
+        <div className="sticky top-0 z-[997] lg:hidden bg-discord-secondary/95 backdrop-blur-sm px-4 h-14 flex items-center border-b border-discord-divider">
           <button
             onClick={() => setIsSidebarOpen(true)}
             className="p-2 hover:bg-discord-hover rounded-md transition-colors"
           >
             <Menu className="h-5 w-5" />
           </button>
+          <span className="ml-3 font-semibold">Two Cat</span>
         </div>
 
         <Header onTokenSelect={setSelectedTokenAddress} />
