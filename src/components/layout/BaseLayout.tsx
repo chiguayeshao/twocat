@@ -46,7 +46,7 @@ export function BaseLayout({ children, roomId }: BaseLayoutProps) {
   useEffect(() => {
     const loadRoomInfo = async () => {
       try {
-        const response = await fetch('/api/twocat-core/rooms');
+        const response = await fetch(`/api/twocat-core/rooms?roomId=${roomId}`);
         if (!response.ok) {
           throw new Error('Failed to fetch room info');
         }
@@ -76,7 +76,7 @@ export function BaseLayout({ children, roomId }: BaseLayoutProps) {
 
   return (
     <div className="flex h-screen bg-discord-primary text-white overflow-hidden">
-      <Sidebar />
+      <Sidebar roomId={roomId} />
 
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
         <Header room={room} loading={loading} />

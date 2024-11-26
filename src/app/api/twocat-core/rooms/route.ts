@@ -1,6 +1,6 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from "next/server";
 
-const BACKEND_API_URL = process.env.BACKEND_API_URL || 'http://localhost:3000';
+const BACKEND_API_URL = process.env.BACKEND_API_URL || "http://localhost:3000";
 const ROOM_ID = process.env.ROOM_ID;
 
 async function fetchWithRetry(url: string, options: RequestInit, retries = 3) {
@@ -20,16 +20,25 @@ async function fetchWithRetry(url: string, options: RequestInit, retries = 3) {
       if (i === retries - 1) throw err;
     }
   }
-  throw new Error('Maximum retries reached');
+  throw new Error("Maximum retries reached");
 }
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    const searchParams = request.nextUrl.searchParams;
+    const roomId = searchParams.get("roomId");
+
+    console.log(roomId, "roomId from query");
+
+    if (!roomId) {
+      return NextResponse.json({ error: "房间ID不能为空" }, { status: 400 });
+    }
+
     const response = await fetchWithRetry(
-      `${BACKEND_API_URL}/rooms/${ROOM_ID}`,
+      `${BACKEND_API_URL}/rooms/${roomId}`,
       {
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
       }
     );
@@ -41,7 +50,7 @@ export async function GET() {
     const data = await response.json();
     return NextResponse.json(data);
   } catch (error) {
-    console.error('Room API error:', error);
-    return NextResponse.json({ error: '获取房间信息失败' }, { status: 500 });
+    console.error("Room API error:", error);
+    return NextResponse.json({ error: "获取房间信息失败" }, { status: 500 });
   }
 }

@@ -78,16 +78,18 @@ interface Room {
     updatedAt: string;
 }
 
-export function Sidebar() {
+export function Sidebar({ roomId }: { roomId: string }) {
     const pathname = usePathname();
     const [room, setRoom] = useState<Room | null>(null);
     const [loading, setLoading] = useState(true);
     const [isCopied, setIsCopied] = useState(false);
 
+    console.log(roomId, roomId);
+
     useEffect(() => {
         const loadRoomInfo = async () => {
             try {
-                const response = await fetch('/api/twocat-core/rooms');
+                const response = await fetch(`/api/twocat-core/rooms?roomId=${roomId}`);
                 if (!response.ok) {
                     throw new Error('Failed to fetch room info');
                 }
@@ -100,8 +102,10 @@ export function Sidebar() {
             }
         };
 
-        loadRoomInfo();
-    }, []);
+        if (roomId) {
+            loadRoomInfo();
+        }
+    }, [roomId]);
 
     // 处理钱包地址显示
     const formatWalletAddress = (address: string) => {
