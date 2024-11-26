@@ -13,10 +13,7 @@ import {
     ListIcon,
     Copy,
     ExternalLink,
-    Check,
-    X,
-    ChevronLeft,
-    ChevronRight
+    Check
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -81,13 +78,7 @@ interface Room {
     updatedAt: string;
 }
 
-interface SidebarProps {
-    roomId: string;
-    onClose?: () => void;
-    isMobile?: boolean;
-}
-
-export function Sidebar({ roomId, onClose, isMobile }: SidebarProps) {
+export function Sidebar({ roomId }: { roomId: string }) {
     const pathname = usePathname();
     const [room, setRoom] = useState<Room | null>(null);
     const [loading, setLoading] = useState(true);
@@ -132,23 +123,12 @@ export function Sidebar({ roomId, onClose, isMobile }: SidebarProps) {
     };
 
     return (
-        <div className="h-screen bg-discord-secondary flex flex-col relative w-60">
+        <div className="w-60 h-screen bg-discord-secondary flex flex-col">
             {/* 顶部区域 */}
             <div className="p-3 border-b border-discord-divider">
-                {/* 移动端关闭按钮 */}
-                {isMobile && (
-                    <button
-                        onClick={onClose}
-                        className="absolute right-2 top-2 p-1.5 hover:bg-discord-hover rounded-md 
-                                 text-gray-400 hover:text-white transition-colors lg:hidden"
-                    >
-                        <X className="h-5 w-5" />
-                    </button>
-                )}
-
                 <div className="bg-discord-primary rounded-md p-2 flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                        <div className="rounded-full overflow-hidden shrink-0">
+                        <div className="rounded-full overflow-hidden">
                             <Image
                                 src="/images/twocatlogo.jpg"
                                 alt="Two Cat Logo"
@@ -167,45 +147,46 @@ export function Sidebar({ roomId, onClose, isMobile }: SidebarProps) {
                 </div>
             </div>
 
-            {/* 内容区域 */}
             <div className="flex-1 overflow-y-auto">
                 <div className="p-2">
                     {/* 频道标题和监控按钮 */}
                     <div className="flex items-center justify-between px-2 py-1">
-                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                            <span className="font-semibold text-sm text-muted-foreground uppercase">
+                        {loading ? (
+                            <Skeleton className="h-4 w-24 bg-gray-500/20" />
+                        ) : (
+                            <span className="text-xs font-semibold text-muted-foreground uppercase">
                                 {room?.roomName}
                             </span>
-                            <Dialog>
-                                <DialogTrigger>
-                                    <ExternalLinkIcon className="h-4 w-4 text-muted-foreground hover:text-white cursor-pointer" />
-                                </DialogTrigger>
-                                <DialogContent className="bg-discord-secondary border-discord-divider">
-                                    <DialogHeader>
-                                        <DialogTitle className="text-lg font-medium text-white">分享房间</DialogTitle>
-                                    </DialogHeader>
-                                    <div className="space-y-4">
-                                        <div className="flex items-center gap-2 p-3 bg-[#2f2f2f] rounded-lg">
-                                            <span className="flex-1 text-sm text-[#acc97e] truncate">
-                                                {`https://www.twocat.fun/${room?._id}`}
-                                            </span>
-                                            <Button
-                                                variant="ghost"
-                                                size="icon"
-                                                className="h-8 w-8 hover:bg-discord-primary/30"
-                                                onClick={handleCopyLink}
-                                            >
-                                                {isCopied ? (
-                                                    <Check className="h-4 w-4 text-green-400" />
-                                                ) : (
-                                                    <Copy className="h-4 w-4 text-gray-400" />
-                                                )}
-                                            </Button>
-                                        </div>
+                        )}
+                        <Dialog>
+                            <DialogTrigger>
+                                <ExternalLinkIcon className="h-4 w-4 text-muted-foreground hover:text-white cursor-pointer" />
+                            </DialogTrigger>
+                            <DialogContent className="bg-discord-secondary border-discord-divider">
+                                <DialogHeader>
+                                    <DialogTitle className="text-lg font-medium text-white">分享房间</DialogTitle>
+                                </DialogHeader>
+                                <div className="space-y-4">
+                                    <div className="flex items-center gap-2 p-3 bg-[#2f2f2f] rounded-lg">
+                                        <span className="flex-1 text-sm text-[#acc97e] truncate">
+                                            {`https://www.twocat.fun/${room?._id}`}
+                                        </span>
+                                        <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            className="h-8 w-8 hover:bg-discord-primary/30"
+                                            onClick={handleCopyLink}
+                                        >
+                                            {isCopied ? (
+                                                <Check className="h-4 w-4 text-green-400" />
+                                            ) : (
+                                                <Copy className="h-4 w-4 text-gray-400" />
+                                            )}
+                                        </Button>
                                     </div>
-                                </DialogContent>
-                            </Dialog>
-                        </div>
+                                </div>
+                            </DialogContent>
+                        </Dialog>
                     </div>
 
                     {/* 频道头像和基本信息 */}
@@ -282,7 +263,7 @@ export function Sidebar({ roomId, onClose, isMobile }: SidebarProps) {
                                                                         {/* 头像 */}
                                                                         <div className="shrink-0">
                                                                             <div className="w-7 h-7 rounded-full bg-discord-primary/30 
-                                                                                          flex items-center justify-center">
+                                                                                  flex items-center justify-center">
                                                                                 <WalletIcon className="h-4 w-4 text-gray-400" />
                                                                             </div>
                                                                         </div>

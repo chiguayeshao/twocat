@@ -1,48 +1,21 @@
 'use client';
 
 import { UnifiedWalletButton } from '@jup-ag/wallet-adapter';
+import { Room } from '@/api/twocat-core/room';
 import { Skeleton } from "@/components/ui/skeleton";
-import { Info, Bell, Search, Menu } from 'lucide-react';
+import { Info, Bell, Search } from 'lucide-react';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
-interface Room {
-    _id: string;
-    roomName: string;
-    description: string;
-    isPrivate: boolean;
-    creatorWallet: string;
-    memberCount: number;
-    members: string[];
-    monitoredWallets: {
-        _id: string;
-        address: string;
-        description: string;
-    }[];
-    channels: string[];
-    avatarUrl: string;
-    createdAt: string;
-    updatedAt: string;
-}
 interface HeaderProps {
     room: Room | null;
     loading: boolean;
-    onMenuClick: () => void;
-    isSidebarOpen: boolean;
 }
 
-export function Header({ room, loading, onMenuClick, isSidebarOpen }: HeaderProps) {
+export function Header({ room, loading }: HeaderProps) {
     return (
         <div className="h-14 shrink-0 border-b border-discord-divider bg-discord-secondary/50 backdrop-blur-sm 
                       flex items-center justify-between px-4 gap-4">
-            {/* 菜单按钮 */}
-            <button
-                onClick={onMenuClick}
-                className="lg:hidden p-1 hover:bg-discord-hover rounded-md"
-            >
-                <Menu className="h-5 w-5" />
-            </button>
-
             {/* 左侧房间信息 */}
             <div className="flex items-center gap-3 flex-1 min-w-0">
                 {loading ? (
