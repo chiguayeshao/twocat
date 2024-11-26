@@ -200,8 +200,9 @@ export function SearchBox({
           value={searchValue}
           onChange={(e) => handleChange(e.target.value)}
           onFocus={() => setIsOpen(true)}
-          className="bg-[#1E1F22] border-none text-sm pl-9 pr-8 h-8 rounded-md
-                    placeholder:text-gray-400 focus-visible:ring-0"
+          className="w-full bg-[#1E1F22] border-none text-sm pl-9 pr-8 h-9 rounded-md
+                    placeholder:text-gray-400 focus-visible:ring-1 focus-visible:ring-[#acc97e]/50
+                    hover:bg-[#2f2f2f] transition-colors"
           placeholder={placeholder}
         />
         {isLoading ? (
@@ -213,7 +214,7 @@ export function SearchBox({
           <button
             onClick={handleClear}
             className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 
-                       hover:text-gray-200 transition-colors"
+                     hover:text-gray-200 transition-colors"
           >
             <X className="h-4 w-4" />
           </button>
@@ -221,31 +222,28 @@ export function SearchBox({
       </div>
 
       {isOpen && (
-        <div
-          className="absolute w-full mt-2 rounded-md border border-gray-700 
-                        bg-[#1E1F22] text-gray-100 shadow-lg outline-none animate-in"
-        >
-          <Command
-            className="rounded-lg border-0 [&_[cmdk-group-heading]]:px-2 
-            [&_[cmdk-group]:not([hidden])_~[cmdk-group]]:pt-0 
-            [&_[cmdk-group]]:px-0 
-            [&_[cmdk-input-wrapper]_svg]:h-5 
-            [&_[cmdk-input-wrapper]_svg]:w-5 
-            [&_[cmdk-input]]:h-12 
-            [&_[cmdk-item]]:px-2 
-            [&_[cmdk-item]]:py-3 
-            [&_[cmdk-item]_svg]:h-5 
-            [&_[cmdk-item]_svg]:w-5 
-            [&_[cmdk-item]]:bg-[#1E1F22] 
-            [&_[cmdk-item]]:mx-2
-            [&_[cmdk-item]]:rounded-lg
-            [&_[cmdk-item]_data-[selected]]:bg-gray-700/50 
-            [&_[cmdk-item]:hover]:bg-gray-700/50
-            [&_[cmdk-item]]:transition-colors
-            [&_[cmdk-item]]:duration-200
-            [&_[cmdk-item]]:text-gray-100 
-            bg-[#1E1F22]"
-          >
+        <div className="absolute w-full mt-2 rounded-md border border-discord-divider 
+                      bg-[#1E1F22] text-gray-100 shadow-lg outline-none animate-in
+                      z-50 max-h-[400px] overflow-auto">
+          <Command className="rounded-lg border-0 [&_[cmdk-group-heading]]:px-2 
+                          [&_[cmdk-group]:not([hidden])_~[cmdk-group]]:pt-0 
+                          [&_[cmdk-group]]:px-0 
+                          [&_[cmdk-input-wrapper]_svg]:h-5 
+                          [&_[cmdk-input-wrapper]_svg]:w-5 
+                          [&_[cmdk-input]]:h-12 
+                          [&_[cmdk-item]]:px-2 
+                          [&_[cmdk-item]]:py-3 
+                          [&_[cmdk-item]_svg]:h-5 
+                          [&_[cmdk-item]_svg]:w-5 
+                          [&_[cmdk-item]]:bg-[#1E1F22] 
+                          [&_[cmdk-item]]:mx-2
+                          [&_[cmdk-item]]:rounded-lg
+                          [&_[cmdk-item]_data-[selected]]:bg-gray-700/50 
+                          [&_[cmdk-item]:hover]:bg-gray-700/50
+                          [&_[cmdk-item]]:transition-colors
+                          [&_[cmdk-item]]:duration-200
+                          [&_[cmdk-item]]:text-gray-100 
+                          bg-[#1E1F22]">
             <CommandList>
               {recentSearches.length > 0 && (
                 <CommandGroup
