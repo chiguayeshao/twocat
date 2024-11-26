@@ -13,7 +13,8 @@ import {
     ListIcon,
     Copy,
     ExternalLink,
-    Check
+    Check,
+    X
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -78,11 +79,12 @@ interface Room {
     updatedAt: string;
 }
 
-export function Sidebar({ roomId }: { roomId: string }) {
+export function Sidebar({ roomId, onClose }: { roomId: string; onClose?: () => void }) {
     const pathname = usePathname();
     const [room, setRoom] = useState<Room | null>(null);
     const [loading, setLoading] = useState(true);
     const [isCopied, setIsCopied] = useState(false);
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
     console.log(roomId, roomId);
 
@@ -123,7 +125,17 @@ export function Sidebar({ roomId }: { roomId: string }) {
     };
 
     return (
-        <div className="w-60 h-screen bg-discord-secondary flex flex-col">
+        <div className="w-full h-screen bg-discord-secondary flex flex-col">
+            {/* 移动端关闭按钮 */}
+            <div className="lg:hidden p-4 flex justify-end border-b border-discord-divider">
+                <button
+                    onClick={onClose}
+                    className="p-2 hover:bg-discord-hover rounded-md transition-colors"
+                >
+                    <X className="h-5 w-5" />
+                </button>
+            </div>
+
             {/* 顶部区域 */}
             <div className="p-3 border-b border-discord-divider">
                 <div className="bg-discord-primary rounded-md p-2 flex items-center justify-between">
