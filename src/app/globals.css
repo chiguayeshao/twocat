@@ -279,3 +279,15 @@ body {
   height: 100%;
   overflow: auto;
 }
+
+/* 优化移动端文本溢出 */
+.mobile-truncate {
+  @apply truncate;
+  max-width: calc(100% - 3rem); /* 预留右侧按钮空间 */
+}
+
+/* 优化移动端点击区域 */
+.mobile-touch-target {
+  @apply sm:p-0;
+  padding: 0.25rem; /* 8px */
+}
