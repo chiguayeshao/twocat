@@ -8,6 +8,7 @@ import { TransactionList } from '@/components/transactions/TransactionList';
 import { KLineChart } from '@/components/charts/KLineChart';
 import { TokenStats } from '@/components/token/TokenStats';
 import { WalletInfo } from '@/components/wallet/WalletInfo';
+import { SearchBox } from '@/components/search/SearchBox';
 
 interface Room {
   _id: string;
@@ -79,7 +80,11 @@ export function BaseLayout({ children, roomId }: BaseLayoutProps) {
       <Sidebar roomId={roomId} />
 
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-        <Header room={room} loading={loading} />
+        <Header
+          room={room}
+          loading={loading}
+          onTokenSelect={setSelectedTokenAddress}
+        />
 
         <main className="flex-1 grid grid-cols-12 gap-4 p-4 min-h-0 overflow-auto">
           <div className="col-span-8 grid grid-rows-[2fr,1fr] gap-4 min-h-0">
