@@ -446,11 +446,11 @@ export function TokenStats({ tokenAddress }: TokenStatsProps) {
   ];
 
   return (
-    <div className="p-2 space-y-2">
-      {/* 顶部信息栏：代币信息 + 地址 */}
-      <div className="flex items-center justify-between bg-[#2f2f2f] rounded-lg p-2">
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-full bg-discord-primary/30 flex items-center justify-center overflow-hidden">
+    <div className="p-2 sm:p-2 space-y-2">
+      {/* 顶部信息栏：调整移动端布局和间距 */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between bg-[#2f2f2f] rounded-lg p-2 gap-2 sm:gap-0">
+        <div className="flex items-center gap-2 w-full sm:w-auto">
+          <div className="w-8 h-8 rounded-full bg-discord-primary/30 flex-shrink-0">
             {tokenInfo.logoURI ? (
               <Image
                 src={tokenInfo.logoURI}
@@ -466,9 +466,9 @@ export function TokenStats({ tokenAddress }: TokenStatsProps) {
               </span>
             )}
           </div>
-          <div>
-            <div className="flex items-center gap-1">
-              <span className="font-medium text-[#acc97e]">{tokenInfo.symbol}</span>
+          <div className="min-w-0 flex-1 sm:flex-none">
+            <div className="flex items-center gap-1 flex-wrap">
+              <span className="font-medium text-[#acc97e] truncate">{tokenInfo.symbol}</span>
               <div className="flex items-center gap-1 text-[10px]">
                 {tokenInfo.extensions && (
                   <>
@@ -523,13 +523,13 @@ export function TokenStats({ tokenAddress }: TokenStatsProps) {
                 )}
               </div>
             </div>
-            <div className="text-xs text-gray-400">{tokenInfo.name}</div>
+            <div className="text-xs text-gray-400 truncate">{tokenInfo.name}</div>
           </div>
         </div>
 
-        <div className="flex items-center gap-4">
-          <div className="text-right">
-            <div className="text-lg font-medium text-[#acc97e]">
+        <div className="flex items-center justify-between w-full sm:w-auto gap-2">
+          <div className="text-right flex-1 sm:flex-none">
+            <div className="text-base sm:text-lg font-medium text-[#acc97e]">
               ${(tokenInfo.price || 0).toFixed(12)}
             </div>
             <div className="text-xs text-gray-400">
@@ -539,7 +539,7 @@ export function TokenStats({ tokenAddress }: TokenStatsProps) {
           <Button
             variant="ghost"
             size="icon"
-            className="h-8 w-8 hover:bg-discord-primary/30"
+            className="h-8 w-8 hover:bg-discord-primary/30 flex-shrink-0"
             onClick={handleCopy}
           >
             {isCopied ? (
@@ -551,22 +551,25 @@ export function TokenStats({ tokenAddress }: TokenStatsProps) {
         </div>
       </div>
 
-      {/* 关键指标网格 - 修改为单行显示 */}
+      {/* 关键指标网格 - 移动端改为垂直堆叠 */}
       <div className="bg-[#2f2f2f] rounded-lg p-2">
-        <div className="flex items-center divide-x divide-gray-700">
-          <div className="flex-1 px-3 first:pl-0 last:pr-0">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:divide-x divide-gray-700 gap-2 sm:gap-0">
+          {/* 市值 */}
+          <div className="flex-1 sm:px-3 first:pl-0 last:pr-0">
             <div className="flex justify-between items-center">
               <span className="text-xs text-gray-400">市值</span>
               <span className="text-sm text-[#acc97e]">${formatCompactNumber(tokenInfo.marketCap)}</span>
             </div>
           </div>
-          <div className="flex-1 px-3">
+          {/* 流动性 */}
+          <div className="flex-1 sm:px-3">
             <div className="flex justify-between items-center">
               <span className="text-xs text-gray-400">流动性</span>
               <span className="text-sm text-[#acc97e]">${formatCompactNumber(tokenInfo.liquidity)}</span>
             </div>
           </div>
-          <div className="flex-1 px-3 first:pl-0 last:pr-0">
+          {/* 持有人数 */}
+          <div className="flex-1 sm:px-3 first:pl-0 last:pr-0">
             <div className="flex justify-between items-center">
               <span className="text-xs text-gray-400">持有人数</span>
               <span className="text-sm text-[#acc97e]">{formatCompactNumber(tokenInfo.totalHolders)}</span>
@@ -575,19 +578,20 @@ export function TokenStats({ tokenAddress }: TokenStatsProps) {
         </div>
       </div>
 
-      {/* 时间选择器和安全信息行 */}
-      <div className="flex items-center justify-between bg-[#2f2f2f] rounded-lg p-2">
+      {/* 时间选择器和安全信息行 - 移动端改为垂直布局 */}
+      <div className="flex flex-col sm:flex-row gap-4 sm:gap-0 sm:items-center justify-between bg-[#2f2f2f] rounded-lg p-2">
         {/* 时间选择器 */}
-        <div className="flex gap-1">
+        <div className="flex gap-1 overflow-x-auto pb-2 sm:pb-0">
           {timeOptions.map((option) => (
             <Button
               key={option.value}
               variant={selectedTime === option.value ? 'default' : 'ghost'}
               size="sm"
               onClick={() => setSelectedTime(option.value as '30m' | '1h' | '2h')}
-              className={`${selectedTime === option.value
+              className={`flex-shrink-0 ${selectedTime === option.value
                 ? 'bg-discord-primary text-white'
-                : 'text-gray-400 hover:bg-discord-primary/30'}`}
+                : 'text-gray-400 hover:bg-discord-primary/30'
+                }`}
             >
               {option.label}
             </Button>
@@ -595,7 +599,7 @@ export function TokenStats({ tokenAddress }: TokenStatsProps) {
         </div>
 
         {/* 安全信息 */}
-        <div className="flex gap-4">
+        <div className="grid grid-cols-3 sm:flex gap-4 text-center">
           <div className="flex flex-col items-center">
             <span className="text-xs text-gray-400">创建者持仓</span>
             <span className="text-xs text-[#acc97e]">
@@ -657,8 +661,8 @@ export function TokenStats({ tokenAddress }: TokenStatsProps) {
         </div>
       </div>
 
-      {/* 交易数据网格 */}
-      <div className="grid grid-cols-3 gap-2">
+      {/* 交易数据网格 - 移动端改为单列布局 */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
         <div className="bg-[#2f2f2f] rounded-lg p-2">
           <div className="flex justify-between text-xs mb-2">
             <span className="text-gray-400">交易量</span>
@@ -682,11 +686,11 @@ export function TokenStats({ tokenAddress }: TokenStatsProps) {
         <div className="bg-[#2f2f2f] rounded-lg p-2">
           <div className="flex justify-between text-xs mb-2">
             <span className="text-[#acc97e]">买入钱包数量</span>
-            <span className="text-[#acc97e]">{formatCompactNumber(tokenInfo.buyHistory24h)}</span>
+            <span className="text-[#acc97e]">{formatCompactNumber(getTimeFrameData(selectedTime, tokenInfo).buys)}</span>
           </div>
           <div className="flex justify-between text-xs mb-2">
             <span className="text-[#de5569]">卖出钱包数量</span>
-            <span className="text-[#de5569]">{formatCompactNumber(tokenInfo.sellHistory24h)}</span>
+            <span className="text-[#de5569]">{formatCompactNumber(getTimeFrameData(selectedTime, tokenInfo).sells)}</span>
           </div>
         </div>
       </div>
