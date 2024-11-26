@@ -28,13 +28,20 @@ interface Room {
   updatedAt: string;
 }
 
-export function BaseLayout({ children }: { children: React.ReactNode }) {
+interface BaseLayoutProps {
+  children: React.ReactNode;
+  roomId: string;
+}
+
+export function BaseLayout({ children, roomId }: BaseLayoutProps) {
   const [selectedTokenAddress, setSelectedTokenAddress] = useState<
     string | null
   >(null);
   const [room, setRoom] = useState<Room | null>(null);
   const [loading, setLoading] = useState(true);
-  const [selectedWalletAddress, setSelectedWalletAddress] = useState<string | null>(null);
+  const [selectedWalletAddress, setSelectedWalletAddress] = useState<
+    string | null
+  >(null);
 
   useEffect(() => {
     const loadRoomInfo = async () => {
@@ -78,7 +85,10 @@ export function BaseLayout({ children }: { children: React.ReactNode }) {
           <div className="col-span-8 grid grid-rows-[2fr,1fr] gap-4 min-h-0">
             <div className="bg-discord-secondary rounded-lg flex flex-col border border-discord-divider min-h-0 overflow-hidden">
               <div className="flex-1 min-h-0 overflow-auto">
-                <TransactionList onTransactionClick={handleTransactionClick} />
+                <TransactionList
+                  onTransactionClick={handleTransactionClick}
+                  roomId={roomId}
+                />
               </div>
             </div>
 
@@ -89,8 +99,7 @@ export function BaseLayout({ children }: { children: React.ReactNode }) {
 
               <div className="bg-discord-secondary rounded-lg border border-discord-divider flex flex-col overflow-hidden">
                 <div className="flex-1 min-h-0 overflow-auto">
-                  <TokenStats tokenAddress={selectedTokenAddress}
-                  />
+                  <TokenStats tokenAddress={selectedTokenAddress} />
                 </div>
               </div>
             </div>
@@ -108,9 +117,7 @@ export function BaseLayout({ children }: { children: React.ReactNode }) {
 
             <div className="bg-discord-secondary rounded-lg border border-discord-divider overflow-hidden">
               <div className="h-full overflow-auto">
-                <TradeBox
-                  tokenAddress={selectedTokenAddress}
-                />
+                <TradeBox tokenAddress={selectedTokenAddress} />
               </div>
             </div>
           </div>
