@@ -13,6 +13,7 @@ import {
   TabsTrigger,
   TabsContent,
 } from "@/components/ui/tabs";
+import { CreateCommunityDialog } from '@/components/CreateCommunityDialog';
 
 interface Community {
   id: string;
@@ -49,6 +50,15 @@ export default function Home() {
       console.error('Navigation error:', error);
       setNavigating(false);
     }
+  };
+
+  const handleCreateCommunity = async (data: {
+    name: string;
+    description: string;
+    avatarFile: File | null;
+  }) => {
+    // TODO: 实现创建社区的逻辑
+    console.log('创建社区:', data);
   };
 
   // 模拟数据加载
@@ -177,10 +187,7 @@ export default function Home() {
                   MCGA
                 </span>
               </div>
-              <Button className="bg-gradient-to-r from-[#53b991] to-[#9ad499] hover:opacity-90 transition-opacity">
-                <Sparkles className="w-4 h-4 mr-2" />
-                开启AI之旅
-              </Button>
+              <CreateCommunityDialog onSubmit={handleCreateCommunity} />
             </div>
           </div>
         </nav>
