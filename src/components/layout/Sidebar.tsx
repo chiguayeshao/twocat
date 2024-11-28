@@ -35,6 +35,7 @@ import { motion } from "framer-motion";
 import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from "@/components/ui/skeleton";
 import Image from 'next/image';
+import { ContentType } from '@/types/content';
 
 // 定义视图类型
 type View = {
@@ -54,17 +55,18 @@ type Channel = {
 // 频道及其视图数据
 const channels = [
     {
+        id: ContentType.COMMUNITY_HOME,
+        name: '社区首页',
+        href: '/home',
+        icon: <HomeIcon className="h-4 w-4" />,
+        isSpecial: false,
+    },
+    {
         id: 'quick-trade',
         name: '快速交易',
         href: '/quick-trade',
         icon: <Zap className="h-4 w-4" />,
         isSpecial: true,
-    },
-    {
-        id: 'home',
-        name: '社区首页',
-        href: '/home',
-        icon: <HomeIcon className="h-4 w-4" />,
     },
     {
         id: 'cn-tweets',
@@ -119,7 +121,14 @@ interface Room {
     updatedAt: string;
 }
 
-export function Sidebar({ roomId, onClose }: { roomId: string; onClose?: () => void }) {
+interface SidebarProps {
+    roomId: string;
+    activeContent: ContentType;
+    onContentChange: (content: ContentType) => void;
+    onClose?: () => void;
+}
+
+export function Sidebar({ roomId, activeContent, onContentChange, onClose }: SidebarProps) {
     const pathname = usePathname();
     const [room, setRoom] = useState<Room | null>(null);
     const [loading, setLoading] = useState(true);
@@ -383,14 +392,14 @@ export function Sidebar({ roomId, onClose }: { roomId: string; onClose?: () => v
 
                     {/* 导航菜单 */}
                     <nav className="mt-4 space-y-1">
-                        {/* 快速交易（特殊突出显示） */}
+                        {/* 快速交易按钮 */}
                         <div className="px-2 mb-4">
-                            <Link
-                                href={`/${roomId}`}
+                            <button
+                                onClick={() => onContentChange(ContentType.QUICK_TRADE)}
                                 className={cn(
-                                    "flex items-center gap-2.5 px-3 py-2 rounded-md group relative overflow-hidden",
+                                    "flex items-center gap-2.5 px-3 py-2 rounded-md group relative overflow-hidden w-full",
                                     "transition-all duration-200",
-                                    pathname === `/${roomId}`
+                                    activeContent === ContentType.QUICK_TRADE
                                         ? "bg-gradient-to-r from-[#53b991] to-[#9ad499] text-white shadow-md"
                                         : "text-[#53b991] hover:bg-[#53b991]/10 hover:shadow-sm",
                                     "border border-[#53b991]/20"
@@ -400,14 +409,14 @@ export function Sidebar({ roomId, onClose }: { roomId: string; onClose?: () => v
                                     <Zap className="h-4 w-4" />
                                     <span className="text-sm font-medium">快速交易</span>
                                 </div>
-                                {pathname === `/${roomId}` && (
+                                {activeContent === ContentType.QUICK_TRADE && (
                                     <motion.div
                                         initial={{ opacity: 0 }}
                                         animate={{ opacity: 1 }}
                                         className="absolute inset-0 bg-gradient-to-r from-[#53b991]/10 to-[#9ad499]/10"
                                     />
                                 )}
-                            </Link>
+                            </button>
                         </div>
 
                         {/* 分割线 */}
@@ -416,28 +425,31 @@ export function Sidebar({ roomId, onClose }: { roomId: string; onClose?: () => v
                         {/* 其他导航项 */}
                         {channels.filter(channel => !channel.isSpecial).map((channel) => (
                             <div key={channel.id} className="px-2">
-                                <Link
-                                    href={getChannelLink(channel.href)}
+                                <button
+                                    onClick={() => {
+                                        console.log('Clicked channel:', channel.id);
+                                        onContentChange(channel.id as ContentType);
+                                    }}
                                     className={cn(
-                                        "flex items-center gap-2.5 px-3 py-2 rounded-md relative overflow-hidden",
+                                        "flex items-center w-full px-3 py-2.5 rounded-md relative overflow-hidden",
                                         "transition-all duration-200",
-                                        pathname === getChannelLink(channel.href)
-                                            ? "bg-discord-hover text-white"
-                                            : "text-muted-foreground hover:bg-discord-hover/50 hover:text-white"
+                                        activeContent === channel.id
+                                            ? "bg-[#2f2f2f] text-white font-medium"
+                                            : "text-muted-foreground hover:bg-[#2f2f2f]/50 hover:text-white"
                                     )}
                                 >
-                                    <div className="flex items-center gap-2.5">
+                                    <div className="flex items-center gap-3 w-full">
                                         {channel.icon}
-                                        <span className="text-sm">{channel.name}</span>
+                                        <span className="text-[14px]">{channel.name}</span>
                                     </div>
-                                    {pathname === getChannelLink(channel.href) && (
+                                    {activeContent === channel.id && (
                                         <motion.div
                                             initial={{ opacity: 0 }}
                                             animate={{ opacity: 1 }}
-                                            className="absolute inset-0 bg-white/5"
+                                            className="absolute inset-0 border-l-[3px] border-[#53b991]"
                                         />
                                     )}
-                                </Link>
+                                </button>
                             </div>
                         ))}
                     </nav>
