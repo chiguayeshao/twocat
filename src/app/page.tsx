@@ -31,10 +31,24 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState('trending');
+  const [navigating, setNavigating] = useState(false);
 
   const handleTabChange = (value: string) => {
     setActiveTab(value);
     // 可以在这里添加其他 tab 切换相关的逻辑
+  };
+
+  const handleCommunityClick = async (communityId: string) => {
+    setNavigating(true);
+    // 使用默认的roomId
+    const roomId = '673c95ae1723f24444385454';
+    try {
+      // 这里可以添加跳转前的任何准备工作
+      window.location.href = `/${roomId}`;
+    } catch (error) {
+      console.error('Navigation error:', error);
+      setNavigating(false);
+    }
   };
 
   // 模拟数据加载
@@ -301,6 +315,7 @@ export default function Home() {
                     {communities.map((community, index) => (
                       <motion.div
                         key={community.id}
+                        onClick={() => handleCommunityClick(community.id)}
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -20 }}
@@ -315,12 +330,13 @@ export default function Home() {
                           y: -5,
                           transition: { duration: 0.2, ease: "easeOut" }
                         }}
-                        className="bg-[#2f2f2f]/50 backdrop-blur-sm rounded-2xl p-6 
+                        className={`bg-[#2f2f2f]/50 backdrop-blur-sm rounded-2xl p-6 
                                    border border-[#53b991]/10
                                    cursor-pointer gpu-accelerated
                                    hover:bg-[#2f2f2f]/70 
                                    transition-all duration-300
-                                   hover-glow"
+                                   hover-glow
+                                   ${navigating ? 'pointer-events-none opacity-50' : ''}`}
                       >
                         <div className="flex items-center gap-6">
                           <div className="relative group shrink-0">
