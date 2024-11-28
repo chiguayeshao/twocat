@@ -14,7 +14,12 @@ import {
     Copy,
     ExternalLink,
     Check,
-    X
+    X,
+    Zap,
+    MessageSquare,
+    Rocket,
+    ImageIcon,
+    Eye
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -47,16 +52,51 @@ type Channel = {
 };
 
 // 频道及其视图数据
-const channel: Channel = {
-    id: 'general',
-    name: 'general',
-    href: '/',
-    views: [
-        // { id: 'view1', name: '视图1', href: '/view1' },
-        // { id: 'view2', name: '视图2', href: '/view2' },
-        // { id: 'view3', name: '视图3', href: '/view3' },
-    ]
-};
+const channels = [
+    {
+        id: 'quick-trade',
+        name: '快速交易',
+        href: '/quick-trade',
+        icon: <Zap className="h-4 w-4" />,
+        isSpecial: true,
+    },
+    {
+        id: 'home',
+        name: '社区首页',
+        href: '/home',
+        icon: <HomeIcon className="h-4 w-4" />,
+    },
+    {
+        id: 'cn-tweets',
+        name: '中文推文',
+        href: '/cn-tweets',
+        icon: <MessageSquare className="h-4 w-4" />,
+    },
+    {
+        id: 'en-tweets',
+        name: '英文推文',
+        href: '/en-tweets',
+        icon: <MessageSquare className="h-4 w-4" />,
+    },
+    {
+        id: 'boost-addresses',
+        name: '冲推地址',
+        href: '/boost-addresses',
+        icon: <Rocket className="h-4 w-4" />,
+    },
+    {
+        id: 'meme-hot',
+        name: 'Meme热图',
+        href: '/meme-hot',
+        icon: <ImageIcon className="h-4 w-4" />,
+    },
+    {
+        id: 'tweet-monitor',
+        name: '推文监控',
+        href: '/tweet-monitor',
+        icon: <Eye className="h-4 w-4" />,
+    },
+];
 
 interface MonitoredWallet {
     _id: string;
@@ -84,7 +124,6 @@ export function Sidebar({ roomId, onClose }: { roomId: string; onClose?: () => v
     const [room, setRoom] = useState<Room | null>(null);
     const [loading, setLoading] = useState(true);
     const [isCopied, setIsCopied] = useState(false);
-    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
     console.log(roomId, roomId);
 
@@ -122,6 +161,16 @@ export function Sidebar({ roomId, onClose }: { roomId: string; onClose?: () => v
         navigator.clipboard.writeText(roomLink);
         setIsCopied(true);
         setTimeout(() => setIsCopied(false), 2000);
+    };
+
+    // 修改链接生成函数
+    const getChannelLink = (href: string) => {
+        // 快速交易直接使用 roomId 路径
+        if (href === '/quick-trade') {
+            return `/${roomId}`;
+        }
+        // 其他页面需要带上完整路径
+        return `/${roomId}${href}`;
     };
 
     return (
@@ -333,54 +382,64 @@ export function Sidebar({ roomId, onClose }: { roomId: string; onClose?: () => v
                     </div>
 
                     {/* 导航菜单 */}
-                    <nav className="mt-4">
-                        {/* 频道标题 */}
-                        <div className="px-2 mb-1">
+                    <nav className="mt-4 space-y-1">
+                        {/* 快速交易（特殊突出显示） */}
+                        <div className="px-2 mb-4">
                             <Link
-                                href={channel.href}
+                                href={`/${roomId}`}
                                 className={cn(
-                                    "flex items-center gap-2 px-2 py-1.5 rounded group relative",
-                                    "text-muted-foreground transition-colors",
-                                    isGeneralActive ? (
-                                        "bg-discord-hover text-white"
-                                    ) : (
-                                        "hover:bg-discord-hover hover:text-white"
-                                    )
+                                    "flex items-center gap-2.5 px-3 py-2 rounded-md group relative overflow-hidden",
+                                    "transition-all duration-200",
+                                    pathname === `/${roomId}`
+                                        ? "bg-gradient-to-r from-[#53b991] to-[#9ad499] text-white shadow-md"
+                                        : "text-[#53b991] hover:bg-[#53b991]/10 hover:shadow-sm",
+                                    "border border-[#53b991]/20"
                                 )}
                             >
-                                {/* 添加选指示器 */}
-                                {isGeneralActive && (
-                                    <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-4 bg-white rounded-r-full" />
+                                <div className="flex items-center gap-2.5">
+                                    <Zap className="h-4 w-4" />
+                                    <span className="text-sm font-medium">快速交易</span>
+                                </div>
+                                {pathname === `/${roomId}` && (
+                                    <motion.div
+                                        initial={{ opacity: 0 }}
+                                        animate={{ opacity: 1 }}
+                                        className="absolute inset-0 bg-gradient-to-r from-[#53b991]/10 to-[#9ad499]/10"
+                                    />
                                 )}
-                                <span className="text-lg font-medium">#</span>
-                                <span className="text-sm">{channel.name}</span>
                             </Link>
                         </div>
 
-                        {/* 视图列表 */}
-                        <div className="pl-9 space-y-0.5">
-                            {channel.views.map((view) => (
+                        {/* 分割线 */}
+                        <div className="h-px bg-discord-divider mx-2 my-2" />
+
+                        {/* 其他导航项 */}
+                        {channels.filter(channel => !channel.isSpecial).map((channel) => (
+                            <div key={channel.id} className="px-2">
                                 <Link
-                                    key={view.id}
-                                    href={view.href}
+                                    href={getChannelLink(channel.href)}
                                     className={cn(
-                                        "flex items-center gap-2 px-2 py-1 rounded group relative",
-                                        "text-muted-foreground transition-colors text-sm",
-                                        pathname === view.href ? (
-                                            "bg-discord-hover text-white"
-                                        ) : (
-                                            "hover:bg-discord-hover hover:text-white"
-                                        )
+                                        "flex items-center gap-2.5 px-3 py-2 rounded-md relative overflow-hidden",
+                                        "transition-all duration-200",
+                                        pathname === getChannelLink(channel.href)
+                                            ? "bg-discord-hover text-white"
+                                            : "text-muted-foreground hover:bg-discord-hover/50 hover:text-white"
                                     )}
                                 >
-                                    {/* 添加选中指示器 */}
-                                    {pathname === view.href && (
-                                        <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-4 bg-white rounded-r-full" />
+                                    <div className="flex items-center gap-2.5">
+                                        {channel.icon}
+                                        <span className="text-sm">{channel.name}</span>
+                                    </div>
+                                    {pathname === getChannelLink(channel.href) && (
+                                        <motion.div
+                                            initial={{ opacity: 0 }}
+                                            animate={{ opacity: 1 }}
+                                            className="absolute inset-0 bg-white/5"
+                                        />
                                     )}
-                                    {view.name}
                                 </Link>
-                            ))}
-                        </div>
+                            </div>
+                        ))}
                     </nav>
                 </div>
             </div>
