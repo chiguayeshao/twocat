@@ -377,7 +377,7 @@ export default function TradeBox({
         errorTitle = '交易验证失败';
         errorDescription = '请检查交参数是否正确，或稍后重试';
       } else if (tradeError.message?.includes('insufficient balance')) {
-        errorTitle = '余��不足';
+        errorTitle = '余额不足';
         errorDescription = '请检查您的余额是否足够支付交易金额和手续费';
       } else if (tradeError.message?.includes('slippage')) {
         errorTitle = '滑点超出限制';
