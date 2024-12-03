@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { Copy, Check, MessageCircle, ExternalLink } from 'lucide-react';
 import { useState } from 'react';
 import { AddTweetDialog } from './AddTweetDialog';
+import { ReplyDialog } from './ReplyDialog';
 
 interface Tweet {
     id: string;
@@ -169,17 +170,7 @@ export function BoostAddresses() {
                                     </button>
 
                                     {/* 回复按钮 */}
-                                    <a
-                                        href={`${tweet.tweetUrl}/reply`}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-md
-                                                 bg-[#1DA1F2]/10 hover:bg-[#1DA1F2]/20 
-                                                 text-[#1DA1F2] transition-all duration-200"
-                                    >
-                                        <MessageCircle className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-                                        <span className="text-xs sm:text-sm">回复</span>
-                                    </a>
+                                    <ReplyDialog tweet={tweet} />
 
                                     {/* 访问按钮 */}
                                     <a
