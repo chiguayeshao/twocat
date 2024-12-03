@@ -40,7 +40,7 @@ export function ReplyDialog({ tweet }: ReplyDialogProps) {
                                  bg-[#1DA1F2]/10 hover:bg-[#1DA1F2]/20 
                                  text-[#1DA1F2] transition-all duration-200">
                     <MessageCircle className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-                    <span className="hidden sm:inline text-xs sm:text-sm">回复</span>
+                    <span className="text-xs sm:text-sm">回复</span>
                 </button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-[500px] bg-[#1e1f22] border-none shadow-xl rounded-xl
