@@ -174,8 +174,8 @@ export function BoostAddresses() {
                                         target="_blank"
                                         rel="noopener noreferrer"
                                         className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-md
-                                                 bg-[#53b991]/10 hover:bg-[#53b991]/20 
-                                                 text-[#53b991] transition-all duration-200"
+                                                 bg-[#1DA1F2]/10 hover:bg-[#1DA1F2]/20 
+                                                 text-[#1DA1F2] transition-all duration-200"
                                     >
                                         <MessageCircle className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                                         <span className="text-xs sm:text-sm">回复</span>
