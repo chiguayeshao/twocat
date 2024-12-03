@@ -112,9 +112,9 @@ export function ReplyDialog({ tweet }: ReplyDialogProps) {
                             whileHover={{ scale: 1.02 }}
                             whileTap={{ scale: 0.98 }}
                             onClick={handleReply}
-                            className="px-4 py-2 bg-[#1DA1F2] hover:bg-[#1DA1F2]/90
-                                     text-white text-sm font-medium rounded-lg 
-                                     transition-all duration-200"
+                            className="px-4 py-2 bg-[#1DA1F2]/10 hover:bg-[#1DA1F2]/20 
+                                 text-[#1DA1F2] text-sm font-medium rounded-lg 
+                                 transition-all duration-200"
                         >
                             回复
                         </motion.button>
