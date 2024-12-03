@@ -3,13 +3,7 @@
 import { motion } from 'framer-motion';
 import { Copy, Check, Heart, PlusCircle, Twitter } from 'lucide-react';
 import { useState } from 'react';
-import {
-    Dialog,
-    DialogContent,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger,
-} from "@/components/ui/dialog";
+import { TweetComposer } from "@/components/tweet/TweetComposer";
 
 interface Tweet {
     id: string;
@@ -88,7 +82,6 @@ export function ChineseTweets() {
     ]);
 
     const [copiedId, setCopiedId] = useState<string | null>(null);
-    const [newTweet, setNewTweet] = useState<string>('');
 
     const handleCopy = (content: string, id: string) => {
         navigator.clipboard.writeText(content);
@@ -96,30 +89,15 @@ export function ChineseTweets() {
         setTimeout(() => setCopiedId(null), 2000);
     };
 
-    const handleLike = (id: string) => {
-        setTweets(tweets.map(tweet =>
-            tweet.id === id
-                ? {
-                    ...tweet,
-                    likes: tweet.isLiked ? tweet.likes - 1 : tweet.likes + 1,
-                    isLiked: !tweet.isLiked
-                }
-                : tweet
-        ));
-    };
-
-    const handleAddTweet = () => {
-        if (newTweet.trim()) {
-            const newTweetObj: Tweet = {
-                id: (tweets.length + 1).toString(),
-                content: newTweet,
-                author: "0xNewUser",
-                createdAt: new Date().toISOString().split('T')[0],
-                likes: 0,
-            };
-            setTweets([newTweetObj, ...tweets]);
-            setNewTweet('');
-        }
+    const handleAddTweet = (content: string) => {
+        const newTweetObj: Tweet = {
+            id: (tweets.length + 1).toString(),
+            content,
+            author: "0xNewUser",
+            createdAt: new Date().toISOString().split('T')[0],
+            likes: 0,
+        };
+        setTweets([newTweetObj, ...tweets]);
     };
 
     return (
@@ -136,40 +114,8 @@ export function ChineseTweets() {
                         </p>
                     </div>
 
-                    {/* 添加推文按钮 */}
-                    <Dialog>
-                        <DialogTrigger asChild>
-                            <button className="flex items-center gap-2 px-4 py-2 rounded-full
-                                           bg-[#53b991]/10 hover:bg-[#53b991]/20
-                                           border border-[#53b991]/20 hover:border-[#53b991]/30
-                                           transition-all duration-300">
-                                <PlusCircle className="h-4 w-4 text-[#53b991]" />
-                                <span className="text-sm text-[#53b991]">添加推文</span>
-                            </button>
-                        </DialogTrigger>
-                        <DialogContent>
-                            <DialogHeader>
-                                <DialogTitle>创建新推文</DialogTitle>
-                            </DialogHeader>
-                            <div className="mt-4">
-                                <textarea
-                                    value={newTweet}
-                                    onChange={(e) => setNewTweet(e.target.value)}
-                                    placeholder="输入你的推文..."
-                                    className="w-full p-3 rounded-lg bg-white/5 border border-white/10 text-white/90 placeholder-white/50"
-                                    rows={5}
-                                />
-                                <button
-                                    onClick={handleAddTweet}
-                                    className="mt-4 w-full flex items-center justify-center gap-2 px-4 py-2 rounded-full
-                                             bg-[#53b991] hover:bg-[#53b991]/90
-                                             text-white transition-all duration-300"
-                                >
-                                    提交推文
-                                </button>
-                            </div>
-                        </DialogContent>
-                    </Dialog>
+                    {/* 使用 TweetComposer 组件 */}
+                    <TweetComposer onAddTweet={handleAddTweet} />
                 </div>
 
                 {/* 推文网格 */}
