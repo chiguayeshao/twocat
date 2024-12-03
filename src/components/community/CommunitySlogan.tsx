@@ -56,7 +56,7 @@ export function CommunitySlogan({ slogan }: CommunitySloganProps) {
                         <span className="text-lg sm:text-xl group-hover:scale-110 transition-transform">
                             {item.icon}
                         </span>
-                        <span className="text-sm sm:text-base text-white/80 group-hover:text-white/100 transition-colors">
+                        <span className="text-sm sm:text-base text-white/80 group-hover:text-[#53b991] transition-colors">
                             {item.text}
                         </span>
                     </motion.div>

@@ -112,7 +112,7 @@ export function CommunityCard({
                             className="flex items-center gap-2 text-sm group justify-center sm:justify-start"
                         >
                             <Globe className="w-4 h-4 text-white/60" />
-                            <span className="text-white/60 font-medium tracking-wide group-hover:text-white/80 transition-colors">
+                            <span className="text-white/60 font-medium tracking-wide group-hover:text-[#53b991] transition-colors">
                                 {website}
                             </span>
                         </motion.a>
@@ -128,7 +128,7 @@ export function CommunityCard({
                             className="flex items-center gap-2 text-sm group justify-center sm:justify-start"
                         >
                             <Twitter className="w-4 h-4 text-white/60" />
-                            <span className="text-white/60 font-medium tracking-wide group-hover:text-white/80 transition-colors">
+                            <span className="text-white/60 font-medium tracking-wide group-hover:text-[#53b991] transition-colors">
                                 {twitter}
                             </span>
                         </motion.a>
@@ -144,7 +144,7 @@ export function CommunityCard({
                             className="flex items-center gap-2 text-sm group justify-center sm:justify-start"
                         >
                             <Send className="w-4 h-4 text-white/60" />
-                            <span className="text-white/60 font-medium tracking-wide group-hover:text-white/80 transition-colors">
+                            <span className="text-white/60 font-medium tracking-wide group-hover:text-[#53b991] transition-colors">
                                 {telegram}
                             </span>
                         </motion.a>
@@ -160,7 +160,7 @@ export function CommunityCard({
                             className="flex items-center gap-2 text-sm group justify-center sm:justify-start"
                         >
                             <MessageCircle className="w-4 h-4 text-white/60" />
-                            <span className="text-white/60 font-medium tracking-wide group-hover:text-white/80 transition-colors">
+                            <span className="text-white/60 font-medium tracking-wide group-hover:text-[#53b991] transition-colors">
                                 {discord}
                             </span>
                         </motion.a>
@@ -176,7 +176,7 @@ export function CommunityCard({
                             <span className="text-white/60 flex-shrink-0">CA:</span>
                             <span
                                 onClick={handleCopy}
-                                className="font-mono text-white/60 cursor-pointer hover:text-white/80 transition-colors truncate max-w-[200px] sm:max-w-none"
+                                className="font-mono text-white/60 cursor-pointer hover:text-[#53b991] transition-colors truncate max-w-[200px] sm:max-w-none"
                             >
                                 {tokenAddress}
                             </span>
@@ -185,7 +185,7 @@ export function CommunityCard({
                                     initial={{ opacity: 0 }}
                                     animate={{ opacity: 1 }}
                                     exit={{ opacity: 0 }}
-                                    className="absolute left-1/2 sm:left-auto -translate-x-1/2 sm:translate-x-0 sm:right-0 top-full mt-1 text-xs text-green-400 bg-black/20 px-2 py-1 rounded whitespace-nowrap"
+                                    className="absolute left-1/2 sm:left-auto -translate-x-1/2 sm:translate-x-0 sm:right-0 top-full mt-1 text-xs text-[#53b991] bg-black/20 px-2 py-1 rounded whitespace-nowrap"
                                 >
                                     已复制
                                 </motion.span>

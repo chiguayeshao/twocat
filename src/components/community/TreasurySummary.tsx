@@ -155,7 +155,9 @@ export function TreasurySummary({
                                         <div className="text-sm text-white/90">{tx.description}</div>
                                         <div className="text-xs text-white/60">{tx.date}</div>
                                     </div>
-                                    <div className={`font-mono font-bold ${tx.type === 'income' ? 'text-green-400' : 'text-red-400'
+                                    <div className={`font-mono font-bold ${tx.type === 'income'
+                                            ? 'text-[#53b991]'  // 收入显示绿色
+                                            : 'text-[#de5569]'  // 支出显示红色
                                         }`}>
                                         {tx.amount}
                                     </div>
