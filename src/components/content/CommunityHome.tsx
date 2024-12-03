@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { useState, useEffect } from 'react';
 import ColorThief from 'colorthief';
 import { CommunityCard } from '@/components/community/CommunityCard';
+import { CommunitySlogan } from '@/components/community/CommunitySlogan';
 import { TreasurySummary } from '@/components/community/TreasurySummary';
 import { StatsCard } from '@/components/community/StatsCard';
 
@@ -85,61 +86,7 @@ export function CommunityHome({ roomId }: { roomId: string }) {
                     />
 
                     {/* 社区标语和理念 */}
-                    <motion.div
-                        initial={{ opacity: 0, x: 20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        className="h-auto lg:h-[280px] flex flex-col justify-between p-6 sm:p-8 bg-white/5 rounded-2xl border border-white/10"
-                    >
-                        {/* 主标语 */}
-                        <motion.h1
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            className="text-2xl sm:text-3xl font-bold text-white/90 leading-tight mb-6 lg:mb-0"
-                        >
-                            {roomInfo.slogan}
-                        </motion.h1>
-
-                        {/* 社区理念描述 */}
-                        <motion.div
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            className="flex flex-col gap-4"
-                        >
-                            {[
-                                {
-                                    icon: "🌈",
-                                    text: "社区驱动，人人都是创作者"
-                                },
-                                {
-                                    icon: "💎",
-                                    text: "持有即是身份，价值共同创造"
-                                },
-                                {
-                                    icon: "🎮",
-                                    text: "玩梗创造快乐，社交铸就未来"
-                                },
-                                {
-                                    icon: "🤝",
-                                    text: "共建共赢生态，财富共同分享"
-                                }
-                            ].map((item, index) => (
-                                <motion.div
-                                    key={index}
-                                    initial={{ opacity: 0, x: 20 }}
-                                    animate={{ opacity: 1, x: 0 }}
-                                    transition={{ delay: 0.1 + index * 0.1 }}
-                                    className="flex items-center gap-3 group"
-                                >
-                                    <span className="text-xl group-hover:scale-110 transition-transform">
-                                        {item.icon}
-                                    </span>
-                                    <span className="text-white/80 group-hover:text-white/100 transition-colors">
-                                        {item.text}
-                                    </span>
-                                </motion.div>
-                            ))}
-                        </motion.div>
-                    </motion.div>
+                    <CommunitySlogan slogan={roomInfo.slogan} />
                 </div>
 
                 {/* 社区金库概览 */}

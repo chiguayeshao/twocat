@@ -72,21 +72,18 @@ export function CommunityCard({
                         rgba(${dominantColor[0]},${dominantColor[1]},${dominantColor[2]},0.05) 100%)`
                     : 'linear-gradient(135deg, rgba(83,185,145,0.15) 0%, rgba(83,185,145,0.05) 100%)',
             }}
-            className="relative p-6 sm:p-8 rounded-2xl backdrop-blur-sm border border-white/10 shadow-xl h-auto sm:h-[280px]"
+            className="relative p-5 sm:p-6 lg:p-8 rounded-2xl backdrop-blur-sm border border-white/10 shadow-xl"
         >
             {/* 名称放在顶部 */}
             <motion.h2
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 className="text-xl sm:text-2xl font-bold text-white/90 tracking-wide mb-4 sm:mb-6"
-                style={{
-                    textShadow: '0 2px 4px rgba(0,0,0,0.2)',
-                }}
             >
                 {name}
             </motion.h2>
 
-            <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-8">
+            <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6 lg:gap-8">
                 {/* 左侧头像 */}
                 <motion.div
                     initial={{ opacity: 0, scale: 0.5 }}
@@ -104,7 +101,7 @@ export function CommunityCard({
                 </motion.div>
 
                 {/* 右侧信息区域 */}
-                <div className="flex-1 space-y-3 sm:space-y-4 w-full sm:w-auto">
+                <div className="flex-1 space-y-3 w-full text-center sm:text-left">
                     {website && (
                         <motion.a
                             href={website}
@@ -112,7 +109,7 @@ export function CommunityCard({
                             rel="noopener noreferrer"
                             initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
-                            className="flex items-center gap-2 text-sm group"
+                            className="flex items-center gap-2 text-sm group justify-center sm:justify-start"
                         >
                             <Globe className="w-4 h-4 text-white/60" />
                             <span className="text-white/60 font-medium tracking-wide group-hover:text-white/80 transition-colors">
@@ -128,7 +125,7 @@ export function CommunityCard({
                             rel="noopener noreferrer"
                             initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
-                            className="flex items-center gap-2 text-sm group"
+                            className="flex items-center gap-2 text-sm group justify-center sm:justify-start"
                         >
                             <Twitter className="w-4 h-4 text-white/60" />
                             <span className="text-white/60 font-medium tracking-wide group-hover:text-white/80 transition-colors">
@@ -144,7 +141,7 @@ export function CommunityCard({
                             rel="noopener noreferrer"
                             initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
-                            className="flex items-center gap-2 text-sm group"
+                            className="flex items-center gap-2 text-sm group justify-center sm:justify-start"
                         >
                             <Send className="w-4 h-4 text-white/60" />
                             <span className="text-white/60 font-medium tracking-wide group-hover:text-white/80 transition-colors">
@@ -160,7 +157,7 @@ export function CommunityCard({
                             rel="noopener noreferrer"
                             initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
-                            className="flex items-center gap-2 text-sm group"
+                            className="flex items-center gap-2 text-sm group justify-center sm:justify-start"
                         >
                             <MessageCircle className="w-4 h-4 text-white/60" />
                             <span className="text-white/60 font-medium tracking-wide group-hover:text-white/80 transition-colors">
@@ -173,12 +170,13 @@ export function CommunityCard({
                         <motion.div
                             initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
-                            className="flex items-center gap-2 text-sm relative"
+                            className="flex items-center gap-2 text-sm relative justify-center sm:justify-start flex-wrap"
                         >
-                            <span className="text-white/60 flex-shrink-0">CA</span>
+                            <Coins className="w-4 h-4 text-white/60 flex-shrink-0" />
+                            <span className="text-white/60 flex-shrink-0">CA:</span>
                             <span
                                 onClick={handleCopy}
-                                className="font-mono text-white/60 cursor-pointer hover:text-white/80 transition-colors truncate"
+                                className="font-mono text-white/60 cursor-pointer hover:text-white/80 transition-colors truncate max-w-[200px] sm:max-w-none"
                             >
                                 {tokenAddress}
                             </span>
@@ -187,7 +185,7 @@ export function CommunityCard({
                                     initial={{ opacity: 0 }}
                                     animate={{ opacity: 1 }}
                                     exit={{ opacity: 0 }}
-                                    className="absolute right-0 top-full mt-1 text-xs text-green-400 bg-black/20 px-2 py-1 rounded"
+                                    className="absolute left-1/2 sm:left-auto -translate-x-1/2 sm:translate-x-0 sm:right-0 top-full mt-1 text-xs text-green-400 bg-black/20 px-2 py-1 rounded whitespace-nowrap"
                                 >
                                     已复制
                                 </motion.span>
