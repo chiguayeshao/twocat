@@ -13,6 +13,7 @@ import { WalletInfo } from '@/components/wallet/WalletInfo';
 import { ContentType } from '@/types/content';
 import { CommunityHome } from '../content/CommunityHome';
 import { ChineseTweets } from '@/components/content/ChineseTweets';
+import { EnglishTweets } from '../content/EnglishTweets';
 
 interface BaseLayoutProps {
   children: React.ReactNode;
@@ -139,7 +140,7 @@ export function BaseLayout({ children, roomId }: BaseLayoutProps) {
         return <ChineseTweets />;
       case ContentType.ENGLISH_TWEETS:
         console.log('Rendering English Tweets');
-      // return <EnglishTweets />;
+        return <EnglishTweets />;
       default:
         console.log('Unknown content type:', activeContent);
         return null;
