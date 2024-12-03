@@ -104,12 +104,12 @@ export function ChineseTweets() {
         <div className="min-h-screen">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-8">
                 {/* 头部区域 */}
-                <div className="flex justify-between items-center mb-8">
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
                     <div>
-                        <h1 className="text-2xl sm:text-3xl font-bold text-white/90">
+                        <h1 className="text-xl sm:text-2xl font-bold text-white/90">
                             社区推文库
                         </h1>
-                        <p className="text-white/60 mt-2">
+                        <p className="text-sm sm:text-base text-white/60 mt-2">
                             在这里找到完美的推文，帮助传播 Two Cat 的故事
                         </p>
                     </div>
@@ -119,19 +119,19 @@ export function ChineseTweets() {
                 </div>
 
                 {/* 推文网格 */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                     {tweets.map((tweet, index) => (
                         <motion.div
                             key={tweet.id}
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: index * 0.1 }}
-                            className="bg-white/5 rounded-md border border-white/10 p-5 group 
+                            className="bg-white/5 rounded-md border border-white/10 p-4 sm:p-5 group 
                                      hover:bg-white/[0.07] transition-all duration-300
                                      flex flex-col justify-between min-h-[200px]"
                         >
                             {/* 推文内容 */}
-                            <div className="whitespace-pre-line text-white/90">
+                            <div className="whitespace-pre-line text-white/90 text-sm sm:text-base">
                                 {tweet.content}
                             </div>
 
@@ -144,9 +144,9 @@ export function ChineseTweets() {
                                 <div className="flex items-center justify-between">
                                     {/* 作者信息 */}
                                     <div className="flex items-center gap-2">
-                                        <span className="text-sm text-white/60">{tweet.author}</span>
+                                        <span className="text-xs sm:text-sm text-white/60">{tweet.author}</span>
                                         <span className="text-xs text-white/40">·</span>
-                                        <span className="text-sm text-white/40">{tweet.createdAt}</span>
+                                        <span className="text-xs sm:text-sm text-white/40">{tweet.createdAt}</span>
                                     </div>
 
                                     {/* 操作按钮组 */}
@@ -154,19 +154,19 @@ export function ChineseTweets() {
                                         {/* 复制按钮 */}
                                         <button
                                             onClick={() => handleCopy(tweet.content, tweet.id)}
-                                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-md
+                                            className="flex items-center gap-1.5 px-2 sm:px-3 py-1.5 rounded-md
                                                      bg-white/5 hover:bg-white/10 
                                                      transition-all duration-200"
                                         >
                                             {copiedId === tweet.id ? (
                                                 <>
-                                                    <Check className="h-4 w-4 text-[#53b991]" />
-                                                    <span className="text-sm text-[#53b991]">已复制</span>
+                                                    <Check className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-[#53b991]" />
+                                                    <span className="hidden sm:inline text-xs sm:text-sm text-[#53b991]">已复制</span>
                                                 </>
                                             ) : (
                                                 <>
-                                                    <Copy className="h-4 w-4 text-white/60" />
-                                                    <span className="text-sm text-white/60">复制</span>
+                                                    <Copy className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-white/60" />
+                                                    <span className="hidden sm:inline text-xs sm:text-sm text-white/60">复制</span>
                                                 </>
                                             )}
                                         </button>
@@ -176,12 +176,12 @@ export function ChineseTweets() {
                                             href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(tweet.content)}`}
                                             target="_blank"
                                             rel="noopener noreferrer"
-                                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-md
+                                            className="flex items-center gap-1.5 px-2 sm:px-3 py-1.5 rounded-md
                                                      bg-[#1DA1F2]/10 hover:bg-[#1DA1F2]/20 
                                                      text-[#1DA1F2] transition-all duration-200"
                                         >
-                                            <Twitter className="h-4 w-4" />
-                                            <span className="text-sm">发推</span>
+                                            <Twitter className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                                            <span className="hidden sm:inline text-xs sm:text-sm">发推</span>
                                         </a>
                                     </div>
                                 </div>
