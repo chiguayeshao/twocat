@@ -62,20 +62,20 @@ const channels = [
         isSpecial: false,
     },
     {
-        id: 'quick-trade',
+        id: ContentType.QUICK_TRADE,
         name: '快速交易',
         href: '/quick-trade',
         icon: <Zap className="h-4 w-4" />,
         isSpecial: true,
     },
     {
-        id: 'cn-tweets',
+        id: ContentType.CHINESE_TWEETS,
         name: '中文推文',
         href: '/cn-tweets',
         icon: <MessageSquare className="h-4 w-4" />,
     },
     {
-        id: 'en-tweets',
+        id: ContentType.ENGLISH_TWEETS,
         name: '英文推文',
         href: '/en-tweets',
         icon: <MessageSquare className="h-4 w-4" />,

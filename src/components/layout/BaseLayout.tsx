@@ -12,6 +12,7 @@ import { TokenStats } from '@/components/token/TokenStats';
 import { WalletInfo } from '@/components/wallet/WalletInfo';
 import { ContentType } from '@/types/content';
 import { CommunityHome } from '../content/CommunityHome';
+import { ChineseTweets } from '@/components/content/ChineseTweets';
 
 interface BaseLayoutProps {
   children: React.ReactNode;
@@ -133,6 +134,12 @@ export function BaseLayout({ children, roomId }: BaseLayoutProps) {
       case ContentType.COMMUNITY_HOME:
         console.log('Rendering Community Home');
         return <CommunityHome roomId={roomId} />;
+      case ContentType.CHINESE_TWEETS:
+        console.log('Rendering Chinese Tweets');
+        return <ChineseTweets />;
+      case ContentType.ENGLISH_TWEETS:
+        console.log('Rendering English Tweets');
+      // return <EnglishTweets />;
       default:
         console.log('Unknown content type:', activeContent);
         return null;
