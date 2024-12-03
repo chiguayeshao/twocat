@@ -16,6 +16,7 @@ import { ChineseTweets } from '@/components/content/ChineseTweets';
 import { EnglishTweets } from '../content/EnglishTweets';
 import { BoostAddresses } from '../content/BoostAddresses';
 import { MemeGallery } from '../content/MemeGallery';
+import { TweetMonitor } from '../content/TweetMonitor';
 
 interface BaseLayoutProps {
   children: React.ReactNode;
@@ -149,6 +150,9 @@ export function BaseLayout({ children, roomId }: BaseLayoutProps) {
       case ContentType.MEME_GALLERY:
         console.log('Rendering Meme Gallery');
         return <MemeGallery />;
+      case ContentType.TWEET_MONITOR:
+        console.log('Rendering Tweet Monitor');
+        return <TweetMonitor />;
       default:
         console.log('Unknown content type:', activeContent);
         return null;
