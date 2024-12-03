@@ -106,11 +106,11 @@ export function TreasurySummary({
                         <div className="mt-4 grid grid-cols-2 gap-4">
                             <div>
                                 <div className="text-white/60 text-sm">日交易量</div>
-                                <div className="text-white/90 font-bold">{dailyVolume}</div>
+                                <div className="text-[#53b991] font-bold">{dailyVolume}</div>
                             </div>
                             <div>
                                 <div className="text-white/60 text-sm">本周收入</div>
-                                <div className="text-white/90 font-bold">{weeklyIncome}</div>
+                                <div className="text-[#53b991] font-bold">{weeklyIncome}</div>
                             </div>
                         </div>
                     </div>
@@ -156,8 +156,8 @@ export function TreasurySummary({
                                         <div className="text-xs text-white/60">{tx.date}</div>
                                     </div>
                                     <div className={`font-mono font-bold ${tx.type === 'income'
-                                            ? 'text-[#53b991]'  // 收入显示绿色
-                                            : 'text-[#de5569]'  // 支出显示红色
+                                        ? 'text-[#53b991]'  // 收入显示绿色
+                                        : 'text-[#de5569]'  // 支出显示红色
                                         }`}>
                                         {tx.amount}
                                     </div>

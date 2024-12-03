@@ -7,6 +7,7 @@ import { CommunityCard } from '@/components/community/CommunityCard';
 import { CommunitySlogan } from '@/components/community/CommunitySlogan';
 import { TreasurySummary } from '@/components/community/TreasurySummary';
 import { StatsCard } from '@/components/community/StatsCard';
+import { CommunityStory } from '@/components/community/CommunityStory';
 
 interface RoomInfo {
     name: string;
@@ -87,6 +88,36 @@ export function CommunityHome({ roomId }: { roomId: string }) {
 
                     {/* 社区标语和理念 */}
                     <CommunitySlogan slogan={roomInfo.slogan} />
+                </div>
+
+                {/* 社区故事 */}
+                <div className="mt-6 sm:mt-12">
+                    <CommunityStory
+                        title="Two Cat 的梗图故事"
+                        description="源于一个表情包，成就一个充满欢乐的社区"
+                        stories={[
+                            {
+                                emoji: "😺",
+                                title: "两只猫的诞生",
+                                content: "一切开始于一个爆火的猫咪表情包，两只可爱的猫咪让每个人都会心一笑。我们想，为什么不让这份快乐持续下去呢？"
+                            },
+                            {
+                                emoji: "🎭",
+                                title: "玩梗大师",
+                                content: "在这里，人人都是玩梗大师。我们用表情包交流，用梗图表达，让社交变得更有趣、更轻松。"
+                            },
+                            {
+                                emoji: "🌈",
+                                title: "快乐社区",
+                                content: "Two Cat 不仅是一个代币，更是一个分享快乐的社区。在这里，我们用欢笑连接彼此，用创意传递价值。"
+                            },
+                            {
+                                emoji: "🎮",
+                                title: "玩出未来",
+                                content: "谁说金融就要很严肃？我们用游戏化的方式重新定义社区互动，让每个人都能快乐参与。"
+                            }
+                        ]}
+                    />
                 </div>
 
                 {/* 社区金库概览 */}
