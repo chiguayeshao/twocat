@@ -88,7 +88,7 @@ const channels = [
     },
     {
         id: 'meme-gallery',
-        name: '图库',
+        name: '社区图库',
         href: '/meme-gallery',
         icon: <ImageIcon className="h-4 w-4" />,
     },
