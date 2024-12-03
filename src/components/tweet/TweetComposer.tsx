@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Switch } from "@/components/ui/switch";
-import { PlusCircle, Sparkles, Languages } from 'lucide-react';
+import { PlusCircle, Sparkles, Languages, Plus } from 'lucide-react';
 
 interface TweetComposerProps {
     onAddTweet: (content: string) => void;
@@ -31,7 +31,7 @@ export function TweetComposer({ onAddTweet }: TweetComposerProps) {
                              border border-[#53b991]/20 hover:border-[#53b991]/30
                              transition-all duration-300"
                 >
-                    <PlusCircle className="h-4 w-4 text-[#53b991]" />
+                    <Plus className="h-4 w-4 text-[#53b991]" />
                     <span className="text-sm font-medium text-[#53b991]">添加推文</span>
                 </motion.button>
             </DialogTrigger>
