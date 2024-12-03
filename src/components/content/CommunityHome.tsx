@@ -7,6 +7,9 @@ import { useState, useEffect, useRef } from 'react';
 import ColorThief from 'colorthief';
 import Image from 'next/image';
 import { cn } from '@/lib/utils';
+import { StatsCard } from '@/components/community/StatsCard';
+import { TreasurySummary } from '@/components/community/TreasurySummary';
+import { MemberCard } from '@/components/community/MemberCard';
 
 interface RoomInfo {
     name: string;
@@ -253,10 +256,64 @@ export function CommunityHome({ roomId }: { roomId: string }) {
                     </motion.div>
                 </div>
 
-                {/* 这里可以添加其他内容 */}
-                <div className="mt-16">
-                    {/* 其他内容将在这里展示 */}
-                </div>
+                {/* 社区金库概览 */}
+                <TreasurySummary
+                    balance="$42,069"
+                    dailyVolume="$69,420"
+                    weeklyIncome="$4,200"
+                />
+
+                {/* 社区数据统计 */}
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-4"
+                >
+                    <StatsCard
+                        title="持有人数"
+                        value="42,069"
+                        icon="🦍"
+                        change="+420%"
+                    />
+                    <StatsCard
+                        title="市值"
+                        value="$1.69M"
+                        icon="💎"
+                        change="+69%"
+                    />
+                    <StatsCard
+                        title="交易量"
+                        value="$420K"
+                        icon="📊"
+                        change="+42%"
+                    />
+                    <StatsCard
+                        title="流动性"
+                        value="$690K"
+                        icon="💧"
+                        change="+169%"
+                    />
+                </motion.div>
+
+                {/* 社区成员展示 */}
+                <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    className="mt-16 mb-16"
+                >
+                    <h2 className="text-3xl font-bold text-white/90 mb-8 flex items-center gap-2">
+                        <span>活跃成员</span>
+                        <span className="text-2xl">👥</span>
+                    </h2>
+                    <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                        <MemberCard
+                            avatar="/member1.jpg"
+                            name="Meme Lord"
+                            role="创始人"
+                            contribution="420 个 meme"
+                        />
+                    </div>
+                </motion.div>
             </div>
         </div>
     );
@@ -312,6 +369,72 @@ function InfoItem({ icon, label, value, copyable = false }: {
                     已复制
                 </motion.span>
             )}
+        </motion.div>
+    );
+}
+
+// TokenomicsItem 组件
+interface TokenomicsItemProps {
+    label: string;
+    percentage: number;
+    description: string;
+}
+
+function TokenomicsItem({ label, percentage, description }: TokenomicsItemProps) {
+    return (
+        <motion.div
+            whileHover={{ x: 5 }}
+            className="bg-white/5 p-4 rounded-lg border border-white/10"
+        >
+            <div className="flex justify-between items-center mb-2">
+                <span className="text-white/80 font-medium">{label}</span>
+                <span className="text-white/90 font-bold">{percentage}%</span>
+            </div>
+            <div className="w-full bg-white/10 rounded-full h-2 mb-2">
+                <div
+                    className="bg-gradient-to-r from-purple-500 to-pink-500 h-full rounded-full"
+                    style={{ width: `${percentage}%` }}
+                />
+            </div>
+            <p className="text-white/60 text-sm">{description}</p>
+        </motion.div>
+    );
+}
+
+// RoadmapItem 组件
+interface RoadmapItemProps {
+    phase: string;
+    title: string;
+    items: string[];
+    completed?: boolean;
+}
+
+function RoadmapItem({ phase, title, items, completed }: RoadmapItemProps) {
+    return (
+        <motion.div
+            whileHover={{ x: 10 }}
+            className="relative pl-8 pb-12 ml-[50%]"
+        >
+            {/* 时间线节点 */}
+            <div className={cn(
+                "absolute left-0 w-4 h-4 rounded-full transform -translate-x-1/2",
+                completed ? "bg-green-400" : "bg-white/20"
+            )} />
+
+            <div className="bg-white/5 p-6 rounded-xl border border-white/10">
+                <div className="text-white/60 text-sm mb-2">{phase}</div>
+                <h3 className="text-xl font-bold text-white/90 mb-4">{title}</h3>
+                <ul className="space-y-2">
+                    {items.map((item, index) => (
+                        <li
+                            key={index}
+                            className="flex items-center gap-2 text-white/80"
+                        >
+                            {completed ? "✅" : "⭕"} {item}
+                        </li>
+                    ))}
+                </ul>
+            </div>
         </motion.div>
     );
 }
