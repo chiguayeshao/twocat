@@ -15,6 +15,7 @@ import { CommunityHome } from '../content/CommunityHome';
 import { ChineseTweets } from '@/components/content/ChineseTweets';
 import { EnglishTweets } from '../content/EnglishTweets';
 import { BoostAddresses } from '../content/BoostAddresses';
+import { MemeGallery } from '../content/MemeGallery';
 
 interface BaseLayoutProps {
   children: React.ReactNode;
@@ -145,6 +146,9 @@ export function BaseLayout({ children, roomId }: BaseLayoutProps) {
       case ContentType.BOOST_ADDRESSES:
         console.log('Rendering Boost Addresses');
         return <BoostAddresses />;
+      case ContentType.MEME_GALLERY:
+        console.log('Rendering Meme Gallery');
+        return <MemeGallery />;
       default:
         console.log('Unknown content type:', activeContent);
         return null;

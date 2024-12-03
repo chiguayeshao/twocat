@@ -87,9 +87,9 @@ const channels = [
         icon: <Rocket className="h-4 w-4" />,
     },
     {
-        id: 'meme-hot',
-        name: 'Meme热图',
-        href: '/meme-hot',
+        id: 'meme-gallery',
+        name: '图库',
+        href: '/meme-gallery',
         icon: <ImageIcon className="h-4 w-4" />,
     },
     {

@@ -4,6 +4,6 @@ export enum ContentType {
   CHINESE_TWEETS = "chinese-tweets",
   ENGLISH_TWEETS = "english-tweets",
   BOOST_ADDRESSES = "boost-addresses",
-  MEME_HOT = "meme-hot",
+  MEME_GALLERY = "meme-gallery",
   TWEET_MONITOR = "tweet-monitor",
 }
