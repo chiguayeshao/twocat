@@ -14,6 +14,7 @@ import { ContentType } from '@/types/content';
 import { CommunityHome } from '../content/CommunityHome';
 import { ChineseTweets } from '@/components/content/ChineseTweets';
 import { EnglishTweets } from '../content/EnglishTweets';
+import { BoostAddresses } from '../content/BoostAddresses';
 
 interface BaseLayoutProps {
   children: React.ReactNode;
@@ -141,6 +142,9 @@ export function BaseLayout({ children, roomId }: BaseLayoutProps) {
       case ContentType.ENGLISH_TWEETS:
         console.log('Rendering English Tweets');
         return <EnglishTweets />;
+      case ContentType.BOOST_ADDRESSES:
+        console.log('Rendering Boost Addresses');
+        return <BoostAddresses />;
       default:
         console.log('Unknown content type:', activeContent);
         return null;
