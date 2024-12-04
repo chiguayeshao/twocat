@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Heart, Repeat, MessageSquare, ExternalLink } from 'lucide-react';
+import { Heart, Repeat, MessageSquare, ExternalLink, TrendingUp, Clock, ThumbsUp } from 'lucide-react';
 import { ReplyDialog } from './ReplyDialog';
 
 interface Tweet {
@@ -155,36 +155,76 @@ export function TweetMonitor() {
                 <div className="flex justify-between items-center mb-6">
                     <h1 className="text-2xl font-bold">推文监控</h1>
                     <div className="flex gap-2">
-                        <button
-                            className={`px-3 py-1 rounded-md ${sortKey === 'likes' ? 'bg-[#53b991]' : 'bg-discord-secondary'} text-white`}
+                        <motion.button
+                            whileHover={{ scale: 1.02 }}
+                            whileTap={{ scale: 0.98 }}
+                            className={`flex items-center gap-2 px-4 py-2 rounded-lg
+                                      ${sortKey === 'likes'
+                                    ? 'bg-gradient-to-r from-[#53b991]/20 to-[#53b991]/30 border-[#53b991]/30'
+                                    : 'bg-gradient-to-r from-[#53b991]/10 to-[#53b991]/20 border-[#53b991]/20'
+                                }
+                                      border hover:border-[#53b991]/30
+                                      transition-all duration-300`}
                             onClick={() => handleSortChange('likes')}
                         >
-                            按点赞数排序
-                        </button>
-                        <button
-                            className={`px-3 py-1 rounded-md ${sortKey === 'retweets' ? 'bg-[#53b991]' : 'bg-discord-secondary'} text-white`}
+                            <ThumbsUp className="h-4 w-4 text-[#53b991]" />
+                            <span className="text-sm font-medium text-[#53b991]">按点赞数排序</span>
+                        </motion.button>
+                        <motion.button
+                            whileHover={{ scale: 1.02 }}
+                            whileTap={{ scale: 0.98 }}
+                            className={`flex items-center gap-2 px-4 py-2 rounded-lg
+                                      ${sortKey === 'retweets'
+                                    ? 'bg-gradient-to-r from-[#53b991]/20 to-[#53b991]/30 border-[#53b991]/30'
+                                    : 'bg-gradient-to-r from-[#53b991]/10 to-[#53b991]/20 border-[#53b991]/20'
+                                }
+                                      border hover:border-[#53b991]/30
+                                      transition-all duration-300`}
                             onClick={() => handleSortChange('retweets')}
                         >
-                            按转发数排序
-                        </button>
-                        <button
-                            className={`px-3 py-1 rounded-md ${sortKey === 'timestamp' ? 'bg-[#53b991]' : 'bg-discord-secondary'} text-white`}
+                            <TrendingUp className="h-4 w-4 text-[#53b991]" />
+                            <span className="text-sm font-medium text-[#53b991]">按转发数排序</span>
+                        </motion.button>
+                        <motion.button
+                            whileHover={{ scale: 1.02 }}
+                            whileTap={{ scale: 0.98 }}
+                            className={`flex items-center gap-2 px-4 py-2 rounded-lg
+                                      ${sortKey === 'timestamp'
+                                    ? 'bg-gradient-to-r from-[#53b991]/20 to-[#53b991]/30 border-[#53b991]/30'
+                                    : 'bg-gradient-to-r from-[#53b991]/10 to-[#53b991]/20 border-[#53b991]/20'
+                                }
+                                      border hover:border-[#53b991]/30
+                                      transition-all duration-300`}
                             onClick={() => handleSortChange('timestamp')}
                         >
-                            按发文时间排序
-                        </button>
+                            <Clock className="h-4 w-4 text-[#53b991]" />
+                            <span className="text-sm font-medium text-[#53b991]">按时间排序</span>
+                        </motion.button>
                     </div>
                 </div>
 
-                <div className="flex gap-2 mb-4">
+                <div className="flex flex-wrap gap-2 mb-4">
                     {['media', 'news', 'crypto', 'research', 'kol', 'defi', 'nft'].map((tag) => (
-                        <button
+                        <motion.button
                             key={tag}
-                            className={`px-3 py-1 rounded-md ${selectedTags.includes(tag) ? 'bg-[#53b991]' : 'bg-discord-secondary'} text-white`}
+                            whileHover={{ scale: 1.02 }}
+                            whileTap={{ scale: 0.98 }}
+                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md
+                                      ${selectedTags.includes(tag)
+                                    ? `${tagColors[tag].bg} ${tagColors[tag].text} ${tagColors[tag].border}`
+                                    : 'bg-discord-secondary/80 hover:bg-discord-secondary text-gray-300 hover:text-white'
+                                }
+                                      text-sm font-medium
+                                      transition-all duration-200`}
                             onClick={() => handleTagFilter(tag)}
                         >
-                            {tag}
-                        </button>
+                            {selectedTags.includes(tag) && (
+                                <div
+                                    className={`w-1.5 h-1.5 rounded-full ${tagColors[tag].text.replace('text', 'bg')}`}
+                                />
+                            )}
+                            <span>{tag}</span>
+                        </motion.button>
                     ))}
                 </div>
 
