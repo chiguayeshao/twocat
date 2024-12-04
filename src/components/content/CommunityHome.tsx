@@ -118,12 +118,6 @@ export function CommunityHome({ roomId }: { roomId: string }) {
                                 twitterName: "eve_marketing",
                                 twitterId: "5678901234",
                                 avatar: "https://twocat-room-avatars.s3.ap-southeast-1.amazonaws.com/room-avatars/1732023482786-twocatlogo.jpg"
-                            },
-                            {
-                                name: "Frank",
-                                twitterName: "frank_dev",
-                                twitterId: "6789012345",
-                                avatar: "https://twocat-room-avatars.s3.ap-southeast-1.amazonaws.com/room-avatars/1732023482786-twocatlogo.jpg"
                             }
                         ]}
                     />

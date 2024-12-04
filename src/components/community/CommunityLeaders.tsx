@@ -1,6 +1,9 @@
 'use client';
 
 import { motion } from 'framer-motion';
+import { useState } from 'react';
+import { Switch } from "@/components/ui/switch";
+import { Sparkles } from "lucide-react";
 
 interface Leader {
     name: string;
@@ -14,6 +17,17 @@ interface CommunityLeadersProps {
 }
 
 export function CommunityLeaders({ leaders }: CommunityLeadersProps) {
+    const [includeAI, setIncludeAI] = useState(false);
+
+    const aiLeader: Leader = {
+        name: "AI Leader",
+        twitterName: "ai_leader",
+        twitterId: "ai_leader",
+        avatar: "https://twocat-room-avatars.s3.ap-southeast-1.amazonaws.com/room-avatars/1732023482786-twocatlogo.jpg"
+    };
+
+    const allLeaders = includeAI ? [...leaders, aiLeader] : leaders;
+
     return (
         <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -25,21 +39,35 @@ export function CommunityLeaders({ leaders }: CommunityLeadersProps) {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2, duration: 0.5 }}
-                className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6"
+                className="flex items-center justify-between gap-2 sm:gap-3 mb-4 sm:mb-6"
             >
                 <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-white/90 tracking-wide">
                     CTO Team
                 </h2>
+                <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2">
+                        <Sparkles className="h-4 w-4 text-[#53b991]" />
+                        <span className="text-sm font-medium text-white/90">AI Leader</span>
+                    </div>
+                    <Switch
+                        checked={includeAI}
+                        onCheckedChange={setIncludeAI}
+                        className="data-[state=checked]:bg-[#53b991]"
+                    />
+                </div>
             </motion.div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 overflow-y-auto flex-1 pr-2 custom-scrollbar">
-                {leaders.map((leader, index) => (
+                {allLeaders.map((leader, index) => (
                     <motion.div
                         key={index}
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.1 + index * 0.1, duration: 0.5 }}
-                        className="flex items-center gap-3 p-3 bg-[#313338]/80 rounded-xl border border-white/5"
+                        className={`flex items-center gap-3 p-3 rounded-xl border border-white/5 ${leader === aiLeader
+                                ? 'bg-[#53b991]/20 border-[#53b991]/30'
+                                : 'bg-[#313338]/80'
+                            }`}
                     >
                         <img
                             src={leader.avatar || "https://twocat-room-avatars.s3.ap-southeast-1.amazonaws.com/room-avatars/1732023482786-twocatlogo.jpg"}
