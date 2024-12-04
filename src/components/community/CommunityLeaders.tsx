@@ -17,7 +17,7 @@ interface CommunityLeadersProps {
 }
 
 export function CommunityLeaders({ leaders }: CommunityLeadersProps) {
-    const [includeAI, setIncludeAI] = useState(false);
+    const [includeAI, setIncludeAI] = useState(true);
 
     const aiLeader: Leader = {
         name: "AI Leader",
@@ -65,8 +65,8 @@ export function CommunityLeaders({ leaders }: CommunityLeadersProps) {
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.1 + index * 0.1, duration: 0.5 }}
                         className={`flex items-center gap-3 p-3 rounded-xl border border-white/5 ${leader === aiLeader
-                                ? 'bg-[#53b991]/20 border-[#53b991]/30'
-                                : 'bg-[#313338]/80'
+                            ? 'bg-[#53b991]/20 border-[#53b991]/30'
+                            : 'bg-[#313338]/80'
                             }`}
                     >
                         <img
