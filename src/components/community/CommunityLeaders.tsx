@@ -82,7 +82,7 @@ export function CommunityLeaders({ leaders }: CommunityLeadersProps) {
                                 href={`https://twitter.com/${leader.twitterName}`}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="text-sm text-white/50 truncate hover:text-[#53b991] hover:underline cursor-pointer transition-colors"
+                                className="text-sm text-white/50 truncate hover:text-[#53b991] cursor-pointer transition-colors"
                             >
                                 @{leader.twitterName}
                             </a>
