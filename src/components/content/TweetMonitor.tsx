@@ -141,6 +141,7 @@ export function TweetMonitor() {
     const [sortKey, setSortKey] = useState<'likes' | 'retweets' | 'timestamp'>('timestamp');
     const [loading, setLoading] = useState(false);
     const [isNewTweet, setIsNewTweet] = useState(false);
+    const [filterMenuOpen, setFilterMenuOpen] = useState(false);
 
     // 模拟获取新推文
     const pollTweets = useCallback(async () => {
@@ -171,9 +172,11 @@ export function TweetMonitor() {
         return () => clearInterval(intervalId);
     }, [pollTweets]);
 
-    const handleTagFilter = (tag: string) => {
+    const handleTagFilter = (tag: string) => (checked: boolean) => {
         setSelectedTags((prevTags) =>
-            prevTags.includes(tag) ? prevTags.filter((t) => t !== tag) : [...prevTags, tag]
+            checked
+                ? [...prevTags, tag]
+                : prevTags.filter((t) => t !== tag)
         );
     };
 
@@ -209,7 +212,7 @@ export function TweetMonitor() {
                         transition={{ delay: 0.1 }}
                         className="flex items-center gap-2"
                     >
-                        <DropdownMenu>
+                        <DropdownMenu open={filterMenuOpen} onOpenChange={setFilterMenuOpen}>
                             <DropdownMenuTrigger asChild>
                                 <Button
                                     variant="outline"
@@ -228,6 +231,7 @@ export function TweetMonitor() {
                             <DropdownMenuContent
                                 align="end"
                                 className="w-48 bg-discord-secondary border-discord-primary"
+                                onCloseAutoFocus={(e) => e.preventDefault()}
                             >
                                 <DropdownMenuLabel className="text-white/60">标签筛选</DropdownMenuLabel>
                                 <DropdownMenuSeparator className="bg-white/10" />
@@ -235,11 +239,11 @@ export function TweetMonitor() {
                                     <DropdownMenuCheckboxItem
                                         key={tag}
                                         checked={selectedTags.includes(tag)}
-                                        onCheckedChange={() => handleTagFilter(tag)}
-                                        className={`${selectedTags.includes(tag) ? 'bg-[#53b991]/10' : ''} 
-                                                  hover:bg-[#53b991]/20`}
+                                        onCheckedChange={handleTagFilter(tag)}
+                                        className={`${selectedTags.includes(tag) ? 'bg-[#53b991]/10 text-[#53b991]' : 'text-white/80'} 
+                                                  hover:bg-[#53b991]/20 hover:text-[#53b991]`}
                                     >
-                                        <span className={`capitalize ${selectedTags.includes(tag) ? 'text-[#53b991]' : 'text-white/80'}`}>
+                                        <span className="capitalize">
                                             {tag}
                                         </span>
                                     </DropdownMenuCheckboxItem>
@@ -265,7 +269,7 @@ export function TweetMonitor() {
                                 <DropdownMenuItem
                                     onClick={() => handleSortChange('timestamp')}
                                     className={`${sortKey === 'timestamp' ? 'bg-[#53b991]/10 text-[#53b991]' : 'text-white/80'} 
-                                              hover:bg-[#53b991]/20`}
+                                              hover:bg-[#53b991]/30 hover:text-white`}
                                 >
                                     <Clock className="h-4 w-4 mr-2" />
                                     按时间
@@ -273,7 +277,7 @@ export function TweetMonitor() {
                                 <DropdownMenuItem
                                     onClick={() => handleSortChange('likes')}
                                     className={`${sortKey === 'likes' ? 'bg-[#53b991]/10 text-[#53b991]' : 'text-white/80'} 
-                                              hover:bg-[#53b991]/20`}
+                                              hover:bg-[#53b991]/30 hover:text-white`}
                                 >
                                     <ThumbsUp className="h-4 w-4 mr-2" />
                                     按点赞
@@ -281,7 +285,7 @@ export function TweetMonitor() {
                                 <DropdownMenuItem
                                     onClick={() => handleSortChange('retweets')}
                                     className={`${sortKey === 'retweets' ? 'bg-[#53b991]/10 text-[#53b991]' : 'text-white/80'} 
-                                              hover:bg-[#53b991]/20`}
+                                              hover:bg-[#53b991]/30 hover:text-white`}
                                 >
                                     <TrendingUp className="h-4 w-4 mr-2" />
                                     按转发
@@ -353,7 +357,7 @@ export function TweetMonitor() {
                                             onClick={() => window.open(`https://twitter.com/intent/like?tweet_id=${tweet.id}`, '_blank')}
                                         >
                                             <Heart className="h-3 w-3 sm:h-4 sm:w-4" />
-                                            <span className="text-xs">点赞</span>
+                                            <span className="text-xs">赞</span>
                                         </button>
                                         <button
                                             className="flex items-center gap-1.5 px-2 sm:px-3 py-1 sm:py-1.5 rounded-md
