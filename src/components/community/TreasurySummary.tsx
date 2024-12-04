@@ -188,7 +188,29 @@ export function TreasurySummary({
                     {/* 新增：等级系统 */}
                     <div className="bg-white/5 rounded-xl p-6 border border-white/10">
                         <div className="flex items-center justify-between mb-4">
-                            <h3 className="text-xl font-bold text-white/90">社区等级</h3>
+                            <div className="flex items-center gap-2">
+                                <h3 className="text-xl font-bold text-white/90">社区等级</h3>
+                                <TooltipProvider delayDuration={100}>
+                                    <Tooltip>
+                                        <TooltipTrigger>
+                                            <Info className="w-4 h-4 text-white/60 cursor-pointer" />
+                                        </TooltipTrigger>
+                                        <TooltipContent className="bg-black/90 border border-white/10 text-white p-4 rounded-lg w-80">
+                                            <div className="text-sm font-bold mb-2">社区等级解锁条件</div>
+                                            <div className="space-y-2">
+                                                {levels.map((level, index) => (
+                                                    <div key={index} className="flex items-center justify-between">
+                                                        <div className="text-white/70">Level {level.level}</div>
+                                                        <div className="text-xs text-white/50">
+                                                            交易量: {level.volumeReq} SOL, 捐赠: {level.donationReq} SOL
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </TooltipContent>
+                                    </Tooltip>
+                                </TooltipProvider>
+                            </div>
                             <div className="px-3 py-1 rounded-full bg-purple-500/20 text-purple-400">
                                 Level {currentLevel}
                             </div>
@@ -292,7 +314,7 @@ export function TreasurySummary({
                         <h3 className="text-lg font-bold text-white/90">最近交易</h3>
                         <History className="w-5 h-5 text-white/60" />
                     </div>
-                    <div className="h-[400px] overflow-y-auto">
+                    <div className="h-[550px] overflow-y-auto">
                         <div className="space-y-3">
                             {recentTransactions.map((tx, index) => (
                                 <div
