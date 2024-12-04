@@ -10,6 +10,8 @@ import {
 } from "@/components/ui/tooltip";
 import { Button } from "@/components/ui/button";
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion";
+import { useState } from 'react';
+import { DonationDialog } from './DonationDialog';
 
 interface TreasuryTransaction {
     date: string;
@@ -107,6 +109,14 @@ export function TreasurySummary({
         { level: 4, cashback: 50, volumeReq: 500, donationReq: 5, aiUsage: 500 },
         { level: 5, cashback: 60, volumeReq: 2000, donationReq: 20, aiUsage: 1000 },
     ];
+
+    const [isDonationDialogOpen, setIsDonationDialogOpen] = useState(false);
+
+    const handleDonate = (amount: number) => {
+        // 处理捐赠逻辑
+        console.log(`Donating ${amount} SOL`);
+        setIsDonationDialogOpen(false);
+    };
 
     const getCurrentLevelProgress = () => {
         if (currentLevel >= 5) return 100;
@@ -257,7 +267,7 @@ export function TreasurySummary({
                                         <Button
                                             variant="secondary"
                                             className="w-full bg-purple-500/20 hover:bg-purple-500/30 text-purple-400"
-                                            onClick={() => {/* 处理捐赠逻辑 */ }}
+                                            onClick={() => setIsDonationDialogOpen(true)}
                                         >
                                             <Coins className="w-4 h-4 mr-2" />
                                             捐赠社区
@@ -305,6 +315,13 @@ export function TreasurySummary({
                     </div>
                 </div>
             </div>
+
+            <DonationDialog
+                isOpen={isDonationDialogOpen}
+                onClose={() => setIsDonationDialogOpen(false)}
+                currentDonation={currentDonation}
+                onDonate={handleDonate}
+            />
         </motion.div>
     );
 }
