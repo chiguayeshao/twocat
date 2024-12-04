@@ -1,7 +1,17 @@
 import { useState, useCallback, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Heart, Repeat, MessageSquare, ExternalLink, TrendingUp, Clock, ThumbsUp } from 'lucide-react';
+import { Heart, Repeat, MessageSquare, ExternalLink, TrendingUp, Clock, ThumbsUp, Filter, ArrowDownWideNarrow } from 'lucide-react';
 import { ReplyDialog } from './ReplyDialog';
+import { Button } from "@/components/ui/button";
+import {
+    DropdownMenu,
+    DropdownMenuCheckboxItem,
+    DropdownMenuContent,
+    DropdownMenuLabel,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+    DropdownMenuItem,
+} from "@/components/ui/dropdown-menu";
 
 interface Tweet {
     id: string;
@@ -182,70 +192,102 @@ export function TweetMonitor() {
 
     return (
         <div className="min-h-screen bg-discord-primary text-white">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-8 sm:pt-16">
-                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4 sm:gap-0 mb-6">
+            <div className="max-w-7xl mx-auto px-3 sm:px-6 pt-4 sm:pt-8">
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between mb-6">
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         className="flex-1"
                     >
-                        <h1 className="text-xl sm:text-2xl font-bold text-white/90 mb-1 sm:mb-2">推文监控</h1>
-                        <p className="text-sm sm:text-base text-white/60">
-                            实时监控社区成员的推文动态
-                        </p>
+                        <h1 className="text-xl sm:text-2xl font-bold text-white/90 mb-1">推文监控</h1>
+                        <p className="text-sm text-white/60">实时监控社区成员的推文动态</p>
                     </motion.div>
 
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.1 }}
-                        className="flex gap-2"
+                        className="flex items-center gap-2"
                     >
-                        <motion.button
-                            whileHover={{ scale: 1.02 }}
-                            whileTap={{ scale: 0.98 }}
-                            className={`flex items-center gap-2 px-4 py-2 rounded-lg
-                                      ${sortKey === 'likes'
-                                    ? 'bg-gradient-to-r from-[#53b991]/20 to-[#53b991]/30 border-[#53b991]/30'
-                                    : 'bg-gradient-to-r from-[#53b991]/10 to-[#53b991]/20 border-[#53b991]/20'
-                                }
-                                      border hover:border-[#53b991]/30
-                                      transition-all duration-300`}
-                            onClick={() => handleSortChange('likes')}
-                        >
-                            <ThumbsUp className="h-4 w-4 text-[#53b991]" />
-                            <span className="text-sm font-medium text-[#53b991]">按点赞数排序</span>
-                        </motion.button>
-                        <motion.button
-                            whileHover={{ scale: 1.02 }}
-                            whileTap={{ scale: 0.98 }}
-                            className={`flex items-center gap-2 px-4 py-2 rounded-lg
-                                      ${sortKey === 'retweets'
-                                    ? 'bg-gradient-to-r from-[#53b991]/20 to-[#53b991]/30 border-[#53b991]/30'
-                                    : 'bg-gradient-to-r from-[#53b991]/10 to-[#53b991]/20 border-[#53b991]/20'
-                                }
-                                      border hover:border-[#53b991]/30
-                                      transition-all duration-300`}
-                            onClick={() => handleSortChange('retweets')}
-                        >
-                            <TrendingUp className="h-4 w-4 text-[#53b991]" />
-                            <span className="text-sm font-medium text-[#53b991]">按转发数排序</span>
-                        </motion.button>
-                        <motion.button
-                            whileHover={{ scale: 1.02 }}
-                            whileTap={{ scale: 0.98 }}
-                            className={`flex items-center gap-2 px-4 py-2 rounded-lg
-                                      ${sortKey === 'timestamp'
-                                    ? 'bg-gradient-to-r from-[#53b991]/20 to-[#53b991]/30 border-[#53b991]/30'
-                                    : 'bg-gradient-to-r from-[#53b991]/10 to-[#53b991]/20 border-[#53b991]/20'
-                                }
-                                      border hover:border-[#53b991]/30
-                                      transition-all duration-300`}
-                            onClick={() => handleSortChange('timestamp')}
-                        >
-                            <Clock className="h-4 w-4 text-[#53b991]" />
-                            <span className="text-sm font-medium text-[#53b991]">按时间排序</span>
-                        </motion.button>
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <Button
+                                    variant="outline"
+                                    className="bg-discord-secondary border-[#53b991]/20 hover:border-[#53b991]/30
+                                             text-white hover:bg-discord-secondary/90"
+                                >
+                                    <Filter className="h-4 w-4 mr-2 text-[#53b991]" />
+                                    <span className="text-sm">筛选</span>
+                                    {selectedTags.length > 0 && (
+                                        <span className="ml-2 h-5 w-5 rounded-full bg-[#53b991]/20 text-xs flex items-center justify-center">
+                                            {selectedTags.length}
+                                        </span>
+                                    )}
+                                </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent
+                                align="end"
+                                className="w-48 bg-discord-secondary border-discord-primary"
+                            >
+                                <DropdownMenuLabel className="text-white/60">标签筛选</DropdownMenuLabel>
+                                <DropdownMenuSeparator className="bg-white/10" />
+                                {['media', 'news', 'crypto', 'research', 'kol', 'defi', 'nft'].map((tag) => (
+                                    <DropdownMenuCheckboxItem
+                                        key={tag}
+                                        checked={selectedTags.includes(tag)}
+                                        onCheckedChange={() => handleTagFilter(tag)}
+                                        className={`${selectedTags.includes(tag) ? 'bg-[#53b991]/10' : ''} 
+                                                  hover:bg-[#53b991]/20`}
+                                    >
+                                        <span className={`capitalize ${selectedTags.includes(tag) ? 'text-[#53b991]' : 'text-white/80'}`}>
+                                            {tag}
+                                        </span>
+                                    </DropdownMenuCheckboxItem>
+                                ))}
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <Button
+                                    variant="outline"
+                                    className="bg-discord-secondary border-[#53b991]/20 hover:border-[#53b991]/30
+                                             text-white hover:bg-discord-secondary/90"
+                                >
+                                    <ArrowDownWideNarrow className="h-4 w-4 mr-2 text-[#53b991]" />
+                                    <span className="text-sm">排序</span>
+                                </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent
+                                align="end"
+                                className="w-36 bg-discord-secondary border-discord-primary"
+                            >
+                                <DropdownMenuItem
+                                    onClick={() => handleSortChange('timestamp')}
+                                    className={`${sortKey === 'timestamp' ? 'bg-[#53b991]/10 text-[#53b991]' : 'text-white/80'} 
+                                              hover:bg-[#53b991]/20`}
+                                >
+                                    <Clock className="h-4 w-4 mr-2" />
+                                    按时间
+                                </DropdownMenuItem>
+                                <DropdownMenuItem
+                                    onClick={() => handleSortChange('likes')}
+                                    className={`${sortKey === 'likes' ? 'bg-[#53b991]/10 text-[#53b991]' : 'text-white/80'} 
+                                              hover:bg-[#53b991]/20`}
+                                >
+                                    <ThumbsUp className="h-4 w-4 mr-2" />
+                                    按点赞
+                                </DropdownMenuItem>
+                                <DropdownMenuItem
+                                    onClick={() => handleSortChange('retweets')}
+                                    className={`${sortKey === 'retweets' ? 'bg-[#53b991]/10 text-[#53b991]' : 'text-white/80'} 
+                                              hover:bg-[#53b991]/20`}
+                                >
+                                    <TrendingUp className="h-4 w-4 mr-2" />
+                                    按转发
+                                </DropdownMenuItem>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
                     </motion.div>
                 </div>
 
@@ -253,37 +295,7 @@ export function TweetMonitor() {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.2 }}
-                    className="flex flex-wrap gap-2 mb-4"
-                >
-                    {['media', 'news', 'crypto', 'research', 'kol', 'defi', 'nft'].map((tag) => (
-                        <motion.button
-                            key={tag}
-                            whileHover={{ scale: 1.02 }}
-                            whileTap={{ scale: 0.98 }}
-                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md
-                                      ${selectedTags.includes(tag)
-                                    ? `${tagColors[tag].bg} ${tagColors[tag].text} ${tagColors[tag].border}`
-                                    : 'bg-discord-secondary/80 hover:bg-discord-secondary text-gray-300 hover:text-white'
-                                }
-                                      text-sm font-medium
-                                      transition-all duration-200`}
-                            onClick={() => handleTagFilter(tag)}
-                        >
-                            {selectedTags.includes(tag) && (
-                                <div
-                                    className={`w-1.5 h-1.5 rounded-full ${tagColors[tag].text.replace('text', 'bg')}`}
-                                />
-                            )}
-                            <span>{tag}</span>
-                        </motion.button>
-                    ))}
-                </motion.div>
-
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.3 }}
-                    className="space-y-4"
+                    className="space-y-3 sm:space-y-4"
                 >
                     <AnimatePresence initial={false} mode="sync">
                         {filteredTweets.map((tweet, index) => (
@@ -292,57 +304,65 @@ export function TweetMonitor() {
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: index * 0.1 }}
-                                className="bg-discord-secondary rounded-lg p-4 flex items-center justify-between
+                                className="bg-discord-secondary rounded-lg p-3 sm:p-4
+                                         flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4
                                          transform hover:-translate-y-0.5 hover:shadow-lg
                                          transition-all duration-200"
                             >
                                 <div className="flex-1 min-w-0">
-                                    <div className="flex items-center gap-2">
-                                        <span className="font-semibold">{tweet.username}</span>
-                                        <span className="text-sm text-muted-foreground">{tweet.userId}</span>
-                                        <div className="flex gap-1">
+                                    <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+                                        <span className="font-semibold text-sm sm:text-base">{tweet.username}</span>
+                                        <span className="text-xs sm:text-sm text-muted-foreground">{tweet.userId}</span>
+                                        <div className="flex flex-wrap gap-1">
                                             {tweet.tags.map((tag) => (
                                                 <span
                                                     key={tag}
                                                     className={`text-xs ${tagColors[tag].bg} ${tagColors[tag].text} ${tagColors[tag].border} 
-                                                               px-2 py-0.5 rounded-lg`}
+                                                               px-1.5 sm:px-2 py-0.5 rounded-md`}
                                                 >
                                                     {tag}
                                                 </span>
                                             ))}
                                         </div>
                                     </div>
-                                    <div className="text-sm text-muted-foreground truncate mt-2">{tweet.content}</div>
-                                </div>
-                                <div className="flex items-center gap-4">
-                                    <div className="text-xs text-muted-foreground">{new Date(tweet.timestamp).toLocaleString()}</div>
-                                    <div className="flex items-center gap-1 text-sm">
-                                        <Heart className="h-4 w-4 text-[#53b991]" />
-                                        <span>{tweet.likes}</span>
+                                    <div className="text-xs sm:text-sm text-muted-foreground truncate mt-1.5 sm:mt-2">
+                                        {tweet.content}
                                     </div>
-                                    <div className="flex items-center gap-1 text-sm">
-                                        <Repeat className="h-4 w-4 text-[#53b991]" />
-                                        <span>{tweet.retweets}</span>
+                                </div>
+
+                                <div className="flex flex-wrap items-center gap-2 sm:gap-4">
+                                    <div className="text-xs text-muted-foreground">
+                                        {new Date(tweet.timestamp).toLocaleString()}
+                                    </div>
+                                    <div className="flex items-center gap-3">
+                                        <div className="flex items-center gap-1 text-xs sm:text-sm">
+                                            <Heart className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-[#53b991]" />
+                                            <span>{tweet.likes}</span>
+                                        </div>
+                                        <div className="flex items-center gap-1 text-xs sm:text-sm">
+                                            <Repeat className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-[#53b991]" />
+                                            <span>{tweet.retweets}</span>
+                                        </div>
                                     </div>
                                     <div className="flex items-center gap-2">
                                         <ReplyDialog tweet={{ tweetUrl: `https://twitter.com/${tweet.userId}/status/${tweet.id}`, author: { name: tweet.username, handle: tweet.userId }, content: tweet.content }} />
                                         <button
-                                            className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-md
-                                                       bg-red-500/10 hover:bg-red-500/20 
-                                                       text-red-500 transition-all duration-200"
+                                            className="flex items-center gap-1.5 px-2 sm:px-3 py-1 sm:py-1.5 rounded-md
+                                                     bg-red-500/10 hover:bg-red-500/20 
+                                                     text-red-500 transition-all duration-200"
                                             onClick={() => window.open(`https://twitter.com/intent/like?tweet_id=${tweet.id}`, '_blank')}
                                         >
-                                            <Heart className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-                                            <span className="text-xs sm:text-sm">点赞</span>
+                                            <Heart className="h-3 w-3 sm:h-4 sm:w-4" />
+                                            <span className="text-xs">点赞</span>
                                         </button>
                                         <button
-                                            className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-md
-                                                       bg-[#53b991]/10 hover:bg-[#53b991]/20 
-                                                       text-[#53b991] transition-all duration-200"
+                                            className="flex items-center gap-1.5 px-2 sm:px-3 py-1 sm:py-1.5 rounded-md
+                                                     bg-[#53b991]/10 hover:bg-[#53b991]/20 
+                                                     text-[#53b991] transition-all duration-200"
                                             onClick={() => window.open(`https://twitter.com/intent/retweet?tweet_id=${tweet.id}`, '_blank')}
                                         >
-                                            <Repeat className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-                                            <span className="text-xs sm:text-sm">转推</span>
+                                            <Repeat className="h-3 w-3 sm:h-4 sm:w-4" />
+                                            <span className="text-xs">转推</span>
                                         </button>
                                     </div>
                                 </div>
