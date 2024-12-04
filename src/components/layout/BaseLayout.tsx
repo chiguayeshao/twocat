@@ -28,7 +28,7 @@ export function BaseLayout({ children, roomId }: BaseLayoutProps) {
   const [selectedTokenAddress, setSelectedTokenAddress] = useState<string | null>(null);
   const [selectedWalletAddress, setSelectedWalletAddress] = useState<string | null>(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [activeContent, setActiveContent] = useState<ContentType>(ContentType.QUICK_TRADE);
+  const [activeContent, setActiveContent] = useState<ContentType>(ContentType.COMMUNITY_HOME);
 
   const handleTransactionClick = (walletAddress: string, tokenAddress: string) => {
     setSelectedWalletAddress(walletAddress);
