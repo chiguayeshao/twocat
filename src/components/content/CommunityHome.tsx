@@ -68,6 +68,11 @@ export function CommunityHome({ roomId }: { roomId: string }) {
         };
     }, [roomInfo.avatar]);
 
+    // 假设这些值是从某个地方获取的，您可以根据实际情况进行调整
+    const currentLevel = 1; // 默认等级
+    const currentVolume = 30; // 当前交易量
+    const currentDonation = 0.2; // 当前捐赠量
+
     return (
         <div className="min-h-screen">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-8 sm:pt-16">
@@ -159,6 +164,9 @@ export function CommunityHome({ roomId }: { roomId: string }) {
                         balance="$42,069"
                         dailyVolume="$69,420"
                         weeklyIncome="$4,200"
+                        currentLevel={currentLevel}
+                        currentVolume={currentVolume}
+                        currentDonation={currentDonation}
                     />
                 </div>
 
