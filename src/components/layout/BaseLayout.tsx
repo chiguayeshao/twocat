@@ -17,6 +17,7 @@ import { EnglishTweets } from '../content/EnglishTweets';
 import { BoostAddresses } from '../content/BoostAddresses';
 import { MemeGallery } from '../content/MemeGallery';
 import { TweetMonitor } from '../content/TweetMonitor';
+import { AIAgents } from '../content/AIAgents';
 
 interface BaseLayoutProps {
   children: React.ReactNode;
@@ -153,6 +154,9 @@ export function BaseLayout({ children, roomId }: BaseLayoutProps) {
       case ContentType.TWEET_MONITOR:
         console.log('Rendering Tweet Monitor');
         return <TweetMonitor />;
+      case ContentType.AI_AGENTS:
+        console.log('Rendering AI Agents');
+        return <AIAgents />;
       default:
         console.log('Unknown content type:', activeContent);
         return null;

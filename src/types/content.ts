@@ -6,4 +6,5 @@ export enum ContentType {
   BOOST_ADDRESSES = "boost-addresses",
   MEME_GALLERY = "meme-gallery",
   TWEET_MONITOR = "tweet-monitor",
+  AI_AGENTS = "ai-agents",
 }

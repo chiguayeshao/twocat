@@ -19,7 +19,8 @@ import {
     MessageSquare,
     Rocket,
     ImageIcon,
-    Eye
+    Eye,
+    BotIcon,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -97,6 +98,12 @@ const channels = [
         name: '推文监控',
         href: '/tweet-monitor',
         icon: <Eye className="h-4 w-4" />,
+    },
+    {
+        id: 'ai-agents',
+        name: 'AI 代理',
+        href: '/ai-agents',
+        icon: <BotIcon className="h-4 w-4" />,
     },
 ];
 
