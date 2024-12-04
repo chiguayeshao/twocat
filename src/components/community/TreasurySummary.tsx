@@ -143,16 +143,16 @@ export function TreasurySummary({
                         </div>
 
                         {/* 金库余额和数据 */}
-                        <div className="flex items-center justify-between mb-4">
+                        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4">
                             <div className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-pink-400">
                                 {balance}
                             </div>
-                            <div className="flex space-x-8">
+                            <div className="flex flex-col sm:flex-row sm:space-x-8 mt-4 sm:mt-0">
                                 <div>
                                     <div className="text-white/60 text-sm">日交易量</div>
                                     <div className="text-[#53b991] font-bold">{dailyVolume}</div>
                                 </div>
-                                <div>
+                                <div className="mt-2 sm:mt-0">
                                     <div className="text-white/60 text-sm">本周收入</div>
                                     <div className="text-[#53b991] font-bold">{weeklyIncome}</div>
                                 </div>
@@ -187,10 +187,10 @@ export function TreasurySummary({
 
                     {/* 新增：等级系统 */}
                     <div className="bg-white/5 rounded-xl p-6 border border-white/10">
-                        <div className="flex items-center justify-between mb-4">
+                        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4">
                             <div className="flex items-center gap-2">
                                 <h3 className="text-xl font-bold text-white/90">社区等级</h3>
-                                <TooltipProvider delayDuration={100}>
+                                <TooltipProvider>
                                     <Tooltip>
                                         <TooltipTrigger>
                                             <Info className="w-4 h-4 text-white/60 cursor-pointer" />
@@ -202,7 +202,7 @@ export function TreasurySummary({
                                                     <div key={index} className="flex items-center justify-between">
                                                         <div className="text-white/70">Level {level.level}</div>
                                                         <div className="text-xs text-white/50">
-                                                            交易量: {level.volumeReq} SOL, 捐赠: {level.donationReq} SOL
+                                                            交易量: {level.volumeReq} SOL / 捐赠: {level.donationReq} SOL
                                                         </div>
                                                     </div>
                                                 ))}
@@ -211,7 +211,7 @@ export function TreasurySummary({
                                     </Tooltip>
                                 </TooltipProvider>
                             </div>
-                            <div className="px-3 py-1 rounded-full bg-purple-500/20 text-purple-400">
+                            <div className="mt-2 sm:mt-0 px-3 py-1 rounded-full bg-purple-500/20 text-purple-400">
                                 Level {currentLevel}
                             </div>
                         </div>
@@ -270,7 +270,7 @@ export function TreasurySummary({
                                 </div>
 
                                 {/* 升级方式选项 */}
-                                <div className="grid grid-cols-2 gap-4">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     <div className="bg-white/5 p-4 rounded-lg">
                                         <div className="text-white/90 font-medium mb-2">通过交易量升级</div>
                                         <div className="text-2xl font-bold">
