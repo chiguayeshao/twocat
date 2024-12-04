@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { useState, useEffect } from 'react';
 import ColorThief from 'colorthief';
 import { CommunityCard } from '@/components/community/CommunityCard';
-import { CommunitySlogan } from '@/components/community/CommunitySlogan';
+import { CommunityLeaders } from '@/components/community/CommunityLeaders';
 import { TreasurySummary } from '@/components/community/TreasurySummary';
 import { StatsCard } from '@/components/community/StatsCard';
 import { CommunityStory } from '@/components/community/CommunityStory';
@@ -86,8 +86,47 @@ export function CommunityHome({ roomId }: { roomId: string }) {
                         imageError={imageError}
                     />
 
-                    {/* 社区标语和理念 */}
-                    <CommunitySlogan slogan={roomInfo.slogan} />
+                    {/* 社区领袖 */}
+                    <CommunityLeaders
+                        leaders={[
+                            {
+                                name: "Alice",
+                                twitterName: "alice_crypto",
+                                twitterId: "1234567890",
+                                avatar: "https://twocat-room-avatars.s3.ap-southeast-1.amazonaws.com/room-avatars/1732023482786-twocatlogo.jpg"
+                            },
+                            {
+                                name: "Bob",
+                                twitterName: "bob_web3",
+                                twitterId: "2345678901",
+                                avatar: "https://twocat-room-avatars.s3.ap-southeast-1.amazonaws.com/room-avatars/1732023482786-twocatlogo.jpg"
+                            },
+                            {
+                                name: "Charlie",
+                                twitterName: "charlie_tech",
+                                twitterId: "3456789012",
+                                avatar: "https://twocat-room-avatars.s3.ap-southeast-1.amazonaws.com/room-avatars/1732023482786-twocatlogo.jpg"
+                            },
+                            {
+                                name: "Dave",
+                                twitterName: "dave_community",
+                                twitterId: "4567890123",
+                                avatar: "https://twocat-room-avatars.s3.ap-southeast-1.amazonaws.com/room-avatars/1732023482786-twocatlogo.jpg"
+                            },
+                            {
+                                name: "Eve",
+                                twitterName: "eve_marketing",
+                                twitterId: "5678901234",
+                                avatar: "https://twocat-room-avatars.s3.ap-southeast-1.amazonaws.com/room-avatars/1732023482786-twocatlogo.jpg"
+                            },
+                            {
+                                name: "Frank",
+                                twitterName: "frank_dev",
+                                twitterId: "6789012345",
+                                avatar: "https://twocat-room-avatars.s3.ap-southeast-1.amazonaws.com/room-avatars/1732023482786-twocatlogo.jpg"
+                            }
+                        ]}
+                    />
                 </div>
 
                 {/* 社区故事 */}

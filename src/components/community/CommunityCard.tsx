@@ -72,7 +72,7 @@ export function CommunityCard({
                         rgba(${dominantColor[0]},${dominantColor[1]},${dominantColor[2]},0.05) 100%)`
                     : 'linear-gradient(135deg, rgba(83,185,145,0.15) 0%, rgba(83,185,145,0.05) 100%)',
             }}
-            className="relative p-5 sm:p-6 lg:p-8 rounded-2xl backdrop-blur-sm border border-white/10 shadow-xl"
+            className="relative p-5 sm:p-6 rounded-2xl backdrop-blur-sm border border-white/10 shadow-xl"
         >
             {/* 名称放在顶部 */}
             <motion.h2
