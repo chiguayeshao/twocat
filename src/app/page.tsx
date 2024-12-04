@@ -14,6 +14,7 @@ import {
   TabsContent,
 } from "@/components/ui/tabs";
 import { CreateCommunityDialog } from '@/components/CreateCommunityDialog';
+import { ContentType } from '@/types/content';
 
 interface Community {
   id: string;
@@ -45,6 +46,7 @@ export default function Home() {
     const roomId = '673c95ae1723f24444385454';
     try {
       // 这里可以添加跳转前的任何准备工作
+      localStorage.setItem('activeContent', ContentType.COMMUNITY_HOME);
       window.location.href = `/${roomId}`;
     } catch (error) {
       console.error('Navigation error:', error);

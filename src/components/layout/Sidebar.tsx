@@ -128,11 +128,20 @@ interface SidebarProps {
     onClose?: () => void;
 }
 
-export function Sidebar({ roomId, activeContent, onContentChange, onClose }: SidebarProps) {
+export function Sidebar({ roomId, activeContent = ContentType.COMMUNITY_HOME, onContentChange, onClose }: SidebarProps) {
     const pathname = usePathname();
     const [room, setRoom] = useState<Room | null>(null);
     const [loading, setLoading] = useState(true);
     const [isCopied, setIsCopied] = useState(false);
+
+    useEffect(() => {
+        // 在组件挂载时读取存储的 activeContent
+        const storedActiveContent = localStorage.getItem('activeContent');
+        if (storedActiveContent) {
+            onContentChange(storedActiveContent as ContentType);
+            localStorage.removeItem('activeContent'); // 清除存储的值
+        }
+    }, [onContentChange]);
 
     console.log(roomId, roomId);
 
