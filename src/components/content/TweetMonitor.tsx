@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { motion } from 'framer-motion';
+import { useState, useCallback, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Heart, Repeat, MessageSquare, ExternalLink, TrendingUp, Clock, ThumbsUp } from 'lucide-react';
 import { ReplyDialog } from './ReplyDialog';
 
@@ -129,6 +129,37 @@ export function TweetMonitor() {
     const [tweets, setTweets] = useState<Tweet[]>(mockTweets);
     const [selectedTags, setSelectedTags] = useState<string[]>([]);
     const [sortKey, setSortKey] = useState<'likes' | 'retweets' | 'timestamp'>('timestamp');
+    const [loading, setLoading] = useState(false);
+    const [isNewTweet, setIsNewTweet] = useState(false);
+
+    // 模拟获取新推文
+    const pollTweets = useCallback(async () => {
+        try {
+            // 模拟新推文数据
+            const newTweet: Tweet = {
+                id: Date.now().toString(),
+                username: `KOL${Math.floor(Math.random() * 10)}`,
+                userId: `@kol${Math.floor(Math.random() * 10)}`,
+                tags: ['crypto', 'kol'].sort(() => Math.random() - 0.5),
+                content: `New tweet content ${Date.now()}...`,
+                timestamp: new Date().toISOString(),
+                likes: Math.floor(Math.random() * 200),
+                retweets: Math.floor(Math.random() * 100),
+            };
+
+            setIsNewTweet(true);
+            setTweets(prev => [newTweet, ...prev]);
+            setTimeout(() => setIsNewTweet(false), 300);
+        } catch (error) {
+            console.error('Failed to poll tweets:', error);
+        }
+    }, []);
+
+    // 设置轮询
+    useEffect(() => {
+        const intervalId = setInterval(pollTweets, 5000);
+        return () => clearInterval(intervalId);
+    }, [pollTweets]);
 
     const handleTagFilter = (tag: string) => {
         setSelectedTags((prevTags) =>
@@ -152,9 +183,24 @@ export function TweetMonitor() {
     return (
         <div className="min-h-screen bg-discord-primary text-white">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-8 sm:pt-16">
-                <div className="flex justify-between items-center mb-6">
-                    <h1 className="text-2xl font-bold">推文监控</h1>
-                    <div className="flex gap-2">
+                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4 sm:gap-0 mb-6">
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="flex-1"
+                    >
+                        <h1 className="text-xl sm:text-2xl font-bold text-white/90 mb-1 sm:mb-2">推文监控</h1>
+                        <p className="text-sm sm:text-base text-white/60">
+                            实时监控社区成员的推文动态
+                        </p>
+                    </motion.div>
+
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.1 }}
+                        className="flex gap-2"
+                    >
                         <motion.button
                             whileHover={{ scale: 1.02 }}
                             whileTap={{ scale: 0.98 }}
@@ -200,10 +246,15 @@ export function TweetMonitor() {
                             <Clock className="h-4 w-4 text-[#53b991]" />
                             <span className="text-sm font-medium text-[#53b991]">按时间排序</span>
                         </motion.button>
-                    </div>
+                    </motion.div>
                 </div>
 
-                <div className="flex flex-wrap gap-2 mb-4">
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.2 }}
+                    className="flex flex-wrap gap-2 mb-4"
+                >
                     {['media', 'news', 'crypto', 'research', 'kol', 'defi', 'nft'].map((tag) => (
                         <motion.button
                             key={tag}
@@ -226,69 +277,79 @@ export function TweetMonitor() {
                             <span>{tag}</span>
                         </motion.button>
                     ))}
-                </div>
+                </motion.div>
 
-                <div className="space-y-4">
-                    {filteredTweets.map((tweet) => (
-                        <motion.div
-                            key={tweet.id}
-                            className="bg-discord-secondary rounded-lg p-4 flex items-center justify-between"
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                        >
-                            <div className="flex-1 min-w-0">
-                                <div className="flex items-center gap-2">
-                                    <span className="font-semibold">{tweet.username}</span>
-                                    <span className="text-sm text-muted-foreground">{tweet.userId}</span>
-                                    <div className="flex gap-1">
-                                        {tweet.tags.map((tag) => (
-                                            <span
-                                                key={tag}
-                                                className={`text-xs ${tagColors[tag].bg} ${tagColors[tag].text} ${tagColors[tag].border} 
-                                                           px-2 py-0.5 rounded-lg`}
-                                            >
-                                                {tag}
-                                            </span>
-                                        ))}
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.3 }}
+                    className="space-y-4"
+                >
+                    <AnimatePresence initial={false} mode="sync">
+                        {filteredTweets.map((tweet, index) => (
+                            <motion.div
+                                key={tweet.id}
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: index * 0.1 }}
+                                className="bg-discord-secondary rounded-lg p-4 flex items-center justify-between
+                                         transform hover:-translate-y-0.5 hover:shadow-lg
+                                         transition-all duration-200"
+                            >
+                                <div className="flex-1 min-w-0">
+                                    <div className="flex items-center gap-2">
+                                        <span className="font-semibold">{tweet.username}</span>
+                                        <span className="text-sm text-muted-foreground">{tweet.userId}</span>
+                                        <div className="flex gap-1">
+                                            {tweet.tags.map((tag) => (
+                                                <span
+                                                    key={tag}
+                                                    className={`text-xs ${tagColors[tag].bg} ${tagColors[tag].text} ${tagColors[tag].border} 
+                                                               px-2 py-0.5 rounded-lg`}
+                                                >
+                                                    {tag}
+                                                </span>
+                                            ))}
+                                        </div>
+                                    </div>
+                                    <div className="text-sm text-muted-foreground truncate mt-2">{tweet.content}</div>
+                                </div>
+                                <div className="flex items-center gap-4">
+                                    <div className="text-xs text-muted-foreground">{new Date(tweet.timestamp).toLocaleString()}</div>
+                                    <div className="flex items-center gap-1 text-sm">
+                                        <Heart className="h-4 w-4 text-[#53b991]" />
+                                        <span>{tweet.likes}</span>
+                                    </div>
+                                    <div className="flex items-center gap-1 text-sm">
+                                        <Repeat className="h-4 w-4 text-[#53b991]" />
+                                        <span>{tweet.retweets}</span>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        <ReplyDialog tweet={{ tweetUrl: `https://twitter.com/${tweet.userId}/status/${tweet.id}`, author: { name: tweet.username, handle: tweet.userId }, content: tweet.content }} />
+                                        <button
+                                            className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-md
+                                                       bg-red-500/10 hover:bg-red-500/20 
+                                                       text-red-500 transition-all duration-200"
+                                            onClick={() => window.open(`https://twitter.com/intent/like?tweet_id=${tweet.id}`, '_blank')}
+                                        >
+                                            <Heart className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                                            <span className="text-xs sm:text-sm">点赞</span>
+                                        </button>
+                                        <button
+                                            className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-md
+                                                       bg-[#53b991]/10 hover:bg-[#53b991]/20 
+                                                       text-[#53b991] transition-all duration-200"
+                                            onClick={() => window.open(`https://twitter.com/intent/retweet?tweet_id=${tweet.id}`, '_blank')}
+                                        >
+                                            <Repeat className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                                            <span className="text-xs sm:text-sm">转推</span>
+                                        </button>
                                     </div>
                                 </div>
-                                <div className="text-sm text-muted-foreground truncate mt-2">{tweet.content}</div>
-                            </div>
-                            <div className="flex items-center gap-4">
-                                <div className="text-xs text-muted-foreground">{new Date(tweet.timestamp).toLocaleString()}</div>
-                                <div className="flex items-center gap-1 text-sm">
-                                    <Heart className="h-4 w-4 text-[#53b991]" />
-                                    <span>{tweet.likes}</span>
-                                </div>
-                                <div className="flex items-center gap-1 text-sm">
-                                    <Repeat className="h-4 w-4 text-[#53b991]" />
-                                    <span>{tweet.retweets}</span>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                    <ReplyDialog tweet={{ tweetUrl: `https://twitter.com/${tweet.userId}/status/${tweet.id}`, author: { name: tweet.username, handle: tweet.userId }, content: tweet.content }} />
-                                    <button
-                                        className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-md
-                                                   bg-red-500/10 hover:bg-red-500/20 
-                                                   text-red-500 transition-all duration-200"
-                                        onClick={() => window.open(`https://twitter.com/intent/like?tweet_id=${tweet.id}`, '_blank')}
-                                    >
-                                        <Heart className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-                                        <span className="text-xs sm:text-sm">点赞</span>
-                                    </button>
-                                    <button
-                                        className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-md
-                                                   bg-[#53b991]/10 hover:bg-[#53b991]/20 
-                                                   text-[#53b991] transition-all duration-200"
-                                        onClick={() => window.open(`https://twitter.com/intent/retweet?tweet_id=${tweet.id}`, '_blank')}
-                                    >
-                                        <Repeat className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-                                        <span className="text-xs sm:text-sm">转推</span>
-                                    </button>
-                                </div>
-                            </div>
-                        </motion.div>
-                    ))}
-                </div>
+                            </motion.div>
+                        ))}
+                    </AnimatePresence>
+                </motion.div>
             </div>
         </div>
     );
