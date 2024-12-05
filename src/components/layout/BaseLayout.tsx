@@ -141,10 +141,10 @@ export function BaseLayout({ children, roomId }: BaseLayoutProps) {
         return <CommunityHome roomId={roomId} />;
       case ContentType.CHINESE_TWEETS:
         console.log('Rendering Chinese Tweets');
-        return <ChineseTweets />;
+        return <ChineseTweets roomId={roomId} />;
       case ContentType.ENGLISH_TWEETS:
         console.log('Rendering English Tweets');
-        return <EnglishTweets />;
+        return <EnglishTweets roomId={roomId} />;
       case ContentType.BOOST_ADDRESSES:
         console.log('Rendering Boost Addresses');
         return <BoostAddresses />;
