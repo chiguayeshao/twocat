@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
-const BACKEND_API_URL ="http://localhost:3000";
+const BACKEND_API_URL = process.env.BACKEND_API_URL || "http://localhost:3000";
 
 async function fetchWithRetry(url: string, options: RequestInit, retries = 3) {
   for (let i = 0; i < retries; i++) {
