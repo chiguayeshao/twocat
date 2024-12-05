@@ -1,27 +1,52 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Switch } from "@/components/ui/switch";
 import { PlusCircle, Sparkles, Languages, Plus } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+import { useWallet } from '@solana/wallet-adapter-react';
 
 interface TweetComposerProps {
-    onAddTweet: (content: string) => void;
+    onAddTweet: (content: string, publicKey: string) => void;
+    defaultLanguage?: 'zh' | 'en';
 }
 
-export function TweetComposer({ onAddTweet }: TweetComposerProps) {
+export function TweetComposer({ onAddTweet, defaultLanguage = 'zh' }: TweetComposerProps) {
+    const { connected, publicKey } = useWallet();
+    const { toast } = useToast();
     const [newTweet, setNewTweet] = useState<string>('');
     const [useAI, setUseAI] = useState<boolean>(false);
-    const [language, setLanguage] = useState<'zh' | 'en'>('zh');
+    const [language, setLanguage] = useState<'zh' | 'en'>(defaultLanguage);
+    const [open, setOpen] = useState(false);
+
+    useEffect(() => {
+        setLanguage(defaultLanguage);
+    }, [defaultLanguage]);
 
     const handleAddTweet = () => {
+        if (!connected || !publicKey) {
+            toast({
+                title: language === 'zh' ? "请先连接钱包" : "Please connect wallet",
+                description: language === 'zh' ? "发布推文需要先连接钱包" : "Wallet connection required to post",
+                variant: "destructive",
+            });
+            return;
+        }
+
         if (newTweet.trim()) {
-            onAddTweet(newTweet);
+            onAddTweet(newTweet, publicKey?.toString() || '');
             setNewTweet('');
+            setOpen(false);
+            toast({
+                title: language === 'zh' ? "发布成功" : "发布成功",
+                description: language === 'zh' ? "你的推文已成功发布" : "你的推文已成功发布",
+                variant: "success",
+            });
         }
     };
 
     return (
-        <Dialog>
+        <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
                 <motion.button
                     whileHover={{ scale: 1.02 }}
@@ -52,20 +77,20 @@ export function TweetComposer({ onAddTweet }: TweetComposerProps) {
                             </div>
                             <div className="flex items-center gap-4">
                                 <button
-                                    onClick={() => setLanguage('zh')}
-                                    className={`px-3 py-1.5 rounded-md text-sm transition-all
+                                    disabled
+                                    className={`px-3 py-1.5 rounded-md text-sm transition-all cursor-not-allowed
                                             ${language === 'zh'
                                             ? 'bg-[#53b991] text-white'
-                                            : 'bg-white/5 text-white/60 hover:bg-white/10'}`}
+                                            : 'bg-white/5 text-white/40'}`}
                                 >
                                     中文
                                 </button>
                                 <button
-                                    onClick={() => setLanguage('en')}
-                                    className={`px-3 py-1.5 rounded-md text-sm transition-all
+                                    disabled
+                                    className={`px-3 py-1.5 rounded-md text-sm transition-all cursor-not-allowed
                                             ${language === 'en'
                                             ? 'bg-[#53b991] text-white'
-                                            : 'bg-white/5 text-white/60 hover:bg-white/10'}`}
+                                            : 'bg-white/5 text-white/40'}`}
                                 >
                                     English
                                 </button>
