@@ -2,6 +2,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { motion } from 'framer-motion';
 import { Plus } from 'lucide-react';
 import { useState } from 'react';
+import { useToast } from '@/hooks/use-toast';
+import { useWallet } from '@solana/wallet-adapter-react';
 
 interface AddTweetDialogProps {
     onAddTweet: (tweet: {
@@ -13,6 +15,7 @@ interface AddTweetDialogProps {
 }
 
 export function AddTweetDialog({ onAddTweet }: AddTweetDialogProps) {
+    const [open, setOpen] = useState(false);
     const [newTweet, setNewTweet] = useState({
         tweetUrl: '',
         authorName: '',
@@ -20,18 +23,31 @@ export function AddTweetDialog({ onAddTweet }: AddTweetDialogProps) {
         content: '',
     });
 
-    const handleAddTweet = () => {
-        onAddTweet(newTweet);
+    const { connected, publicKey } = useWallet();
+    const { toast } = useToast();
+
+    const handleAddTweet = async () => {
+        if (!connected || !publicKey) {
+            toast({
+                title: "请先连接钱包",
+                description: "添加推文需要先连接钱包",
+                variant: "destructive",
+            });
+            return;
+        }
+
+        await onAddTweet(newTweet);
         setNewTweet({
             tweetUrl: '',
             authorName: '',
             authorHandle: '',
             content: '',
         });
+        setOpen(false);
     };
 
     return (
-        <Dialog>
+        <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
                 <motion.button
                     whileHover={{ scale: 1.02 }}

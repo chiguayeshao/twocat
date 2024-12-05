@@ -2,77 +2,51 @@
 
 import { motion } from 'framer-motion';
 import { Copy, Check, MessageCircle, ExternalLink } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { AddTweetDialog } from './AddTweetDialog';
 import { ReplyDialog } from './ReplyDialog';
+import { useToast } from '@/hooks/use-toast';
 
 interface Tweet {
-    id: string;
-    tweetUrl: string;
-    author: {
-        name: string;
-        handle: string;
-    };
-    content: string;
+    _id: string;
+    tweetLink: string;
+    tweetName: string;
+    tweetHandle: string;
+    tweetContent: string;
+    creator: string;
     createdAt: string;
 }
 
-export function BoostAddresses() {
-    const [tweets, setTweets] = useState<Tweet[]>([
-        {
-            id: '1',
-            tweetUrl: 'https://twitter.com/user1/status/123456789',
-            author: {
-                name: 'Web3 Enthusiast',
-                handle: '@web3eth',
-            },
-            content: "Just discovered $TWOCAT - a revolutionary meme token on #Solana! The dual-cat mechanism is genius. Community is amazing! 🚀",
-            createdAt: '2024-03-20',
-        },
-        {
-            id: '2',
-            tweetUrl: 'https://twitter.com/user2/status/987654321',
-            author: {
-                name: 'Crypto Cat',
-                handle: '@cryptocat',
-            },
-            content: "Two Cat is not just a meme, it's a movement! Join the revolution and let's make history together. #TwoCat #CryptoRevolution",
-            createdAt: '2024-03-21',
-        },
-        {
-            id: '3',
-            tweetUrl: 'https://twitter.com/user3/status/192837465',
-            author: {
-                name: 'Blockchain Guru',
-                handle: '@blockchainguru',
-            },
-            content: "The $TWOCAT community is one of the most vibrant and supportive I've ever seen. Proud to be a part of this journey! 🚀",
-            createdAt: '2024-03-22',
-        },
-        {
-            id: '4',
-            tweetUrl: 'https://twitter.com/user4/status/564738291',
-            author: {
-                name: 'DeFi Master',
-                handle: '@defimaster',
-            },
-            content: "Exploring the potential of $TWOCAT in the DeFi space. The possibilities are endless! #DeFi #TwoCat",
-            createdAt: '2024-03-23',
-        },
-        {
-            id: '5',
-            tweetUrl: 'https://twitter.com/user5/status/102938475',
-            author: {
-                name: 'NFT Collector',
-                handle: '@nftcollector',
-            },
-            content: "Two Cat NFTs are the next big thing! Can't wait to see what the community creates. #NFT #TwoCat",
-            createdAt: '2024-03-24',
-        },
-        // ... 更多推文数据
-    ]);
-
+export function BoostAddresses({ roomId }: { roomId: string }) {
+    const { toast } = useToast();
+    const [tweets, setTweets] = useState<Tweet[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
     const [copiedId, setCopiedId] = useState<string | null>(null);
+
+    useEffect(() => {
+        fetchTweets();
+    }, []);
+
+    const fetchTweets = async () => {
+        try {
+            const response = await fetch(`/api/rooms/push-tweets?roomId=${roomId}`);
+            if (!response.ok) {
+                throw new Error('Failed to fetch tweets');
+            }
+            const result = await response.json();
+            if (result.success && result.data) {
+                setTweets(result.data);
+            } else {
+                setError(result.message || '获取推文失败');
+            }
+        } catch (err) {
+            setError('获取推文时发生错误');
+            console.error(err);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const handleCopy = (url: string, id: string) => {
         navigator.clipboard.writeText(url);
@@ -80,19 +54,40 @@ export function BoostAddresses() {
         setTimeout(() => setCopiedId(null), 2000);
     };
 
-    const handleAddTweet = (newTweet: { tweetUrl: string; authorName: string; authorHandle: string; content: string; }) => {
-        const newTweetData: Tweet = {
-            id: (tweets.length + 1).toString(),
-            tweetUrl: newTweet.tweetUrl,
-            author: {
-                name: newTweet.authorName,
-                handle: newTweet.authorHandle,
-            },
-            content: newTweet.content,
-            createdAt: new Date().toISOString().split('T')[0],
-        };
+    const handleAddTweet = async (newTweet: { tweetUrl: string; authorName: string; authorHandle: string; content: string; }) => {
+        try {
+            const response = await fetch(`/api/rooms/push-tweets?roomId=${roomId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    creator: "0x1234...56718", // 这里需要传入实际的钱包地址
+                    tweetLink: newTweet.tweetUrl,
+                    tweetName: newTweet.authorName,
+                    tweetHandle: newTweet.authorHandle,
+                    tweetContent: newTweet.content,
+                }),
+            });
 
-        setTweets([newTweetData, ...tweets]);
+            const result = await response.json();
+            if (result.success) {
+                setTweets([result.data, ...tweets]);
+                toast({
+                    title: "添加成功",
+                    description: "推文已成功添加到列表中",
+                });
+            } else {
+                throw new Error(result.message || '添加失败');
+            }
+        } catch (err) {
+            toast({
+                title: "添加失败",
+                description: "添加推文时发生错误",
+                variant: "destructive",
+            });
+            console.error(err);
+        }
     };
 
     return (
@@ -121,7 +116,7 @@ export function BoostAddresses() {
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4">
                     {tweets.map((tweet, index) => (
                         <motion.div
-                            key={tweet.id}
+                            key={tweet._id}
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: index * 0.1 }}
@@ -134,32 +129,32 @@ export function BoostAddresses() {
                                 <div className="flex items-center gap-2 sm:gap-3 mb-2 sm:mb-3">
                                     <div>
                                         <div className="font-medium text-white/90 text-sm sm:text-base">
-                                            {tweet.author.name}
+                                            {tweet.tweetName}
                                         </div>
                                         <div className="text-xs sm:text-sm text-white/60">
-                                            {tweet.author.handle}
+                                            {tweet.tweetHandle}
                                         </div>
                                     </div>
                                 </div>
 
                                 {/* 推文内容 - 调整字体大小和行高 */}
                                 <p className="text-sm sm:text-base text-white/80 mb-3 sm:mb-4 line-clamp-3 leading-relaxed">
-                                    {tweet.content}
+                                    {tweet.tweetContent}
                                 </p>
 
                                 {/* 操作按钮组 - 移动端优化 */}
                                 <div className="flex flex-wrap items-center gap-2">
                                     {/* 复制链接按钮 */}
                                     <button
-                                        onClick={() => handleCopy(tweet.tweetUrl, tweet.id)}
+                                        onClick={() => handleCopy(tweet.tweetLink, tweet._id)}
                                         className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-md
                                                  bg-white/5 hover:bg-white/10 
                                                  transition-all duration-200"
                                     >
-                                        {copiedId === tweet.id ? (
+                                        {copiedId === tweet._id ? (
                                             <>
                                                 <Check className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-[#53b991]" />
-                                                <span className="text-xs sm:text-sm text-[#53b991]">已复制</span>
+                                                <span className="text-xs sm:text-sm text-[#53b991]">已���制</span>
                                             </>
                                         ) : (
                                             <>
@@ -170,11 +165,20 @@ export function BoostAddresses() {
                                     </button>
 
                                     {/* 回复按钮 */}
-                                    <ReplyDialog tweet={tweet} />
+                                    <ReplyDialog 
+                                        tweet={{
+                                            tweetUrl: tweet.tweetLink,
+                                            author: {
+                                                name: tweet.tweetName,
+                                                handle: tweet.tweetHandle
+                                            },
+                                            content: tweet.tweetContent
+                                        }} 
+                                    />
 
                                     {/* 访问按钮 */}
                                     <a
-                                        href={tweet.tweetUrl}
+                                        href={tweet.tweetLink}
                                         target="_blank"
                                         rel="noopener noreferrer"
                                         className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-md

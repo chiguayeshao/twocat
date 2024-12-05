@@ -147,10 +147,10 @@ export function BaseLayout({ children, roomId }: BaseLayoutProps) {
         return <EnglishTweets roomId={roomId} />;
       case ContentType.BOOST_ADDRESSES:
         console.log('Rendering Boost Addresses');
-        return <BoostAddresses />;
+        return <BoostAddresses roomId={roomId} />;
       case ContentType.MEME_GALLERY:
         console.log('Rendering Meme Gallery');
-        return <MemeGallery />;
+        return <MemeGallery roomId={roomId} />;
       case ContentType.TWEET_MONITOR:
         console.log('Rendering Tweet Monitor');
         return <TweetMonitor />;
