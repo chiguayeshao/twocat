@@ -14,6 +14,7 @@ import {
   TabsContent,
 } from "@/components/ui/tabs";
 import { CreateCommunityDialog } from '@/components/CreateCommunityDialog';
+import { CommunityData } from '@/components/CreateCommunityDialog';
 import { ContentType } from '@/types/content';
 
 interface Community {
@@ -26,7 +27,6 @@ interface Community {
   assetsValue: number;
   verificationLevel: 'gold' | 'green' | null;
 }
-
 
 export default function Home() {
   const [communities, setCommunities] = useState<Community[]>([]);
@@ -54,12 +54,7 @@ export default function Home() {
     }
   };
 
-  const handleCreateCommunity = async (data: {
-    name: string;
-    description: string;
-    avatarFile: File | null;
-  }) => {
-    // TODO: 实现创建社区的逻辑
+  const handleCreateCommunity = async (data: CommunityData) => {
     console.log('创建社区:', data);
   };
 
