@@ -160,7 +160,12 @@ export function Sidebar({ roomId, activeContent = ContentType.COMMUNITY_HOME, on
                     throw new Error('Failed to fetch room info');
                 }
                 const responseData = await response.json();
-                setRoom(responseData.data);
+
+                if (responseData.success && responseData.data.room) {
+                    setRoom(responseData.data.room);
+                } else {
+                    throw new Error('Invalid room data structure');
+                }
             } catch (error) {
                 console.error('Failed to load room info:', error);
             } finally {

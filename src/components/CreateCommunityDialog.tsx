@@ -22,7 +22,6 @@ export interface CommunityData {
     ctos: {
         tweetName: string;
         tweetHandle: string;
-        twitter: string;
     }[];
     title: string;
     slogan: string;
@@ -45,7 +44,7 @@ export function CreateCommunityDialog({ onSubmit }: CreateCommunityDialogProps) 
         avatarFile: null,
         creatorWallet: '',
         contractAddress: '',
-        ctos: [{ tweetName: '', tweetHandle: '', twitter: '' }],
+        ctos: [{ tweetName: '', tweetHandle: '' }],
         qas: [{ question: '', answers: [''] }],
         title: '',
         slogan: '',
@@ -72,7 +71,7 @@ export function CreateCommunityDialog({ onSubmit }: CreateCommunityDialogProps) 
                 avatarFile: null,
                 creatorWallet: '',
                 contractAddress: '',
-                ctos: [{ tweetName: '', tweetHandle: '', twitter: '' }],
+                ctos: [{ tweetName: '', tweetHandle: '' }],
                 qas: [{ question: '', answers: [''] }],
                 title: '',
                 slogan: '',
@@ -133,9 +132,8 @@ export function CreateCommunityDialog({ onSubmit }: CreateCommunityDialogProps) 
                         {step > 1 && (
                             <Button
                                 type="button"
-                                variant="outline"
                                 onClick={() => setStep(step - 1)}
-                                className="border-[#53b991]/30 hover:bg-[#53b991]/10"
+                                className="bg-gradient-to-r from-[#53b991] to-[#9ad499] hover:opacity-90 transition-opacity"
                             >
                                 <ArrowLeft className="w-4 h-4 mr-2" />
                                 上一步
