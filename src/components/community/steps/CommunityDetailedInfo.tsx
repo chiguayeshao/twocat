@@ -156,7 +156,7 @@ export function CommunityDetailedInfo({ data, onChange }: CommunityDetailedInfoP
                                 <Button
                                     type="button"
                                     onClick={() => removeCTO(index)}
-                                    className="bg-gradient-to-r from-[#53b991] to-[#9ad499] hover:opacity-90 transition-opacity h-10 px-3 self-end"
+                                    className="hover:opacity-90 transition-opacity h-10 px-3 self-end"
                                 >
                                     <Minus className="w-4 h-4" />
                                 </Button>
