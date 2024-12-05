@@ -22,7 +22,6 @@ export interface CommunityData {
     ctos: {
         tweetName: string;
         tweetHandle: string;
-        twitter: string;
     }[];
     title: string;
     slogan: string;
@@ -45,7 +44,7 @@ export function CreateCommunityDialog({ onSubmit }: CreateCommunityDialogProps) 
         avatarFile: null,
         creatorWallet: '',
         contractAddress: '',
-        ctos: [{ tweetName: '', tweetHandle: '', twitter: '' }],
+        ctos: [{ tweetName: '', tweetHandle: '' }],
         qas: [{ question: '', answers: [''] }],
         title: '',
         slogan: '',
@@ -72,7 +71,7 @@ export function CreateCommunityDialog({ onSubmit }: CreateCommunityDialogProps) 
                 avatarFile: null,
                 creatorWallet: '',
                 contractAddress: '',
-                ctos: [{ tweetName: '', tweetHandle: '', twitter: '' }],
+                ctos: [{ tweetName: '', tweetHandle: '' }],
                 qas: [{ question: '', answers: [''] }],
                 title: '',
                 slogan: '',

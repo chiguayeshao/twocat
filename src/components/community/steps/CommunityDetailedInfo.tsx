@@ -14,7 +14,6 @@ interface CommunityDetailedInfoProps {
         ctos: {
             tweetName: string;
             tweetHandle: string;
-            twitter: string;
         }[];
     };
     onChange: (field: string, value: any) => void;
@@ -137,17 +136,17 @@ export function CommunityDetailedInfo({ data, onChange }: CommunityDetailedInfoP
                                     </div>
                                     <div className="space-y-2">
                                         <label className="text-sm font-medium text-gray-300">
-                                            推特 URL
+                                            推特 Handle
                                             <span className="text-red-500 ml-1">*</span>
                                         </label>
                                         <Input
-                                            value={cto.twitter}
+                                            value={cto.tweetHandle}
                                             onChange={(e) => {
                                                 const newCTOs = [...data.ctos];
-                                                newCTOs[index].twitter = e.target.value;
+                                                newCTOs[index].tweetHandle = e.target.value;
                                                 onChange('ctos', newCTOs);
                                             }}
-                                            placeholder="输入推特 URL"
+                                            placeholder="输入推特 Handle"
                                             className="bg-[#2f2f2f] border-[#53b991]/30 focus:border-[#53b991] text-white"
                                             required
                                         />
