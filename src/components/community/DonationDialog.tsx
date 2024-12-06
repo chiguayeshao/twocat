@@ -5,7 +5,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Button } from "@/components/ui/button";
 import { Coins, Plus, Minus, Heart, Trophy, Users, Rocket } from 'lucide-react';
 import { useWallet, useConnection } from '@solana/wallet-adapter-react';
-import { LAMPORTS_PER_SOL, PublicKey, Transaction, SystemProgram } from '@solana/web3.js';
+import { LAMPORTS_PER_SOL, PublicKey, Transaction, SystemProgram, Connection } from '@solana/web3.js';
 import { UnifiedWalletButton } from '@jup-ag/wallet-adapter';
 import { useToast } from "@/hooks/use-toast"
 
@@ -13,11 +13,31 @@ interface DonationDialogProps {
     isOpen: boolean;
     onClose: () => void;
     currentDonation: number;
-    onDonate: (amount: number) => void;
+    onDonate: (amount: number, treasury: any, communityLevel: any) => void;
     roomId: string;
 }
 
 const PRESET_AMOUNTS = [0.5, 1, 2, 5, 20];
+
+// 添加新的转账函数
+const sendSolanaTransaction = async (
+    publicKey: PublicKey,
+    connection: Connection,
+    sendTransaction: (transaction: Transaction, connection: Connection) => Promise<string>,
+    amount: number
+): Promise<string> => {
+    const transaction = new Transaction().add(
+        SystemProgram.transfer({
+            fromPubkey: publicKey,
+            toPubkey: new PublicKey(process.env.NEXT_PUBLIC_DEVELOPER_ADDRESS!),
+            lamports: amount * LAMPORTS_PER_SOL,
+        })
+    );
+
+    const signature = await sendTransaction(transaction, connection);
+    await connection.confirmTransaction(signature, 'confirmed');
+    return signature;
+};
 
 export function DonationDialog({
     isOpen,
@@ -55,20 +75,8 @@ export function DonationDialog({
         try {
             setIsProcessing(true);
 
-            // 创建转账交易
-            const transaction = new Transaction().add(
-                SystemProgram.transfer({
-                    fromPubkey: publicKey,
-                    toPubkey: new PublicKey(process.env.NEXT_PUBLIC_DEVELOPER_ADDRESS!),
-                    lamports: amount * LAMPORTS_PER_SOL,
-                })
-            );
-
-            // 发送交易
-            const signature = await sendTransaction(transaction, connection);
-            
-            // 等待交易确认
-            await connection.confirmTransaction(signature, 'confirmed');
+            // 调用转账函数
+            // await sendSolanaTransaction(publicKey, connection, sendTransaction, amount);
 
             // 调用 API 更新捐赠金额
             const response = await fetch(`/api/rooms/update-donation?roomId=${roomId}`, {
@@ -86,14 +94,21 @@ export function DonationDialog({
                 throw new Error('Failed to update donation');
             }
 
-            toast({
-                title: "捐赠成功",
-                description: `感谢您的 ${amount} SOL 捐赠`,
-                variant: "success",
-            });
+            const result = await response.json();
+            
+            if (result.success) {
+                toast({
+                    title: "捐赠成功",
+                    description: `感谢您的 ${amount} SOL 捐赠`,
+                    variant: "success",
+                });
 
-            onDonate(amount);
-            onClose();
+                // 更新父组件的状态
+                onDonate(amount, result.data.treasury, result.data.communityLevel);
+                onClose();
+            } else {
+                throw new Error(result.message || 'Donation failed');
+            }
 
         } catch (error) {
             console.error('Donation failed:', error);

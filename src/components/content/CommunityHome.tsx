@@ -15,6 +15,7 @@ interface CommunityHomeProps {
   room: Room | null;
   treasury: Treasury | null;
   communityLevel: CommunityLevel | null;
+  onTreasuryUpdate: (newTreasury: Treasury, newCommunityLevel: CommunityLevel) => void;
 }
 
 // 添加模拟数据
@@ -25,7 +26,7 @@ const mockStats = {
     liquidity: (Math.random() * 500).toFixed(2)
 };
 
-export function CommunityHome({ roomId, room, treasury, communityLevel }: CommunityHomeProps) {
+export function CommunityHome({ roomId, room, treasury, communityLevel, onTreasuryUpdate }: CommunityHomeProps) {
     const [dominantColor, setDominantColor] = useState<[number, number, number]>([83, 185, 145]);
     const [imageError, setImageError] = useState(false);
 
@@ -110,6 +111,7 @@ export function CommunityHome({ roomId, room, treasury, communityLevel }: Commun
                         treasury={treasury}
                         communityLevel={communityLevel}
                         roomId={roomId}
+                        onUpdate={onTreasuryUpdate}
                     />
                 </div>
 

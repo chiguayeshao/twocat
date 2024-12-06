@@ -25,6 +25,7 @@ interface TreasurySummaryProps {
     treasury: Treasury | null;
     communityLevel: CommunityLevel | null;
     roomId: string;
+    onUpdate?: (newTreasury: Treasury, newCommunityLevel: CommunityLevel) => void;
 }
 
 interface TransactionHistory {
@@ -45,7 +46,8 @@ const COMMUNITY_LEVELS = [
 export function TreasurySummary({
     treasury,
     communityLevel,
-    roomId
+    roomId,
+    onUpdate
 }: TreasurySummaryProps) {
     const [isDonationDialogOpen, setIsDonationDialogOpen] = useState(false);
     const [transactions, setTransactions] = useState<TransactionHistory[]>([]);
@@ -84,11 +86,9 @@ export function TreasurySummary({
     }, [roomId]);
 
     // Add handleDonate function
-    const handleDonate = (amount: number) => {
-        if (communityLevel) {
-            // Update the local state if needed
-            communityLevel.currentDonationVolume += amount;
-        }
+    const handleDonate = (amount: number, newTreasury: Treasury, newCommunityLevel: CommunityLevel) => {
+        // 调用父组件的更新函数
+        onUpdate?.(newTreasury, newCommunityLevel);
     };
 
     // 格式化金额为美元字符串

@@ -71,6 +71,11 @@ export function BaseLayout({ children, roomId }: BaseLayoutProps) {
     setSelectedTokenAddress(tokenAddress);
   };
 
+  const handleTreasuryUpdate = (newTreasury: Treasury, newCommunityLevel: CommunityLevel) => {
+    setTreasury(newTreasury);
+    setCommunityLevel(newCommunityLevel);
+  };
+
   const renderContent = () => {
     switch (activeContent) {
       case ContentType.QUICK_TRADE:
@@ -174,6 +179,7 @@ export function BaseLayout({ children, roomId }: BaseLayoutProps) {
           room={room} 
           treasury={treasury} 
           communityLevel={communityLevel} 
+          onTreasuryUpdate={handleTreasuryUpdate}
         />;
       case ContentType.CHINESE_TWEETS:
         console.log('Rendering Chinese Tweets');
@@ -248,7 +254,7 @@ export function BaseLayout({ children, roomId }: BaseLayoutProps) {
 
         <Header onTokenSelect={setSelectedTokenAddress} />
 
-        {/* 主要内容区域 */}
+        {/* 主要内容区��� */}
         <main className="flex-1 p-2 sm:p-3 md:p-4 overflow-y-auto">
           {renderContent()}
         </main>
