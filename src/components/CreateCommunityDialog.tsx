@@ -15,6 +15,7 @@ export interface CommunityData {
     name: string;
     avatar: string | null;
     creatorWallet: string;
+    description: string;
     website?: string;
     twitter?: string;
     telegram?: string;
@@ -24,13 +25,15 @@ export interface CommunityData {
         tweetName: string;
         tweetHandle: string;
     }[];
-    title: string;
-    slogan: string;
-    description: string;
-    qas: {
-        question: string;
-        answers: string[];
-    }[];
+    communityStory?: {
+        title: string;
+        slogan: string;
+        description: string;
+        qas: {
+            question: string;
+            answers: string[];
+        }[];
+    };
 }
 
 interface CreateCommunityDialogProps {
@@ -45,22 +48,51 @@ export function CreateCommunityDialog({ onSubmit }: CreateCommunityDialogProps) 
         name: '',
         avatar: null,
         creatorWallet: '',
+        description: '',
         contractAddress: '',
         ctos: [{ tweetName: '', tweetHandle: '' }],
-        qas: [{ question: '', answers: [''] }],
-        title: '',
-        slogan: '',
-        description: ''
+        communityStory: {
+            title: '',
+            slogan: '',
+            description: '',
+            qas: [{ question: '', answers: [''] }]
+        }
     });
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [open, setOpen] = useState(false);
 
     const handleChange = (field: string, value: any) => {
-        setData(prevData => ({
-            ...prevData,
-            [field]: value,
-            ...(field === 'avatar' ? { avatarPreview: value } : {})
-        }));
+        setData(prevData => {
+            if (field === 'avatar') {
+                return {
+                    ...prevData,
+                    [field]: value,
+                    avatarPreview: value
+                };
+            }
+
+            // 处理 communityStory 相关的字段
+            if (field.startsWith('communityStory.')) {
+                const storyField = field.split('.')[1]; // 获取实际的字段名
+                return {
+                    ...prevData,
+                    communityStory: {
+                        title: prevData.communityStory?.title || '',
+                        slogan: prevData.communityStory?.slogan || '',
+                        description: prevData.communityStory?.description || '',
+                        qas: prevData.communityStory?.qas || [{ question: '', answers: [''] }],
+                        ...prevData.communityStory,
+                        [storyField]: value
+                    }
+                };
+            }
+
+            // 处理其他字段
+            return {
+                ...prevData,
+                [field]: value
+            };
+        });
     };
 
     const handleOpenChange = (open: boolean) => {
@@ -79,12 +111,15 @@ export function CreateCommunityDialog({ onSubmit }: CreateCommunityDialogProps) 
                 name: '',
                 avatar: null,
                 creatorWallet: '',
+                description: '',
                 contractAddress: '',
                 ctos: [{ tweetName: '', tweetHandle: '' }],
-                qas: [{ question: '', answers: [''] }],
-                title: '',
-                slogan: '',
-                description: ''
+                communityStory: {
+                    title: '',
+                    slogan: '',
+                    description: '',
+                    qas: [{ question: '', answers: [''] }]
+                }
             });
         }
     };
@@ -132,13 +167,13 @@ export function CreateCommunityDialog({ onSubmit }: CreateCommunityDialogProps) 
                     isAi: false
                 })).filter(cto => cto.ctotweethandle && cto.ctoname),
                 communityStory: {
-                    title: data.title,
-                    slogan: data.slogan,
-                    description: data.description,
-                    questionAndAnswer: data.qas.map(qa => ({
+                    title: data.communityStory?.title || "",
+                    slogan: data.communityStory?.slogan || "",
+                    description: data.communityStory?.description || "",
+                    questionAndAnswer: data.communityStory?.qas.map(qa => ({
                         question: qa.question,
                         answer: qa.answers
-                    }))
+                    })) || []
                 }
             };
 
@@ -170,12 +205,15 @@ export function CreateCommunityDialog({ onSubmit }: CreateCommunityDialogProps) 
                     name: '',
                     avatar: null,
                     creatorWallet: '',
+                    description: '',
                     contractAddress: '',
                     ctos: [{ tweetName: '', tweetHandle: '' }],
-                    qas: [{ question: '', answers: [''] }],
-                    title: '',
-                    slogan: '',
-                    description: ''
+                    communityStory: {
+                        title: '',
+                        slogan: '',
+                        description: '',
+                        qas: [{ question: '', answers: [''] }]
+                    }
                 });
                 setStep(1);
 
@@ -250,7 +288,17 @@ export function CreateCommunityDialog({ onSubmit }: CreateCommunityDialogProps) 
                         >
                             {step === 1 && <CommunityBasicInfo data={data} onChange={handleChange} />}
                             {step === 2 && <CommunityDetailedInfo data={data} onChange={handleChange} />}
-                            {step === 3 && <CommunityStory data={data} onChange={handleChange} />}
+                            {step === 3 && (
+                                <CommunityStory
+                                    data={{
+                                        title: data.communityStory?.title || '',
+                                        slogan: data.communityStory?.slogan || '',
+                                        description: data.communityStory?.description || '',
+                                        qas: data.communityStory?.qas || []
+                                    }}
+                                    onChange={handleChange}
+                                />
+                            )}
                         </motion.div>
                     </AnimatePresence>
 
