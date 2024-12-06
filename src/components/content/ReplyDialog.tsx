@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Switch } from "@/components/ui/switch";
 import { motion } from 'framer-motion';
-import { MessageCircle, Sparkles } from 'lucide-react';
+import { MessageCircle, Sparkles, Loader2 } from 'lucide-react';
 
 interface ReplyDialogProps {
     tweet: {
@@ -18,18 +18,43 @@ interface ReplyDialogProps {
 export function ReplyDialog({ tweet }: ReplyDialogProps) {
     const [aiAssistance, setAiAssistance] = useState(false);
     const [replyContent, setReplyContent] = useState('');
+    const [isGenerating, setIsGenerating] = useState(false);
 
     const handleSwitchChange = (checked: boolean) => {
         setAiAssistance(checked);
     };
 
-    const handleGenerateContent = () => {
-        // 模拟 AI 生成内容
-        setReplyContent(`AI 生成的回复内容: 感谢 ${tweet.author.name} 的分享！`);
+    const handleGenerateContent = async () => {
+        setIsGenerating(true);
+        try {
+            const response = await fetch('/api/AIAgents/comment', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    tweet: tweet.content
+                })
+            });
+            
+            if (!response.ok) {
+                throw new Error('生成回复失败');
+            }
+
+            const data = await response.json();
+            setReplyContent(data.content);
+        } catch (error) {
+            console.error('生成回复错误:', error);
+        } finally {
+            setIsGenerating(false);
+        }
     };
 
     const handleReply = () => {
-        const replyUrl = `${tweet.tweetUrl}/reply?text=${encodeURIComponent(replyContent)}`;
+        const tweetId = tweet.tweetUrl.split('/').pop();
+        
+        const replyUrl = `https://x.com/intent/post?in_reply_to=${tweetId}&text=${encodeURIComponent(replyContent)}`;
+        
         window.open(replyUrl, '_blank');
     };
 
@@ -79,16 +104,18 @@ export function ReplyDialog({ tweet }: ReplyDialogProps) {
                         />
                     </div>
 
-                    {/* 回复内容输入框 */}
+                    {/* 回复内��输入框 */}
                     <div className="space-y-2">
                         <textarea
                             className="w-full min-h-[120px] p-4 bg-[#2b2d31] border border-white/10 
                                      rounded-lg text-sm text-white/90 placeholder:text-white/40
                                      focus:outline-none focus:ring-2 focus:ring-[#53b991]/50
-                                     transition-all duration-200"
+                                     transition-all duration-200
+                                     disabled:opacity-50 disabled:cursor-not-allowed"
                             value={replyContent}
                             onChange={(e) => setReplyContent(e.target.value)}
                             placeholder="输入您的回复..."
+                            disabled={isGenerating}
                         />
                     </div>
 
@@ -96,25 +123,38 @@ export function ReplyDialog({ tweet }: ReplyDialogProps) {
                     <div className="flex justify-end gap-2 pt-2">
                         {aiAssistance && (
                             <motion.button
-                                whileHover={{ scale: 1.02 }}
-                                whileTap={{ scale: 0.98 }}
+                                whileHover={{ scale: isGenerating ? 1 : 1.02 }}
+                                whileTap={{ scale: isGenerating ? 1 : 0.98 }}
                                 onClick={handleGenerateContent}
+                                disabled={isGenerating}
                                 className="flex items-center gap-1.5 px-4 py-2 
                                          bg-[#53b991]/10 hover:bg-[#53b991]/20 
                                          text-[#53b991] text-sm font-medium rounded-lg 
-                                         transition-all duration-200"
+                                         transition-all duration-200
+                                         disabled:opacity-50 disabled:cursor-not-allowed"
                             >
-                                <Sparkles className="h-4 w-4" />
-                                生成内容
+                                {isGenerating ? (
+                                    <>
+                                        <Loader2 className="h-4 w-4 animate-spin" />
+                                        生成中...
+                                    </>
+                                ) : (
+                                    <>
+                                        <Sparkles className="h-4 w-4" />
+                                        生成内容
+                                    </>
+                                )}
                             </motion.button>
                         )}
                         <motion.button
-                            whileHover={{ scale: 1.02 }}
-                            whileTap={{ scale: 0.98 }}
+                            whileHover={{ scale: isGenerating ? 1 : 1.02 }}
+                            whileTap={{ scale: isGenerating ? 1 : 0.98 }}
                             onClick={handleReply}
+                            disabled={isGenerating}
                             className="px-4 py-2 bg-[#1DA1F2]/10 hover:bg-[#1DA1F2]/20 
                                  text-[#1DA1F2] text-sm font-medium rounded-lg 
-                                 transition-all duration-200"
+                                 transition-all duration-200
+                                 disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             回复
                         </motion.button>

@@ -126,11 +126,13 @@ export function ChineseTweets({ roomId }: { roomId: string }) {
                             transition={{ delay: index * 0.1 }}
                             className="bg-white/5 rounded-md border border-white/10 p-4 sm:p-5 group 
                                      hover:bg-white/[0.07] transition-all duration-300
-                                     flex flex-col justify-between min-h-[200px]"
+                                     flex flex-col h-[300px]"
                         >
-                            {/* 推文内容 */}
-                            <div className="whitespace-pre-line text-white/90 text-sm sm:text-base">
-                                {tweet.chineseTweetContent}
+                            {/* 推文内容 - 只添加基本滚动 */}
+                            <div className="flex-1 overflow-y-auto">
+                                <div className="whitespace-pre-line text-white/90 text-sm sm:text-base">
+                                    {tweet.chineseTweetContent}
+                                </div>
                             </div>
 
                             {/* 底部信息 */}
