@@ -165,9 +165,8 @@ export function CommunityCard({
                         <motion.div
                             initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
-                            className="flex items-center gap-2 text-sm relative justify-center sm:justify-start flex-wrap"
+                            className="flex items-center gap-2 text-sm relative justify-center sm:justify-start"
                         >
-                            <Coins className="w-4 h-4 text-white/60 flex-shrink-0" />
                             <span className="text-white/60 flex-shrink-0">CA:</span>
                             <span
                                 onClick={handleCopy}
@@ -180,7 +179,7 @@ export function CommunityCard({
                                     initial={{ opacity: 0 }}
                                     animate={{ opacity: 1 }}
                                     exit={{ opacity: 0 }}
-                                    className="absolute left-1/2 sm:left-auto -translate-x-1/2 sm:translate-x-0 sm:right-0 top-full mt-1 text-xs text-[#53b991] bg-black/20 px-2 py-1 rounded whitespace-nowrap"
+                                    className="text-xs text-[#53b991] bg-black/20 px-2 py-1 rounded whitespace-nowrap ml-2"
                                 >
                                     已复制
                                 </motion.span>

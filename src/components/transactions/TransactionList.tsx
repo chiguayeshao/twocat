@@ -225,168 +225,186 @@ export function TransactionList({
           ))
         ) : (
           <AnimatePresence initial={false} mode="sync">
-            {transactions.map((tx, index) => (
+            {transactions.length === 0 ? (
               <motion.div
-                key={tx._id}
-                initial={{ y: isNewPage ? 40 : -40, opacity: 0, scale: 0.98 }}
-                animate={{ y: 0, opacity: 1, scale: 1 }}
-                transition={{
-                  duration: 0.3,
-                  ease: [0.2, 0.65, 0.3, 0.9],
-                  opacity: { duration: 0.2 },
-                }}
-                layout
-                whileHover={{
-                  scale: 1.02,
-                  transition: { duration: 0.2, ease: 'easeOut' },
-                }}
-                onClick={() => {
-                  console.log('walletAddress:', tx.walletAddress);
-                  console.log('tokenAddress:', tx.tokenAddress);
-                  onTransactionClick(tx.walletAddress, tx.tokenAddress);
-                }}
-                className="flex items-start sm:items-center gap-2 py-2 sm:py-1.5 px-2 rounded-lg transition-all duration-200 ease-out
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="flex flex-col items-center justify-center p-8 text-center"
+              >
+                <div className="w-16 h-16 mb-4 rounded-full bg-[#2f2f2f] flex items-center justify-center">
+                  <Info className="w-8 h-8 text-gray-400" />
+                </div>
+                <h3 className="text-lg font-medium text-white/90 mb-2">
+                  暂无交易记录
+                </h3>
+                <p className="text-sm text-gray-400 max-w-md">
+                  这个社区目前还没有监控任何交易。当社区开始监控钱包地址后，相关的交易记录将会在这里显示。
+                </p>
+              </motion.div>
+            ) : (
+              transactions.map((tx, index) => (
+                <motion.div
+                  key={tx._id}
+                  initial={{ y: isNewPage ? 40 : -40, opacity: 0, scale: 0.98 }}
+                  animate={{ y: 0, opacity: 1, scale: 1 }}
+                  transition={{
+                    duration: 0.3,
+                    ease: [0.2, 0.65, 0.3, 0.9],
+                    opacity: { duration: 0.2 },
+                  }}
+                  layout
+                  whileHover={{
+                    scale: 1.02,
+                    transition: { duration: 0.2, ease: 'easeOut' },
+                  }}
+                  onClick={() => {
+                    console.log('walletAddress:', tx.walletAddress);
+                    console.log('tokenAddress:', tx.tokenAddress);
+                    onTransactionClick(tx.walletAddress, tx.tokenAddress);
+                  }}
+                  className="flex items-start sm:items-center gap-2 py-2 sm:py-1.5 px-2 rounded-lg transition-all duration-200 ease-out
                                           bg-[#2f2f2f] hover:bg-[#353535] hover:shadow-lg
                                           mb-1 last:mb-0 relative min-h-[4.5rem] sm:h-12 cursor-pointer
                                           transform hover:-translate-y-0.5"
-              >
-                {/* 三点按钮 */}
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="absolute right-1 top-1 h-6 w-6 hover:bg-discord-primary/30 z-10"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                  }}
                 >
-                  <MoreVertical className="h-3.5 w-3.5 text-gray-400" />
-                </Button>
+                  {/* 三点按钮 */}
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="absolute right-1 top-1 h-6 w-6 hover:bg-discord-primary/30 z-10"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                    }}
+                  >
+                    <MoreVertical className="h-3.5 w-3.5 text-gray-400" />
+                  </Button>
 
-                {/* 头像 */}
-                <div className="shrink-0 mt-1 sm:mt-0">
-                  <Image
-                    src={process.env.NEXT_PUBLIC_DEFAULT_AVATAR_URL || ''}
-                    alt="Avatar"
-                    width={20}
-                    height={20}
-                    className="rounded-full ring-1 ring-discord-primary/30"
-                    unoptimized
-                  />
-                </div>
-
-                {/* 内容区 */}
-                <div className="flex-1 min-w-0 pr-7">
-                  {/* 移动端视图 */}
-                  <div className="block sm:hidden space-y-1">
-                    {/* 第一行：钱包地址和描述 */}
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-1.5 min-w-0">
-                        <button className="font-medium text-[#53b991] hover:underline transition-colors z-10 text-xs shrink-0">
-                          {tx.walletAddress.slice(0, 4)}...{tx.walletAddress.slice(-4)}
-                        </button>
-                        {tx.walletDescription && (
-                          <span className="text-gray-400 text-xs truncate max-w-[120px]">
-                            ({tx.walletDescription})
-                          </span>
-                        )}
-                      </div>
-                      <div className="flex items-center gap-1 text-[10px] text-gray-400 shrink-0">
-                        {new Intl.DateTimeFormat('zh-CN', {
-                          hour: '2-digit',
-                          minute: '2-digit'
-                        }).format(new Date(tx.timestamp * 1000))}
-                      </div>
-                    </div>
-
-                    {/* 第二行：代币信息 */}
-                    <div className="flex items-center gap-2 text-xs">
-                      <span className={`${tx.type === 'buy' ? 'text-[#9ad499]' : 'text-[#de5569]'} shrink-0`}>
-                        {tx.type === 'buy' ? '买入' : '卖出'}
-                      </span>
-                      <span className="text-gray-300 shrink-0">
-                        {tx.tokenAmount.toLocaleString('en-US', {
-                          maximumFractionDigits: 1,
-                          minimumFractionDigits: 0
-                        })}
-                      </span>
-                      <span className="text-[#acc97e] shrink-0">{tx.symbol}</span>
-                    </div>
-
-                    {/* 第三行：SOL金额和链接 */}
-                    <div className="flex items-center justify-between text-xs">
-                      <span className="text-gray-400">
-                        {tx.type === 'buy' ? '消耗' : '获得'}:
-                        <span className="text-[#acc97e] ml-1">
-                          {Number(tx.solAmount).toFixed(2)} SOL
-                        </span>
-                      </span>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          window.open(`https://solscan.io/tx/${tx.signature}`, '_blank');
-                        }}
-                        className="text-gray-400 hover:text-gray-300 transition-colors flex items-center gap-1"
-                      >
-                        <ExternalLink className="h-3 w-3" />
-                      </button>
-                    </div>
+                  {/* 头像 */}
+                  <div className="shrink-0 mt-1 sm:mt-0">
+                    <Image
+                      src={process.env.NEXT_PUBLIC_DEFAULT_AVATAR_URL || ''}
+                      alt="Avatar"
+                      width={20}
+                      height={20}
+                      className="rounded-full ring-1 ring-discord-primary/30"
+                      unoptimized
+                    />
                   </div>
 
-                  {/* 桌面端视图 - 保持不变 */}
-                  <div className="hidden sm:flex items-center gap-2 text-xs">
-                    <button className="font-medium text-[#53b991] hover:underline transition-colors z-10">
-                      {tx.walletAddress.slice(0, 4)}...{tx.walletAddress.slice(-4)}
-                    </button>
-
-                    {tx.walletDescription && (
-                      <TooltipProvider delayDuration={0}>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <span className="text-gray-400 max-w-[150px] truncate cursor-help">
+                  {/* 内容区 */}
+                  <div className="flex-1 min-w-0 pr-7">
+                    {/* 移动端视图 */}
+                    <div className="block sm:hidden space-y-1">
+                      {/* 第一行：钱包地址和描述 */}
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-1.5 min-w-0">
+                          <button className="font-medium text-[#53b991] hover:underline transition-colors z-10 text-xs shrink-0">
+                            {tx.walletAddress.slice(0, 4)}...{tx.walletAddress.slice(-4)}
+                          </button>
+                          {tx.walletDescription && (
+                            <span className="text-gray-400 text-xs truncate max-w-[120px]">
                               ({tx.walletDescription})
                             </span>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            <p className="text-sm">{tx.walletDescription}</p>
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
-                    )}
+                          )}
+                        </div>
+                        <div className="flex items-center gap-1 text-[10px] text-gray-400 shrink-0">
+                          {new Intl.DateTimeFormat('zh-CN', {
+                            hour: '2-digit',
+                            minute: '2-digit'
+                          }).format(new Date(tx.timestamp * 1000))}
+                        </div>
+                      </div>
 
-                    <span className={tx.type === 'buy' ? 'text-[#9ad499]' : 'text-[#de5569]'}>
-                      {tx.type === 'buy' ? '买入' : '卖出'}
-                    </span>
+                      {/* 第二行：代币信息 */}
+                      <div className="flex items-center gap-2 text-xs">
+                        <span className={`${tx.type === 'buy' ? 'text-[#9ad499]' : 'text-[#de5569]'} shrink-0`}>
+                          {tx.type === 'buy' ? '买入' : '卖出'}
+                        </span>
+                        <span className="text-gray-300 shrink-0">
+                          {tx.tokenAmount.toLocaleString('en-US', {
+                            maximumFractionDigits: 1,
+                            minimumFractionDigits: 0
+                          })}
+                        </span>
+                        <span className="text-[#acc97e] shrink-0">{tx.symbol}</span>
+                      </div>
 
-                    <span className="text-gray-300">
-                      {tx.tokenAmount.toLocaleString('en-US', {
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 2,
-                      })}
-                    </span>
+                      {/* 第三行：SOL金额和链接 */}
+                      <div className="flex items-center justify-between text-xs">
+                        <span className="text-gray-400">
+                          {tx.type === 'buy' ? '消耗' : '获得'}:
+                          <span className="text-[#acc97e] ml-1">
+                            {Number(tx.solAmount).toFixed(2)} SOL
+                          </span>
+                        </span>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            window.open(`https://solscan.io/tx/${tx.signature}`, '_blank');
+                          }}
+                          className="text-gray-400 hover:text-gray-300 transition-colors flex items-center gap-1"
+                        >
+                          <ExternalLink className="h-3 w-3" />
+                        </button>
+                      </div>
+                    </div>
 
-                    <span className="text-[#acc97e]">{tx.symbol}</span>
-
-                    <span className="text-gray-400">
-                      {tx.type === 'buy' ? '消耗: ' : '获得: '}
-                      <span className="text-[#acc97e]">{tx.solAmount.toFixed(4)} SOL</span>
-                    </span>
-
-                    <span className="text-gray-400 flex items-center gap-1">
-                      {new Date(tx.timestamp * 1000).toLocaleString()}
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          window.open(`https://solscan.io/tx/${tx.signature}`, '_blank');
-                        }}
-                        className="hover:text-gray-300 transition-colors z-10"
-                      >
-                        <ExternalLink className="h-3.5 w-3.5" />
+                    {/* 桌面端视图 - 保持不变 */}
+                    <div className="hidden sm:flex items-center gap-2 text-xs">
+                      <button className="font-medium text-[#53b991] hover:underline transition-colors z-10">
+                        {tx.walletAddress.slice(0, 4)}...{tx.walletAddress.slice(-4)}
                       </button>
-                    </span>
+
+                      {tx.walletDescription && (
+                        <TooltipProvider delayDuration={0}>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <span className="text-gray-400 max-w-[150px] truncate cursor-help">
+                                ({tx.walletDescription})
+                              </span>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p className="text-sm">{tx.walletDescription}</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      )}
+
+                      <span className={tx.type === 'buy' ? 'text-[#9ad499]' : 'text-[#de5569]'}>
+                        {tx.type === 'buy' ? '买入' : '卖出'}
+                      </span>
+
+                      <span className="text-gray-300">
+                        {tx.tokenAmount.toLocaleString('en-US', {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2,
+                        })}
+                      </span>
+
+                      <span className="text-[#acc97e]">{tx.symbol}</span>
+
+                      <span className="text-gray-400">
+                        {tx.type === 'buy' ? '消耗: ' : '获得: '}
+                        <span className="text-[#acc97e]">{tx.solAmount.toFixed(4)} SOL</span>
+                      </span>
+
+                      <span className="text-gray-400 flex items-center gap-1">
+                        {new Date(tx.timestamp * 1000).toLocaleString()}
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            window.open(`https://solscan.io/tx/${tx.signature}`, '_blank');
+                          }}
+                          className="hover:text-gray-300 transition-colors z-10"
+                        >
+                          <ExternalLink className="h-3.5 w-3.5" />
+                        </button>
+                      </span>
+                    </div>
                   </div>
-                </div>
-              </motion.div>
-            ))}
+                </motion.div>
+              ))
+            )}
           </AnimatePresence>
         )}
       </div>

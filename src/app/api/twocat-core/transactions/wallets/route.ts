@@ -42,6 +42,19 @@ export async function POST(request: NextRequest) {
       }
     );
 
+    if (response.status === 404) {
+      return NextResponse.json({
+        transactions: [],
+        pagination: {
+          total: 0,
+          page: 1,
+          limit: limit,
+          totalPages: 0,
+          hasMore: false,
+        },
+      });
+    }
+
     if (!response.ok) {
       throw new Error(`Backend API responded with status: ${response.status}`);
     }
