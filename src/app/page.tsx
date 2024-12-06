@@ -17,19 +17,51 @@ import { CreateCommunityDialog } from '@/components/CreateCommunityDialog';
 import { CommunityData } from '@/components/CreateCommunityDialog';
 import { ContentType } from '@/types/content';
 
-interface Community {
-  id: string;
-  name: string;
-  description: string;
-  avatarUrl: string;
-  memberCount: number;
-  heat: number;
-  assetsValue: number;
-  verificationLevel: 'gold' | 'green' | null;
+interface RoomData {
+  room: {
+    _id: string;
+    roomName: string;
+    description: string;
+    avatarUrl: string;
+    memberCount: number;
+    creatorWallet: string;
+    website: string;
+    twitter: string;
+    telegram: string;
+    discord: string;
+    ca: string;
+    communityStory: {
+      title: string;
+      slogan: string;
+      description: string;
+    };
+  };
+  treasury: {
+    treasuryBalance: number;
+    dailyVolume: number;
+    weeklyProfit: number;
+    communityLevel: number;
+  };
+  communityLevel: {
+    currentVolume: number;
+    unlockNextLevelVolume: number;
+    currentDonationVolume: number;
+    unlockNextLevelDonationVolume: number;
+  };
 }
 
+const formatNumber = (num: number): string => {
+  if (num >= 1000000) {
+    return `${(num / 1000000).toFixed(1)}M`;
+  }
+  if (num >= 1000) {
+    return `${(num / 1000).toFixed(1)}K`;
+  }
+  return num.toFixed(1);
+};
+
 export default function Home() {
-  const [communities, setCommunities] = useState<Community[]>([]);
+  const [rooms, setRooms] = useState<RoomData[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState('trending');
@@ -42,12 +74,9 @@ export default function Home() {
 
   const handleCommunityClick = async (communityId: string) => {
     setNavigating(true);
-    // 使用默认的roomId
-    const roomId = '673c95ae1723f24444385454';
     try {
-      // 这里可以添加跳转前的任何准备工作
       localStorage.setItem('activeContent', ContentType.COMMUNITY_HOME);
-      window.location.href = `/${roomId}`;
+      window.location.href = `/${communityId}`;
     } catch (error) {
       console.error('Navigation error:', error);
       setNavigating(false);
@@ -58,78 +87,27 @@ export default function Home() {
     console.log('创建社区:', data);
   };
 
-  // 模拟数据加载
+  // 获取房间列表
   useEffect(() => {
-    const fetchCommunities = async () => {
+    const fetchRooms = async () => {
       setLoading(true);
-      // TODO: 替换为实际的API调用
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      setCommunities([
-        {
-          id: '1',
-          name: '🐸 Pepe的狂欢派对',
-          description: '最疯狂的meme社区，我们都是pepe的信徒！',
-          avatarUrl: 'https://twocat-room-avatars.s3.ap-southeast-1.amazonaws.com/room-avatars/1732023482786-twocatlogo.jpg',
-          memberCount: 42069,
-          heat: 98,
-          assetsValue: 420.69,
-          verificationLevel: 'gold',
-        },
-        {
-          id: '2',
-          name: '🦍 Ape帮',
-          description: '无聊猿俱乐部，专注NFT交易和社区建设',
-          avatarUrl: 'https://twocat-room-avatars.s3.ap-southeast-1.amazonaws.com/room-avatars/1732023482786-twocatlogo.jpg',
-          memberCount: 15789,
-          heat: 92,
-          assetsValue: 890.42,
-          verificationLevel: 'green',
-        },
-        {
-          id: '3',
-          name: '🚀 火箭人',
-          description: '专注Sol生态早期项目，一起发现下一个100倍币',
-          avatarUrl: 'https://twocat-room-avatars.s3.ap-southeast-1.amazonaws.com/room-avatars/1732023482786-twocatlogo.jpg',
-          memberCount: 8426,
-          heat: 85,
-          assetsValue: 235.16,
-          verificationLevel: null,
-        },
-        {
-          id: '4',
-          name: '🎮 GameFi玩家联盟',
-          description: '链游爱好者集中地，分享游戏攻略和收益机会',
-          avatarUrl: 'https://twocat-room-avatars.s3.ap-southeast-1.amazonaws.com/room-avatars/1732023482786-twocatlogo.jpg',
-          memberCount: 12567,
-          heat: 88,
-          assetsValue: 156.78,
-          verificationLevel: 'gold',
-        },
-        {
-          id: '5',
-          name: '🎨 艺术家俱乐部',
-          description: 'NFT艺术创作者社区，探讨艺术与区块链的结合',
-          avatarUrl: 'https://twocat-room-avatars.s3.ap-southeast-1.amazonaws.com/room-avatars/1732023482786-twocatlogo.jpg',
-          memberCount: 6234,
-          heat: 82,
-          assetsValue: 345.92,
-          verificationLevel: 'green',
-        },
-        {
-          id: '6',
-          name: '🔥 DeFi研究院',
-          description: '深度研究DeFi项目，发现价值投资机会',
-          avatarUrl: 'https://twocat-room-avatars.s3.ap-southeast-1.amazonaws.com/room-avatars/1732023482786-twocatlogo.jpg',
-          memberCount: 9876,
-          heat: 94,
-          assetsValue: 678.34,
-          verificationLevel: null,
+      try {
+        const response = await fetch('/api/rooms/list');
+        const result = await response.json();
+
+        if (result.success) {
+          setRooms(result.data);
+        } else {
+          console.error('获取房间列表失败:', result.error);
         }
-      ]);
-      setLoading(false);
+      } catch (error) {
+        console.error('获取房间列表错误:', error);
+      } finally {
+        setLoading(false);
+      }
     };
 
-    fetchCommunities();
+    fetchRooms();
   }, []);
 
   return (
@@ -314,12 +292,11 @@ export default function Home() {
                     ))}
                   </AnimatePresence>
                 ) : (
-                  // 社区列表内容
                   <AnimatePresence>
-                    {communities.map((community, index) => (
+                    {rooms.map((roomData, index) => (
                       <motion.div
-                        key={community.id}
-                        onClick={() => handleCommunityClick(community.id)}
+                        key={roomData.room._id}
+                        onClick={() => handleCommunityClick(roomData.room._id)}
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -20 }}
@@ -330,37 +307,30 @@ export default function Home() {
                           stiffness: 100,
                           damping: 15
                         }}
-                        whileHover={{
-                          y: -5,
-                          transition: { duration: 0.2, ease: "easeOut" }
-                        }}
                         className={`bg-[#2f2f2f]/50 backdrop-blur-sm rounded-2xl p-6 
-                                   border border-[#53b991]/10
-                                   cursor-pointer gpu-accelerated
-                                   hover:bg-[#2f2f2f]/70 
-                                   transition-all duration-300
-                                   hover-glow
-                                   ${navigating ? 'pointer-events-none opacity-50' : ''}`}
+                                 border border-[#53b991]/10
+                                 cursor-pointer gpu-accelerated
+                                 hover:bg-[#2f2f2f]/70 
+                                 transition-all duration-300
+                                 hover-glow
+                                 ${navigating ? 'pointer-events-none opacity-50' : ''}`}
                       >
                         <div className="flex items-center gap-6">
                           <div className="relative group shrink-0">
-                            <Image
-                              src={community.avatarUrl}
-                              alt={community.name}
-                              width={80}
-                              height={80}
-                              className="rounded-2xl ring-2 ring-[#53b991]/20 group-hover:ring-[#53b991]/40 
-                                       transition-all duration-300"
-                            />
-                            {community.verificationLevel && (
-                              <div
-                                className={`absolute -top-1 -right-1 rounded-full p-1
-                                  ${community.verificationLevel === 'gold'
-                                    ? 'bg-gradient-to-r from-[#FFD700] to-[#FFA500]'
-                                    : 'bg-gradient-to-r from-[#53b991] to-[#9ad499]'
-                                  }`}
-                              >
-                                <Sparkles className="w-3 h-3 text-white" />
+                            {roomData.room.avatarUrl ? (
+                              <Image
+                                src={roomData.room.avatarUrl}
+                                alt={roomData.room.roomName || 'Community Avatar'}
+                                width={80}
+                                height={80}
+                                className="rounded-2xl ring-2 ring-[#53b991]/20 group-hover:ring-[#53b991]/40 
+                                             transition-all duration-300"
+                              />
+                            ) : (
+                              <div className="w-[80px] h-[80px] rounded-2xl bg-[#2f2f2f] 
+                                          ring-2 ring-[#53b991]/20 group-hover:ring-[#53b991]/40 
+                                          transition-all duration-300 flex items-center justify-center">
+                                <Users className="w-8 h-8 text-gray-400" />
                               </div>
                             )}
                           </div>
@@ -368,30 +338,41 @@ export default function Home() {
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-3 mb-2">
                               <h3 className="text-xl font-bold text-[#53b991]">
-                                {community.name}
+                                {roomData.room.roomName}
                               </h3>
                               <span className="text-xs px-2 py-0.5 rounded-full bg-[#53b991]/10 text-[#53b991]">
-                                AI助手
+                                Lv.{roomData.treasury.communityLevel}
                               </span>
                             </div>
                             <p className="text-gray-400 text-sm mb-4 line-clamp-2">
-                              {community.description}
+                              {roomData.room.communityStory?.description || roomData.room.description || "暂无描述"}
                             </p>
 
-                            <div className="flex items-center gap-6 text-sm">
+                            <div className="flex items-center gap-8 text-sm">
                               <div className="flex items-center gap-2 text-gray-300">
                                 <Users className="w-4 h-4" />
-                                <span>{community.memberCount.toLocaleString()}</span>
+                                <span>{roomData.room.memberCount.toLocaleString()} 成员</span>
                               </div>
 
-                              <div className="flex items-center gap-2 text-[#9ad499]">
-                                <Fire className="w-4 h-4" />
-                                <span>{community.heat}%</span>
+                              <div className="flex items-center gap-2">
+                                <div className="flex items-center gap-1.5 text-[#9ad499]">
+                                  <Fire className="w-4 h-4" />
+                                  <span>{formatNumber(roomData.communityLevel.currentVolume)}</span>
+                                </div>
+                                <span className="text-xs text-gray-400">SOL 交易量</span>
                               </div>
 
-                              <div className="flex items-center gap-2 text-[#acc97e]">
-                                <Coins className="w-4 h-4" />
-                                <span>{community.assetsValue} SOL</span>
+                              <div className="flex items-center gap-2">
+                                <div className="flex items-center gap-1.5 text-[#acc97e]">
+                                  <Coins className="w-4 h-4" />
+                                  <span>
+                                    {formatNumber(
+                                      roomData.treasury.treasuryBalance +
+                                      roomData.communityLevel.currentDonationVolume
+                                    )}
+                                  </span>
+                                </div>
+                                <span className="text-xs text-gray-400">SOL 金库</span>
                               </div>
                             </div>
                           </div>
