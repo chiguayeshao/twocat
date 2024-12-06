@@ -46,10 +46,10 @@ export function CommunityHome({ roomId, room, treasury, communityLevel, onTreasu
                     />
 
                     <CommunityLeaders
+                        avatarUrl={room.avatarUrl}
                         leaders={room.cto.map(member => ({
-                            name: member.ctoname,
-                            twitterName: member.ctotweethandle.replace('@', ''),
-                            twitterId: member.ctotweethandle,
+                            ctoname: member.ctoname,
+                            ctotweethandle: member.ctotweethandle.replace('@', ''),
                             isAi: member.isAi
                         }))}
                     />

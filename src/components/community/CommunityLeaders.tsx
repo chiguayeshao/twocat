@@ -6,17 +6,20 @@ import { Switch } from "@/components/ui/switch";
 import { Sparkles } from "lucide-react";
 
 interface Leader {
-    name: string;
-    twitterName: string;
-    twitterId: string;
+    ctoname: string;
+    ctotweethandle: string;
     isAi: boolean;
 }
 
-interface CommunityLeadersProps {
+interface Avatar {
+    avatarUrl: string;
+}
+
+interface CommunityLeadersProps extends Avatar {
     leaders: Leader[];
 }
 
-export function CommunityLeaders({ leaders }: CommunityLeadersProps) {
+export function CommunityLeaders({ leaders, avatarUrl }: CommunityLeadersProps) {
     const [includeAI, setIncludeAI] = useState(true);
 
     const filteredLeaders = includeAI
@@ -67,21 +70,21 @@ export function CommunityLeaders({ leaders }: CommunityLeadersProps) {
                             }`}
                     >
                         <img
-                            src="https://twocat-room-avatars.s3.ap-southeast-1.amazonaws.com/room-avatars/1732023482786-twocatlogo.jpg"
-                            alt={leader.name}
+                            src={avatarUrl}
+                            alt={leader.ctoname}
                             className="w-12 h-12 rounded-full border-2 border-transparent"
                         />
                         <div className="flex flex-col min-w-0">
                             <span className="text-base font-semibold text-white/90 truncate">
-                                {leader.name}
+                                {leader.ctoname}
                             </span>
                             <a
-                                href={leader.twitterId}
+                                href={`https://twitter.com/${leader.ctotweethandle.replace('@', '')}`}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="text-sm text-white/50 truncate hover:text-[#53b991] cursor-pointer transition-colors"
+                                className="text-sm text-[#53b991] truncate hover:underline cursor-pointer transition-colors"
                             >
-                                {leader.twitterName}
+                                @{leader.ctotweethandle.replace('@', '')}
                             </a>
                         </div>
                     </motion.div>
