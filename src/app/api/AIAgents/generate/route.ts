@@ -37,7 +37,7 @@ const BASE_PROMPTS = {
 
 const PROMPTS = {
   zh: BASE_PROMPTS.zh.map(prompt => 
-    `${prompt} 请在回答中自然地联系到ai16z相关的一个具体场景或经历，并在结尾加上 #ai16z`
+    `${prompt} 请在回答中使用中文并自然地联系到ai16z相关的一个具体场景或经历，并在结尾加上 #ai16z`
   ),
   en: BASE_PROMPTS.en.map(prompt => 
     `${prompt} Please naturally connect your answer to a specific ai16z-related scenario or experience, and end with #ai16z`

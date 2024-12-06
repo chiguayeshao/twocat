@@ -8,7 +8,7 @@ function containsChinese(text: string): boolean {
 }
 
 const PROMPTS = {
-  zh: (tweet: string) => `作为ai16z社区成员，请对以下推文生成一个友好且自然的评论。要求：
+  zh: (tweet: string) => `作为ai16z社区成员，请对以下推文生成一个友好且自然的中文评论。要求：
 1. 首先对推文内容做出真诚的回应
 2. 然后自然地联系到ai16z相关的一个场景或经历并提到ai16z
 3. 评论要像真实用户的对话，避免硬广告感
