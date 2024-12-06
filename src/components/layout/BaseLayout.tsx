@@ -18,6 +18,7 @@ import { BoostAddresses } from '../content/BoostAddresses';
 import { MemeGallery } from '../content/MemeGallery';
 import { TweetMonitor } from '../content/TweetMonitor';
 import { AIAgents } from '../content/AIAgents';
+import { Room, Treasury, CommunityLevel } from '@/types/room';
 
 interface BaseLayoutProps {
   children: React.ReactNode;
@@ -29,6 +30,37 @@ export function BaseLayout({ children, roomId }: BaseLayoutProps) {
   const [selectedWalletAddress, setSelectedWalletAddress] = useState<string | null>(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [activeContent, setActiveContent] = useState<ContentType>(ContentType.COMMUNITY_HOME);
+  
+  const [room, setRoom] = useState<Room | null>(null);
+  const [treasury, setTreasury] = useState<Treasury | null>(null);
+  const [communityLevel, setCommunityLevel] = useState<CommunityLevel | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadRoomInfo = async () => {
+      try {
+        const response = await fetch(`/api/twocat-core/rooms?roomId=${roomId}`);
+        if (!response.ok) {
+          throw new Error('Failed to fetch room info');
+        }
+        const data = await response.json();
+
+        if (data.success) {
+          setRoom(data.data.room);
+          setTreasury(data.data.treasury);
+          setCommunityLevel(data.data.communityLevel);
+        }
+      } catch (error) {
+        console.error('Failed to load room info:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (roomId) {
+      loadRoomInfo();
+    }
+  }, [roomId]);
 
   const handleTransactionClick = (walletAddress: string, tokenAddress: string) => {
     setSelectedWalletAddress(walletAddress);
@@ -137,8 +169,12 @@ export function BaseLayout({ children, roomId }: BaseLayoutProps) {
           </div>
         );
       case ContentType.COMMUNITY_HOME:
-        console.log('Rendering Community Home');
-        return <CommunityHome roomId={roomId} />;
+        return <CommunityHome 
+          roomId={roomId} 
+          room={room} 
+          treasury={treasury} 
+          communityLevel={communityLevel} 
+        />;
       case ContentType.CHINESE_TWEETS:
         console.log('Rendering Chinese Tweets');
         return <ChineseTweets roomId={roomId} />;
@@ -190,6 +226,10 @@ export function BaseLayout({ children, roomId }: BaseLayoutProps) {
           activeContent={activeContent}
           onContentChange={setActiveContent}
           onClose={() => setIsSidebarOpen(false)}
+          room={room}
+          treasury={treasury}
+          communityLevel={communityLevel}
+          loading={loading}
         />
       </div>
 
