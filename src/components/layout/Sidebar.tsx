@@ -125,15 +125,15 @@ interface SidebarProps {
     loading: boolean;
 }
 
-export function Sidebar({ 
-    roomId, 
-    activeContent = ContentType.COMMUNITY_HOME, 
-    onContentChange, 
+export function Sidebar({
+    roomId,
+    activeContent = ContentType.COMMUNITY_HOME,
+    onContentChange,
     onClose,
     room,
     treasury,
     communityLevel,
-    loading 
+    loading
 }: SidebarProps) {
     const pathname = usePathname();
     const [isCopied, setIsCopied] = useState(false);
@@ -362,7 +362,7 @@ export function Sidebar({
                                         </div>
                                         <div className="flex items-center gap-2 text-sm text-muted-foreground">
                                             <InfoIcon className="h-4 w-4" />
-                                            <span>{room?.isPrivate ? '私密频道' : '公开频道'}</span>
+                                            <span>{room?.isPrivate ? '私密社区' : '公开社区'}</span>
                                         </div>
                                     </>
                                 )}
