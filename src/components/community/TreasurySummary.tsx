@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/tooltip";
 import { Button } from "@/components/ui/button";
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion";
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { DonationDialog } from './DonationDialog';
 import { Room, Treasury, CommunityLevel } from '@/types/room';
 
@@ -27,6 +27,13 @@ interface TreasurySummaryProps {
     roomId: string;
 }
 
+interface TransactionHistory {
+    type: string;
+    amount: number;
+    timestamp: number;
+    userAddress: string;
+}
+
 const COMMUNITY_LEVELS = [
     { level: 1, volumeReq: 0, donationReq: 0 },
     { level: 2, volumeReq: 50, donationReq: 0.5 },
@@ -41,6 +48,40 @@ export function TreasurySummary({
     roomId
 }: TreasurySummaryProps) {
     const [isDonationDialogOpen, setIsDonationDialogOpen] = useState(false);
+    const [transactions, setTransactions] = useState<TransactionHistory[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchTransactionHistory = async () => {
+            try {
+                const response = await fetch(`/api/rooms/treasuryhistory?roomId=${roomId}`);
+                if (!response.ok) {
+                    throw new Error('Failed to fetch transaction history');
+                }
+                const data = await response.json();
+                setTransactions(data.data);
+            } catch (error) {
+                console.error('Error fetching transaction history:', error);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        // Initial fetch
+        if (roomId) {
+            fetchTransactionHistory();
+        }
+
+        // Set up polling interval
+        const intervalId = setInterval(() => {
+            if (roomId) {
+                fetchTransactionHistory();
+            }
+        }, 30000); // 30 seconds
+
+        // Cleanup function to clear interval when component unmounts
+        return () => clearInterval(intervalId);
+    }, [roomId]);
 
     // Add handleDonate function
     const handleDonate = (amount: number) => {
@@ -232,26 +273,36 @@ export function TreasurySummary({
                     </div>
                     <div className="h-[550px] overflow-y-auto">
                         <div className="space-y-3">
-                            {treasury.transactionHistory.map((tx, index) => (
-                                <div
-                                    key={index}
-                                    className="flex items-center justify-between p-3 rounded-lg bg-white/5 hover:bg-white/10 transition-colors"
-                                >
-                                    <div>
-                                        <div className="text-sm text-white/90">
-                                            {tx.type === 'donation' ? '社区捐赠' : '交易返佣'}
+                            {isLoading ? (
+                                <div className="text-center text-white/60">加载中...</div>
+                            ) : transactions.length === 0 ? (
+                                <div className="text-center text-white/60">暂无交易记录</div>
+                            ) : (
+                                transactions.map((tx, index) => (
+                                    <div
+                                        key={index}
+                                        className="flex items-center justify-between p-3 rounded-lg bg-white/5 hover:bg-white/10 transition-colors"
+                                    >
+                                        <div>
+                                            <div className="text-sm text-white/90">
+                                                {tx.type === 'donation' ? '社区捐赠' : 
+                                                 tx.type === 'tradeRebate' ? '交易返佣' :
+                                                 tx.type === 'communityAirdrop' ? '社区空投' :
+                                                 tx.type === 'tokenBuyback' ? '代币回购' :
+                                                 tx.type === 'aiUsage' ? 'AI使用' : '未知类型'}
+                                            </div>
+                                            <div className="text-xs text-white/60">
+                                                {new Date(tx.timestamp).toLocaleString()}
+                                            </div>
                                         </div>
-                                        <div className="text-xs text-white/60">
-                                            {new Date(tx.timestamp).toLocaleString()}
+                                        <div className={`font-mono font-bold ${
+                                            tx.amount >= 0 ? 'text-[#53b991]' : 'text-[#de5569]'
+                                        }`}>
+                                            {formatUSD(tx.amount)}
                                         </div>
                                     </div>
-                                    <div className={`font-mono font-bold ${
-                                        tx.amount >= 0 ? 'text-[#53b991]' : 'text-[#de5569]'
-                                    }`}>
-                                        {formatUSD(tx.amount)}
-                                    </div>
-                                </div>
-                            ))}
+                                ))
+                            )}
                         </div>
                     </div>
                 </div>
