@@ -77,6 +77,97 @@ export function CreateCommunityDialog({ onSubmit }: CreateCommunityDialogProps) 
         }
     };
 
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (step < 3) {
+            setStep(step + 1);
+            return;
+        }
+
+        setIsSubmitting(true);
+        try {
+            // 辅助函数：确保 URL 格式正确
+            const ensureValidUrl = (url: string | undefined) => {
+                if (!url) return undefined;
+                if (url.startsWith('http://') || url.startsWith('https://')) {
+                    return url;
+                }
+                return `https://${url}`;
+            };
+
+            // 构建 API 请求体
+            const requestBody = {
+                name: data.name,
+                description: data.description || "这是一个新的社区",
+                avatarUrl: data.avatar,
+                creatorWalletAddress: data.creatorWallet || "13123",
+                isPrivate: false,
+                website: ensureValidUrl(data.website),
+                twitter: ensureValidUrl(data.twitter?.replace('@', 'twitter.com/')),
+                telegram: ensureValidUrl(data.telegram?.replace('@', 't.me/')),
+                discord: ensureValidUrl(data.discord?.replace('discord.gg/', 'discord.com/invite/')),
+                ca: data.contractAddress,
+                cto: data.ctos.map(cto => ({
+                    ctotweethandle: cto.tweetHandle,
+                    ctotwitter: ensureValidUrl(`twitter.com/${cto.tweetHandle.replace('@', '')}`),
+                    isAi: false
+                })),
+                communityStory: {
+                    title: data.title,
+                    slogan: data.slogan,
+                    description: data.description,
+                    questionAndAnswer: data.qas.map(qa => ({
+                        question: qa.question,
+                        answer: qa.answers
+                    }))
+                }
+            };
+
+            console.log("Submitting data:", requestBody);
+
+            const response = await fetch("/api/rooms", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(requestBody)
+            });
+
+            const result = await response.json();
+
+            if (!response.ok) {
+                throw new Error(result.details || result.error || "创建社区失败");
+            }
+
+            if (result.success) {
+                setOpen(false);
+                setData({
+                    name: '',
+                    avatar: null,
+                    creatorWallet: '',
+                    contractAddress: '',
+                    ctos: [{ tweetName: '', tweetHandle: '' }],
+                    qas: [{ question: '', answers: [''] }],
+                    title: '',
+                    slogan: '',
+                    description: ''
+                });
+                setStep(1);
+
+                if (onSubmit) {
+                    await onSubmit(data);
+                }
+            } else {
+                throw new Error(result.message || "创建社区失败");
+            }
+        } catch (error) {
+            console.error('创建社区失败:', error);
+            // 这里可以添加错误提示UI
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
     return (
         <Dialog open={open} onOpenChange={handleOpenChange}>
             <DialogTrigger asChild>
@@ -95,22 +186,7 @@ export function CreateCommunityDialog({ onSubmit }: CreateCommunityDialogProps) 
                     </DialogTitle>
                 </DialogHeader>
 
-                <form onSubmit={async (e) => {
-                    e.preventDefault();
-                    if (step < 3) {
-                        setStep(step + 1);
-                        return;
-                    }
-                    setIsSubmitting(true);
-                    try {
-                        await onSubmit?.(data);
-                        setOpen(false);
-                    } catch (error) {
-                        console.error('提交失败:', error);
-                    } finally {
-                        setIsSubmitting(false);
-                    }
-                }} className="space-y-6">
+                <form onSubmit={handleSubmit} className="space-y-6">
                     <AnimatePresence mode="wait">
                         <motion.div
                             key={step}
