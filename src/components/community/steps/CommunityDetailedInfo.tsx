@@ -43,7 +43,7 @@ export function CommunityDetailedInfo({ data, onChange }: CommunityDetailedInfoP
                 <div className="space-y-2">
                     <label className="text-sm font-medium text-gray-300">网站</label>
                     <Input
-                        value={data.website}
+                        value={data.website || ''}
                         onChange={(e) => onChange('website', e.target.value)}
                         placeholder="https://example.com"
                         className="bg-[#2f2f2f] border-[#53b991]/30 focus:border-[#53b991] text-white"
@@ -54,7 +54,7 @@ export function CommunityDetailedInfo({ data, onChange }: CommunityDetailedInfoP
                 <div className="space-y-2">
                     <label className="text-sm font-medium text-gray-300">Twitter</label>
                     <Input
-                        value={data.twitter}
+                        value={data.twitter || ''}
                         onChange={(e) => onChange('twitter', e.target.value)}
                         placeholder="https://twitter.com/username"
                         className="bg-[#2f2f2f] border-[#53b991]/30 focus:border-[#53b991] text-white"
@@ -65,7 +65,7 @@ export function CommunityDetailedInfo({ data, onChange }: CommunityDetailedInfoP
                 <div className="space-y-2">
                     <label className="text-sm font-medium text-gray-300">Telegram</label>
                     <Input
-                        value={data.telegram}
+                        value={data.telegram || ''}
                         onChange={(e) => onChange('telegram', e.target.value)}
                         placeholder="https://t.me/groupname"
                         className="bg-[#2f2f2f] border-[#53b991]/30 focus:border-[#53b991] text-white"
@@ -76,7 +76,7 @@ export function CommunityDetailedInfo({ data, onChange }: CommunityDetailedInfoP
                 <div className="space-y-2">
                     <label className="text-sm font-medium text-gray-300">Discord</label>
                     <Input
-                        value={data.discord}
+                        value={data.discord || ''}
                         onChange={(e) => onChange('discord', e.target.value)}
                         placeholder="https://discord.gg/invite-code"
                         className="bg-[#2f2f2f] border-[#53b991]/30 focus:border-[#53b991] text-white"
