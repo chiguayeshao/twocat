@@ -20,23 +20,23 @@ interface CommunityStoryProps {
 
 export function CommunityStory({ data, onChange }: CommunityStoryProps) {
     const addQA = () => {
-        onChange('qas', [...data.qas, { question: '', answers: [''] }]);
+        onChange('communityStory.qas', [...data.qas, { question: '', answers: [''] }]);
     };
 
     const removeQA = (qaIndex: number) => {
-        onChange('qas', data.qas.filter((_, i) => i !== qaIndex));
+        onChange('communityStory.qas', data.qas.filter((_, i) => i !== qaIndex));
     };
 
     const addAnswer = (qaIndex: number) => {
         const newQAs = [...data.qas];
         newQAs[qaIndex].answers.push('');
-        onChange('qas', newQAs);
+        onChange('communityStory.qas', newQAs);
     };
 
     const removeAnswer = (qaIndex: number, answerIndex: number) => {
         const newQAs = [...data.qas];
         newQAs[qaIndex].answers = newQAs[qaIndex].answers.filter((_, i) => i !== answerIndex);
-        onChange('qas', newQAs);
+        onChange('communityStory.qas', newQAs);
     };
 
     return (
@@ -45,7 +45,7 @@ export function CommunityStory({ data, onChange }: CommunityStoryProps) {
                 <label className="text-sm font-medium text-gray-300">社区标题</label>
                 <Input
                     value={data.title}
-                    onChange={(e) => onChange('title', e.target.value)}
+                    onChange={(e) => onChange('communityStory.title', e.target.value)}
                     placeholder="输入社区标题"
                     className="bg-[#2f2f2f] border-[#53b991]/30 focus:border-[#53b991] text-white"
                 />
@@ -55,7 +55,7 @@ export function CommunityStory({ data, onChange }: CommunityStoryProps) {
                 <label className="text-sm font-medium text-gray-300">社区标语</label>
                 <Input
                     value={data.slogan}
-                    onChange={(e) => onChange('slogan', e.target.value)}
+                    onChange={(e) => onChange('communityStory.slogan', e.target.value)}
                     placeholder="输入社区标语"
                     className="bg-[#2f2f2f] border-[#53b991]/30 focus:border-[#53b991] text-white"
                 />
@@ -65,7 +65,7 @@ export function CommunityStory({ data, onChange }: CommunityStoryProps) {
                 <label className="text-sm font-medium text-gray-300">社区描述</label>
                 <Textarea
                     value={data.description}
-                    onChange={(e) => onChange('description', e.target.value)}
+                    onChange={(e) => onChange('communityStory.description', e.target.value)}
                     placeholder="输入社区描述"
                     className="bg-[#2f2f2f] border-[#53b991]/30 focus:border-[#53b991] text-white"
                 />
@@ -93,7 +93,7 @@ export function CommunityStory({ data, onChange }: CommunityStoryProps) {
                                     onChange={(e) => {
                                         const newQAs = [...data.qas];
                                         newQAs[qaIndex].question = e.target.value;
-                                        onChange('qas', newQAs);
+                                        onChange('communityStory.qas', newQAs);
                                     }}
                                     placeholder="输入问题"
                                     className="bg-[#2f2f2f] border-[#53b991]/30 focus:border-[#53b991] text-white"
@@ -115,7 +115,7 @@ export function CommunityStory({ data, onChange }: CommunityStoryProps) {
                                             onChange={(e) => {
                                                 const newQAs = [...data.qas];
                                                 newQAs[qaIndex].answers[answerIndex] = e.target.value;
-                                                onChange('qas', newQAs);
+                                                onChange('communityStory.qas', newQAs);
                                             }}
                                             placeholder="输入答案"
                                             className="bg-[#2f2f2f] border-[#53b991]/30 focus:border-[#53b991] text-white"
