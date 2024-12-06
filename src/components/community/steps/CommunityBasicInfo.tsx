@@ -1,7 +1,8 @@
 'use client';
 
 import { Input } from '@/components/ui/input';
-import { UnifiedWalletButton } from '@jup-ag/wallet-adapter';
+import { useToast } from '@/hooks/use-toast';
+import { UnifiedWalletButton, useWallet } from '@jup-ag/wallet-adapter';
 import { Upload } from 'lucide-react';
 import Image from 'next/image';
 import { useState } from 'react';
@@ -18,6 +19,7 @@ interface CommunityBasicInfoProps {
 
 export function CommunityBasicInfo({ data, onChange }: CommunityBasicInfoProps) {
     const [uploading, setUploading] = useState(false);
+    const { connected, publicKey } = useWallet();
 
     const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -92,10 +94,9 @@ export function CommunityBasicInfo({ data, onChange }: CommunityBasicInfoProps) 
 
             <div className="space-y-2">
                 <label className="text-sm font-medium text-gray-300">创建者钱包地址</label>
-                {/* <UnifiedWalletButton
-                    onConnect={(address) => onChange('creatorWallet', address)}
-                    className="bg-[#2f2f2f] border-[#53b991]/30 focus:border-[#53b991] text-white"
-                /> */}
+                <div className="p-3 bg-[#2f2f2f] rounded-lg border border-[#53b991]/30 text-gray-300">
+                    {publicKey?.toString()}
+                </div>
             </div>
         </div>
     );

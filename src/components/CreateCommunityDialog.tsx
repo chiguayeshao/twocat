@@ -8,6 +8,7 @@ import { CommunityBasicInfo } from './community/steps/CommunityBasicInfo';
 import { CommunityDetailedInfo } from './community/steps/CommunityDetailedInfo';
 import { CommunityStory } from './community/steps/CommunityStory';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useWallet, UnifiedWalletButton } from '@jup-ag/wallet-adapter';
 
 export interface CommunityData {
     name: string;
@@ -36,6 +37,7 @@ interface CreateCommunityDialogProps {
 }
 
 export function CreateCommunityDialog({ onSubmit }: CreateCommunityDialogProps) {
+    const { connected, publicKey } = useWallet();
     const [step, setStep] = useState(1);
     const [data, setData] = useState<CommunityData>({
         name: '',
@@ -79,6 +81,12 @@ export function CreateCommunityDialog({ onSubmit }: CreateCommunityDialogProps) 
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        if (!connected || !publicKey) {
+            console.error('钱包未连接');
+            // 这里可以添加错误提示UI
+            return;
+        }
+
         if (step < 3) {
             setStep(step + 1);
             return;
@@ -100,7 +108,7 @@ export function CreateCommunityDialog({ onSubmit }: CreateCommunityDialogProps) 
                 name: data.name,
                 description: data.description || "这是一个新的社区",
                 avatarUrl: data.avatar,
-                creatorWalletAddress: data.creatorWallet || "13123",
+                creatorWalletAddress: publicKey.toString(),
                 isPrivate: false,
                 website: ensureValidUrl(data.website),
                 twitter: ensureValidUrl(data.twitter?.replace('@', 'twitter.com/')),
@@ -168,13 +176,38 @@ export function CreateCommunityDialog({ onSubmit }: CreateCommunityDialogProps) 
         }
     };
 
+    // 处理点击创建社区按钮
+    const handleCreateClick = () => {
+        if (connected && publicKey) {
+            setOpen(true);
+        }
+    };
+
     return (
         <Dialog open={open} onOpenChange={handleOpenChange}>
             <DialogTrigger asChild>
-                <Button className="bg-gradient-to-r from-[#53b991] to-[#9ad499] hover:opacity-90 transition-opacity">
-                    <Sparkles className="w-4 h-4 mr-2" />
-                    创建社区
-                </Button>
+                {connected ? (
+                    <Button
+                        onClick={handleCreateClick}
+                        className="bg-gradient-to-r from-[#53b991] to-[#9ad499] hover:opacity-90 transition-opacity"
+                    >
+                        <Sparkles className="w-4 h-4 mr-2" />
+                        创建社区
+                    </Button>
+                ) : (
+                    <UnifiedWalletButton
+                        buttonClassName="bg-gradient-to-r from-[#53b991] to-[#9ad499] hover:opacity-90 transition-opacity rounded-lg"
+                        overrideContent={
+                            <Button
+                                className="bg-transparent hover:bg-transparent flex items-center"
+                                type="button"
+                            >
+                                <Sparkles className="w-4 h-4 mr-2" />
+                                链接钱包创建社区
+                            </Button>
+                        }
+                    />
+                )}
             </DialogTrigger>
             <DialogContent className="sm:max-w-[600px] bg-[#2f2f2f] border-[#53b991]/20">
                 <DialogHeader>
@@ -215,7 +248,7 @@ export function CreateCommunityDialog({ onSubmit }: CreateCommunityDialogProps) 
                         <Button
                             type="submit"
                             className="ml-auto bg-gradient-to-r from-[#53b991] to-[#9ad499] hover:opacity-90 transition-opacity"
-                            disabled={isSubmitting}
+                            disabled={isSubmitting || !connected}
                         >
                             {isSubmitting ? (
                                 '提交中...'
