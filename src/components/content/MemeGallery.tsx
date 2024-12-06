@@ -87,9 +87,26 @@ export function MemeGallery({ roomId }: { roomId: string }) {
         }
 
         try {
-            // TODO: 实现文件上传API，返回图片URL
-            const imageUrl = "https://twocat-room-avatars.s3.ap-southeast-1.amazonaws.com/room-avatars/1732023482786-twocatlogo.jpg";
+            const formData = new FormData();
+            formData.append("file", file);
+
+            // 使用新的图片上传 API
+            const uploadResponse = await fetch('/api/upload/image', {
+                method: 'POST',
+                body: formData
+            });
+
+            if (!uploadResponse.ok) {
+                throw new Error('Failed to upload image');
+            }
+
+            const uploadResult = await uploadResponse.json();
             
+            if (!uploadResult.success) {
+                throw new Error(uploadResult.message || 'Failed to upload image');
+            }
+
+            // 使用返回的图片 URL 创建社区图片
             const response = await fetch(`/api/rooms/community-images?roomId=${roomId}`, {
                 method: 'POST',
                 headers: {
@@ -97,7 +114,7 @@ export function MemeGallery({ roomId }: { roomId: string }) {
                 },
                 body: JSON.stringify({
                     creator: publicKey.toString(),
-                    imageLink: imageUrl
+                    imageLink: uploadResult.data.url
                 })
             });
 
