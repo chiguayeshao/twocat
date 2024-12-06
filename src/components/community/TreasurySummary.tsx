@@ -93,9 +93,9 @@ export function TreasurySummary({
 
     // 格式化金额为美元字符串
     const formatUSD = (amount: number) => {
-        return `$${amount.toLocaleString('en-US', { 
+        return `$${amount.toLocaleString('en-US', {
             minimumFractionDigits: 2,
-            maximumFractionDigits: 2 
+            maximumFractionDigits: 2
         })}`;
     };
 
@@ -136,45 +136,77 @@ export function TreasurySummary({
 
                         {/* 金库余额和数据 */}
                         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4">
-                            <div className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-pink-400">
-                                {formatUSD(treasury.treasuryBalance)}
-                            </div>
-                            <div className="flex flex-col sm:flex-row sm:space-x-8 mt-4 sm:mt-0">
-                                <div>
-                                    <div className="text-white/60 text-sm">日交易量</div>
-                                    <div className="text-[#53b991] font-bold">{formatUSD(treasury.dailyVolume)}</div>
+                            <div className="flex items-center gap-2">
+                                <div className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-[#53b991] to-[#9ad499]">
+                                    {(treasury.treasuryBalance + communityLevel.currentDonationVolume).toLocaleString('en-US', {
+                                        minimumFractionDigits: 2,
+                                        maximumFractionDigits: 2
+                                    })}
                                 </div>
-                                <div className="mt-2 sm:mt-0">
-                                    <div className="text-white/60 text-sm">本周收入</div>
-                                    <div className="text-[#53b991] font-bold">{formatUSD(treasury.weeklyProfit)}</div>
+                                <div className="text-xl font-bold text-white/60">
+                                    SOL
                                 </div>
+                                <span className="text-2xl">🚀</span>
                             </div>
                         </div>
 
                         {/* 金库说明 */}
-                        <div className="mt-4 p-4 bg-white/10 rounded-lg">
-                            <div className="text-sm text-white/90 mb-2">
-                                💰 每笔交易 4.20% 手续费自动存入金库，用于：
+                        <motion.div
+                            className="mt-4 p-4 bg-[#313338]/50 rounded-xl border border-white/10 hover:border-[#53b991]/50 transition-all relative group overflow-hidden"
+                            whileHover={{ scale: 1.01 }}
+                        >
+                            {/* 渐变背景效果 */}
+                            <div className="absolute inset-0 bg-gradient-to-r from-[#53b991]/5 via-purple-500/5 to-[#53b991]/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+
+                            {/* 标题部分 */}
+                            <div className="text-sm font-medium text-white/90 mb-3 relative">
+                                <span className="text-lg mr-2">💰</span>
+                                社区成员每笔交易手续费的
+                                <span className="mx-1 font-bold text-[#53b991]">
+                                    {treasury.rebateRate * 100}%
+                                </span>
+                                自动存入社区金库，用于：
                             </div>
-                            <div className="grid grid-cols-2 gap-2 text-xs text-white/70">
-                                <div className="flex items-center gap-2">
-                                    <span>🎁</span>
-                                    <span>社区活动奖励</span>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                    <span>📢</span>
-                                    <span>市场营销推广</span>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                    <span>🏗️</span>
-                                    <span>社区建设维护</span>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                    <span>💧</span>
-                                    <span>流动性支持</span>
-                                </div>
+
+                            {/* 用途列表 */}
+                            <div className="grid grid-cols-2 gap-3 relative">
+                                <motion.div
+                                    className="flex items-center gap-2 p-2 rounded-lg bg-[#2f2f2f]/80 border border-white/5 hover:border-[#53b991]/30 transition-all"
+                                    whileHover={{ scale: 1.02, x: 5 }}
+                                >
+                                    <span className="text-xl">🎁</span>
+                                    <span className="text-sm text-white/80 font-medium">Token回购</span>
+                                </motion.div>
+
+                                <motion.div
+                                    className="flex items-center gap-2 p-2 rounded-lg bg-[#2f2f2f]/80 border border-white/5 hover:border-[#53b991]/30 transition-all"
+                                    whileHover={{ scale: 1.02, x: 5 }}
+                                >
+                                    <span className="text-xl">🤖</span>
+                                    <span className="text-sm text-white/80 font-medium">AI agent 权限</span>
+                                </motion.div>
+
+                                <motion.div
+                                    className="flex items-center gap-2 p-2 rounded-lg bg-[#2f2f2f]/80 border border-white/5 hover:border-[#53b991]/30 transition-all"
+                                    whileHover={{ scale: 1.02, x: 5 }}
+                                >
+                                    <span className="text-xl">🎯</span>
+                                    <span className="text-sm text-white/80 font-medium">社区成员激励</span>
+                                </motion.div>
+
+                                <motion.div
+                                    className="flex items-center gap-2 p-2 rounded-lg bg-[#2f2f2f]/80 border border-white/5 hover:border-[#53b991]/30 transition-all"
+                                    whileHover={{ scale: 1.02, x: 5 }}
+                                >
+                                    <span className="text-xl">🚀</span>
+                                    <span className="text-sm text-white/80 font-medium">社区营销活动</span>
+                                </motion.div>
                             </div>
-                        </div>
+
+                            {/* 装饰性光晕效果 */}
+                            <div className="absolute top-0 right-0 w-32 h-32 bg-[#53b991]/5 rounded-full blur-2xl -z-10" />
+                            <div className="absolute bottom-0 left-0 w-24 h-24 bg-purple-500/5 rounded-full blur-xl -z-10" />
+                        </motion.div>
                     </div>
 
                     {/* 社区等级部分 */}
@@ -220,7 +252,7 @@ export function TreasurySummary({
                         <div className="mb-6">
                             <div className="flex items-center justify-between">
                                 <div className="text-white/70 text-sm">返佣比例</div>
-                                <div className="text-[#53b991] font-bold">{treasury.rebateRate}%</div>
+                                <div className="text-[#53b991] font-bold">{treasury.rebateRate * 100}%</div>
                             </div>
                             <div className="flex items-center justify-between mt-2">
                                 <div className="text-white/70 text-sm">当前等级</div>
@@ -285,19 +317,18 @@ export function TreasurySummary({
                                     >
                                         <div>
                                             <div className="text-sm text-white/90">
-                                                {tx.type === 'donation' ? '社区捐赠' : 
-                                                 tx.type === 'tradeRebate' ? '交易返佣' :
-                                                 tx.type === 'communityAirdrop' ? '社区空投' :
-                                                 tx.type === 'tokenBuyback' ? '代币回购' :
-                                                 tx.type === 'aiUsage' ? 'AI使用' : '未知类型'}
+                                                {tx.type === 'donation' ? '社区捐赠' :
+                                                    tx.type === 'tradeRebate' ? '交易返佣' :
+                                                        tx.type === 'communityAirdrop' ? '社区空投' :
+                                                            tx.type === 'tokenBuyback' ? '代币回购' :
+                                                                tx.type === 'aiUsage' ? 'AI使用' : '未知类型'}
                                             </div>
                                             <div className="text-xs text-white/60">
                                                 {new Date(tx.timestamp).toLocaleString()}
                                             </div>
                                         </div>
-                                        <div className={`font-mono font-bold ${
-                                            tx.amount >= 0 ? 'text-[#53b991]' : 'text-[#de5569]'
-                                        }`}>
+                                        <div className={`font-mono font-bold ${tx.amount >= 0 ? 'text-[#53b991]' : 'text-[#de5569]'
+                                            }`}>
                                             {formatUSD(tx.amount)}
                                         </div>
                                     </div>
