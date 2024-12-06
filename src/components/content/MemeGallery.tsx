@@ -117,6 +117,7 @@ export function MemeGallery({ roomId }: { roomId: string }) {
                 toast({
                     title: "上传成功",
                     description: "图片已成功添加到社区",
+                    variant: "success",
                 });
                 setIsUploadModalOpen(false);
             }
