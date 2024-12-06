@@ -78,37 +78,6 @@ export function CommunityHome({ roomId, room, treasury, communityLevel, onTreasu
                         onUpdate={onTreasuryUpdate}
                     />
                 </div>
-
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="mt-6 sm:mt-12 grid grid-cols-2 lg:grid-cols-4 gap-4"
-                >
-                    <StatsCard
-                        title="持有人数"
-                        value={mockStats.holders.toLocaleString()}
-                        icon="🦍"
-                        change="+12.5%"
-                    />
-                    <StatsCard
-                        title="市值"
-                        value={`$${mockStats.marketValue}M`}
-                        icon="💎"
-                        change="+8.3%"
-                    />
-                    <StatsCard
-                        title="交易量"
-                        value={`$${mockStats.volume}K`}
-                        icon="📊"
-                        change="+15.7%"
-                    />
-                    <StatsCard
-                        title="流动性"
-                        value={`$${mockStats.liquidity}K`}
-                        icon="💧"
-                        change="+5.2%"
-                    />
-                </motion.div>
             </div>
         </div>
     );
