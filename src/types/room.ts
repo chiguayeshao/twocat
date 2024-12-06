@@ -52,6 +52,7 @@ export interface CTO {
 }
 
 export interface Room {
+  communityStory: any;
   ca?: string;
   _id: string;
   roomName: string;

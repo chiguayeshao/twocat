@@ -57,13 +57,14 @@ export function CommunityHome({ roomId, room, treasury, communityLevel, onTreasu
 
                 <div className="mt-6 sm:mt-12">
                     <CommunityStory
-                        title={`${room.roomName} 的故事`}
-                        description={room.description}
-                        stories={room.stories || [
+                        title={room.roomName}
+                        slogan={room.communityStory?.slogan || ""}
+                        description={room.communityStory?.description || ""}
+                        questionAndAnswer={room.communityStory?.questionAndAnswer || [
                             {
-                                emoji: "😺",
-                                title: "社区的诞生",
-                                content: room.description
+                                question: "社区的诞生",
+                                answer: [room.description],
+                                _id: "default"
                             }
                         ]}
                     />
