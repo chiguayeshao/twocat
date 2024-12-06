@@ -27,9 +27,8 @@ export function CommunityBasicInfo({ data, onChange }: CommunityBasicInfoProps) 
                 // 模拟 API 调用，返回固定的 URL
                 const mockUrl = 'https://twocat-room-avatars.s3.ap-southeast-1.amazonaws.com/room-avatars/1732023482786-twocatlogo.jpg';
 
-                // 更新头像和预览
+                // 只更新头像 URL
                 onChange('avatar', mockUrl);
-                onChange('avatarFile', file);
             } catch (error) {
                 console.error('上传失败:', error);
             } finally {

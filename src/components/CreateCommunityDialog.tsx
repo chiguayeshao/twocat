@@ -12,7 +12,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 export interface CommunityData {
     name: string;
     avatar: string | null;
-    avatarFile: File | null;
     creatorWallet: string;
     website?: string;
     twitter?: string;
@@ -41,7 +40,6 @@ export function CreateCommunityDialog({ onSubmit }: CreateCommunityDialogProps) 
     const [data, setData] = useState<CommunityData>({
         name: '',
         avatar: null,
-        avatarFile: null,
         creatorWallet: '',
         contractAddress: '',
         ctos: [{ tweetName: '', tweetHandle: '' }],
@@ -68,7 +66,6 @@ export function CreateCommunityDialog({ onSubmit }: CreateCommunityDialogProps) 
             setData({
                 name: '',
                 avatar: null,
-                avatarFile: null,
                 creatorWallet: '',
                 contractAddress: '',
                 ctos: [{ tweetName: '', tweetHandle: '' }],
