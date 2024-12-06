@@ -2,9 +2,10 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Switch } from "@/components/ui/switch";
-import { PlusCircle, Sparkles, Languages, Plus } from 'lucide-react';
+import { PlusCircle, Sparkles, Languages, Plus, Wand2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useWallet } from '@solana/wallet-adapter-react';
+import { Button } from "@/components/ui/button";
 
 interface TweetComposerProps {
     onAddTweet: (content: string, publicKey: string) => void;
@@ -18,6 +19,7 @@ export function TweetComposer({ onAddTweet, defaultLanguage = 'zh' }: TweetCompo
     const [useAI, setUseAI] = useState<boolean>(false);
     const [language, setLanguage] = useState<'zh' | 'en'>(defaultLanguage);
     const [open, setOpen] = useState(false);
+    const [isGenerating, setIsGenerating] = useState(false);
 
     useEffect(() => {
         setLanguage(defaultLanguage);
@@ -42,6 +44,30 @@ export function TweetComposer({ onAddTweet, defaultLanguage = 'zh' }: TweetCompo
                 description: language === 'zh' ? "你的推文已成功发布" : "你的推文已成功发布",
                 variant: "success",
             });
+        }
+    };
+
+    const generateTweet = async () => {
+        setIsGenerating(true);
+        try {
+            const response = await fetch(`/api/AIAgents/generate?language=${language}`, {
+                method: 'POST',
+            });
+            
+            if (!response.ok) {
+                throw new Error('生成失败');
+            }
+            
+            const data = await response.json();
+            setNewTweet(data.content);
+        } catch (error) {
+            toast({
+                title: language === 'zh' ? "生成失败" : "Generation failed",
+                description: language === 'zh' ? "请稍后重试" : "Please try again later", 
+                variant: "destructive",
+            });
+        } finally {
+            setIsGenerating(false);
         }
     };
 
@@ -120,22 +146,50 @@ export function TweetComposer({ onAddTweet, defaultLanguage = 'zh' }: TweetCompo
                             className="w-full p-4 rounded-lg bg-white/5 border border-white/10 
                                      text-white/90 placeholder-white/40
                                      focus:outline-none focus:ring-2 focus:ring-[#53b991]/50
-                                     transition-all duration-200"
+                                     transition-all duration-200
+                                     disabled:opacity-50 disabled:cursor-not-allowed"
                             rows={6}
+                            disabled={isGenerating}
                         />
+                        
+                        {/* 按钮组 */}
+                        <div className="flex gap-3">
+                            {/* AI 生成按钮 */}
+                            {useAI && (
+                                <motion.button
+                                    whileHover={{ scale: isGenerating ? 1 : 1.02 }}
+                                    whileTap={{ scale: isGenerating ? 1 : 0.98 }}
+                                    onClick={generateTweet}
+                                    disabled={isGenerating}
+                                    className="flex-1 py-2.5 rounded-lg flex items-center justify-center
+                                             bg-[#53b991]/20 hover:bg-[#53b991]/30 
+                                             text-[#53b991] border border-[#53b991]/30
+                                             font-medium transition-all duration-300
+                                             disabled:opacity-50 disabled:cursor-not-allowed
+                                             disabled:hover:bg-[#53b991]/20"
+                                >
+                                    <Wand2 className="h-4 w-4 mr-2" />
+                                    {isGenerating ? "生成中..." : "AI 生成"}
+                                </motion.button>
+                            )}
 
-                        <motion.button
-                            whileHover={{ scale: 1.02 }}
-                            whileTap={{ scale: 0.98 }}
-                            onClick={handleAddTweet}
-                            className="w-full py-2.5 rounded-lg
-                                     bg-gradient-to-r from-[#53b991] to-[#53b991]/90
-                                     text-white font-medium
-                                     transition-all duration-300
-                                     hover:from-[#53b991]/90 hover:to-[#53b991]/80"
-                        >
-                            发布推文
-                        </motion.button>
+                            {/* 发布按钮 */}
+                            <motion.button
+                                whileHover={{ scale: isGenerating ? 1 : 1.02 }}
+                                whileTap={{ scale: isGenerating ? 1 : 0.98 }}
+                                onClick={handleAddTweet}
+                                disabled={isGenerating}
+                                className="flex-1 py-2.5 rounded-lg
+                                         bg-gradient-to-r from-[#53b991] to-[#53b991]/90
+                                         text-white font-medium
+                                         transition-all duration-300
+                                         hover:from-[#53b991]/90 hover:to-[#53b991]/80
+                                         disabled:opacity-50 disabled:cursor-not-allowed
+                                         disabled:hover:from-[#53b991] disabled:hover:to-[#53b991]/90"
+                            >
+                                发布推文
+                            </motion.button>
+                        </div>
                     </div>
                 </div>
             </DialogContent>
