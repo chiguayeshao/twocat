@@ -30,7 +30,7 @@ export function BaseLayout({ children, roomId }: BaseLayoutProps) {
   const [selectedWalletAddress, setSelectedWalletAddress] = useState<string | null>(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [activeContent, setActiveContent] = useState<ContentType>(ContentType.COMMUNITY_HOME);
-  
+
   const [room, setRoom] = useState<Room | null>(null);
   const [treasury, setTreasury] = useState<Treasury | null>(null);
   const [communityLevel, setCommunityLevel] = useState<CommunityLevel | null>(null);
@@ -49,6 +49,7 @@ export function BaseLayout({ children, roomId }: BaseLayoutProps) {
           setRoom(data.data.room);
           setTreasury(data.data.treasury);
           setCommunityLevel(data.data.communityLevel);
+          setSelectedTokenAddress(data.data.room.ca);
         }
       } catch (error) {
         console.error('Failed to load room info:', error);
@@ -174,11 +175,11 @@ export function BaseLayout({ children, roomId }: BaseLayoutProps) {
           </div>
         );
       case ContentType.COMMUNITY_HOME:
-        return <CommunityHome 
-          roomId={roomId} 
-          room={room} 
-          treasury={treasury} 
-          communityLevel={communityLevel} 
+        return <CommunityHome
+          roomId={roomId}
+          room={room}
+          treasury={treasury}
+          communityLevel={communityLevel}
           onTreasuryUpdate={handleTreasuryUpdate}
         />;
       case ContentType.CHINESE_TWEETS:
