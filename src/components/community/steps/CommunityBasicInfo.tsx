@@ -13,6 +13,7 @@ interface CommunityBasicInfoProps {
         avatar: string | null;
         avatarPreview?: string | null;
         creatorWallet: string;
+        description?: string;
     };
     onChange: (field: string, value: any) => void;
 }
@@ -119,16 +120,34 @@ export function CommunityBasicInfo({ data, onChange }: CommunityBasicInfoProps) 
             </div>
 
             <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-300">社区名称</label>
+                <label className="text-sm font-medium text-gray-300">
+                    社区名称
+                    <span className="text-red-500 ml-1">*</span>
+                </label>
                 <Input
                     value={data.name}
                     onChange={(e) => onChange('name', e.target.value)}
                     placeholder="输入社区名称"
-                    maxLength={50}
                     className="bg-[#2f2f2f] border-[#53b991]/30 focus:border-[#53b991] text-white"
                     required
                 />
-                <p className="text-xs text-gray-500">最多 50 个字符</p>
+            </div>
+
+            <div className="space-y-2">
+                <label className="text-sm font-medium text-gray-300">
+                    简短描述
+                    <span className="text-xs text-gray-400 ml-2">(可选)</span>
+                </label>
+                <textarea
+                    value={data.description}
+                    onChange={(e) => onChange('description', e.target.value)}
+                    placeholder="简短介绍你的社区（可选）"
+                    className="w-full p-3 rounded-lg bg-[#2f2f2f] border border-[#53b991]/30 
+                             text-white placeholder-gray-400
+                             focus:outline-none focus:border-[#53b991]
+                             transition-all duration-200"
+                    rows={3}
+                />
             </div>
 
             <div className="space-y-2">
