@@ -4,12 +4,17 @@ import { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Coins, Plus, Minus, Heart, Trophy, Users, Rocket } from 'lucide-react';
+import { useWallet, useConnection } from '@solana/wallet-adapter-react';
+import { LAMPORTS_PER_SOL, PublicKey, Transaction, SystemProgram } from '@solana/web3.js';
+import { UnifiedWalletButton } from '@jup-ag/wallet-adapter';
+import { useToast } from "@/hooks/use-toast"
 
 interface DonationDialogProps {
     isOpen: boolean;
     onClose: () => void;
     currentDonation: number;
     onDonate: (amount: number) => void;
+    roomId: string;
 }
 
 const PRESET_AMOUNTS = [0.5, 1, 2, 5, 20];
@@ -18,9 +23,14 @@ export function DonationDialog({
     isOpen,
     onClose,
     currentDonation,
-    onDonate
+    onDonate,
+    roomId
 }: DonationDialogProps) {
+    const { publicKey, sendTransaction, connected } = useWallet();
+    const { connection } = useConnection();
     const [amount, setAmount] = useState(0.1);
+    const [isProcessing, setIsProcessing] = useState(false);
+    const { toast } = useToast();
 
     const incrementAmount = () => {
         setAmount(prev => Number((prev + 0.1).toFixed(1)));
@@ -30,6 +40,88 @@ export function DonationDialog({
         if (amount > 0.1) {
             setAmount(prev => Number((prev - 0.1).toFixed(1)));
         }
+    };
+
+    const handleDonation = async () => {
+        if (!publicKey || !connected) {
+            toast({
+                title: "请先连接钱包",
+                description: "需要连接 Solana 钱包才能进行捐赠",
+                variant: "destructive",
+            });
+            return;
+        }
+
+        try {
+            setIsProcessing(true);
+
+            // 创建转账交易
+            const transaction = new Transaction().add(
+                SystemProgram.transfer({
+                    fromPubkey: publicKey,
+                    toPubkey: new PublicKey(process.env.NEXT_PUBLIC_DEVELOPER_ADDRESS!),
+                    lamports: amount * LAMPORTS_PER_SOL,
+                })
+            );
+
+            // 发送交易
+            const signature = await sendTransaction(transaction, connection);
+            
+            // 等待交易确认
+            await connection.confirmTransaction(signature, 'confirmed');
+
+            // 调用 API 更新捐赠金额
+            const response = await fetch(`/api/rooms/update-donation?roomId=${roomId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    donation: amount,
+                    userAddress: publicKey.toString(),
+                }),
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to update donation');
+            }
+
+            toast({
+                title: "捐赠成功",
+                description: `感谢您的 ${amount} SOL 捐赠`,
+                variant: "success",
+            });
+
+            onDonate(amount);
+            onClose();
+
+        } catch (error) {
+            console.error('Donation failed:', error);
+            toast({
+                title: "捐赠失败",
+                description: "请稍后重试",
+                variant: "destructive",
+            });
+        } finally {
+            setIsProcessing(false);
+        }
+    };
+
+    const renderDonateButton = () => {
+        if (!connected) {
+            return <UnifiedWalletButton />;
+        }
+
+        return (
+            <Button
+                className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white"
+                onClick={handleDonation}
+                disabled={isProcessing}
+            >
+                <Coins className="w-4 h-4 mr-2" />
+                {isProcessing ? "处理中..." : `确认捐赠 ${amount} SOL`}
+            </Button>
+        );
     };
 
     return (
@@ -119,13 +211,7 @@ export function DonationDialog({
                 </div>
 
                 {/* 捐赠按钮 */}
-                <Button
-                    className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white"
-                    onClick={() => onDonate(amount)}
-                >
-                    <Coins className="w-4 h-4 mr-2" />
-                    确认捐赠 {amount} SOL
-                </Button>
+                {renderDonateButton()}
             </DialogContent>
         </Dialog>
     );

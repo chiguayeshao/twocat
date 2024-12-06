@@ -28,6 +28,7 @@ interface TreasurySummaryProps {
     currentLevel: number;
     currentVolume: number;
     currentDonation: number;
+    roomId: string;
 }
 
 const defaultTransactions: TreasuryTransaction[] = [
@@ -100,7 +101,8 @@ export function TreasurySummary({
     recentTransactions = defaultTransactions,
     currentLevel = 1,
     currentVolume = 30,
-    currentDonation = 0.2
+    currentDonation = 0.2,
+    roomId
 }: TreasurySummaryProps) {
     const levels = [
         { level: 1, cashback: 20, volumeReq: 0, donationReq: 0, aiUsage: 10 },
@@ -343,6 +345,7 @@ export function TreasurySummary({
                 onClose={() => setIsDonationDialogOpen(false)}
                 currentDonation={currentDonation}
                 onDonate={handleDonate}
+                roomId={roomId}
             />
         </motion.div>
     );

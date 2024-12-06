@@ -167,6 +167,7 @@ export function CommunityHome({ roomId }: { roomId: string }) {
                         currentLevel={currentLevel}
                         currentVolume={currentVolume}
                         currentDonation={currentDonation}
+                        roomId={roomId}
                     />
                 </div>
 
