@@ -13,7 +13,7 @@ interface CommunityCardProps {
     twitter?: string;
     telegram?: string;
     discord?: string;
-    tokenAddress?: string;
+    ca?: string;
     imageError: boolean;
 }
 
@@ -24,7 +24,7 @@ export function CommunityCard({
     twitter,
     telegram,
     discord,
-    tokenAddress,
+    ca,
     imageError
 }: CommunityCardProps) {
     // 进一步减小倾斜效果的幅度
@@ -46,8 +46,8 @@ export function CommunityCard({
     const [copied, setCopied] = useState(false);
 
     const handleCopy = () => {
-        if (tokenAddress) {
-            navigator.clipboard.writeText(tokenAddress);
+        if (ca) {
+            navigator.clipboard.writeText(ca);
             setCopied(true);
             setTimeout(() => setCopied(false), 2000);
         }
@@ -64,7 +64,8 @@ export function CommunityCard({
             onMouseLeave={() => api.start({ xys: [0, 0, 1] })}
             style={{
                 transform: to(springs.xys, trans),
-                background: 'linear-gradient(135deg, rgba(83,185,145,0.15) 0%, rgba(83,185,145,0.05) 100%)'
+                background: 'linear-gradient(135deg, rgba(83,185,145,0.15) 0%, rgba(83,185,145,0.05) 100%)',
+                height: 'calc(100% + 1px)'
             }}
             className="relative p-5 sm:p-6 rounded-2xl backdrop-blur-sm border border-white/10 shadow-xl"
         >
@@ -160,7 +161,7 @@ export function CommunityCard({
                         </motion.a>
                     )}
 
-                    {tokenAddress && (
+                    {ca && (
                         <motion.div
                             initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
@@ -172,7 +173,7 @@ export function CommunityCard({
                                 onClick={handleCopy}
                                 className="font-mono text-white/60 cursor-pointer hover:text-[#53b991] transition-colors truncate max-w-[200px] sm:max-w-none"
                             >
-                                {tokenAddress}
+                                {ca}
                             </span>
                             {copied && (
                                 <motion.span

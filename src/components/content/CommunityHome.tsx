@@ -41,7 +41,7 @@ export function CommunityHome({ roomId, room, treasury, communityLevel, onTreasu
                         twitter={room.twitter}
                         telegram={room.telegram}
                         discord={room.discord}
-                        tokenAddress={room.tokenAddress}
+                        ca={room.ca}
                         imageError={imageError}
                     />
 

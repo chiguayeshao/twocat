@@ -14,7 +14,7 @@ export interface AIPackage {
 }
 
 export interface TransactionHistory {
-  type: 'donation' | 'tradeRebate';
+  type: "donation" | "tradeRebate";
   amount: number;
   timestamp: number;
   userAddress: string;
@@ -52,6 +52,7 @@ export interface CTO {
 }
 
 export interface Room {
+  ca?: string;
   _id: string;
   roomName: string;
   description: string;
@@ -92,4 +93,4 @@ export interface RoomResponse {
     communityLevel: CommunityLevel;
   };
   message: string;
-} 
+}
