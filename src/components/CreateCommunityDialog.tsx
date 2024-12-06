@@ -107,32 +107,30 @@ export function CreateCommunityDialog({ onSubmit }: CreateCommunityDialogProps) 
 
         setIsSubmitting(true);
         try {
-            // 辅助函数：确保 URL 格式正确
             const ensureValidUrl = (url: string | undefined) => {
-                if (!url) return undefined;
+                if (!url) return "";
                 if (url.startsWith('http://') || url.startsWith('https://')) {
                     return url;
                 }
                 return `https://${url}`;
             };
 
-            // 构建 API 请求体
             const requestBody = {
                 name: data.name,
                 description: data.description || "这是一个新的社区",
                 avatarUrl: data.avatar,
                 creatorWalletAddress: publicKey.toString(),
                 isPrivate: false,
-                website: ensureValidUrl(data.website),
-                twitter: ensureValidUrl(data.twitter?.replace('@', 'twitter.com/')),
-                telegram: ensureValidUrl(data.telegram?.replace('@', 't.me/')),
-                discord: ensureValidUrl(data.discord?.replace('discord.gg/', 'discord.com/invite/')),
+                website: ensureValidUrl(data.website) || "",
+                twitter: ensureValidUrl(data.twitter) || "",
+                telegram: ensureValidUrl(data.telegram) || "",
+                discord: ensureValidUrl(data.discord) || "",
                 ca: data.contractAddress,
                 cto: data.ctos.map(cto => ({
+                    ctoname: cto.tweetName,
                     ctotweethandle: cto.tweetHandle,
-                    ctotwitter: ensureValidUrl(`twitter.com/${cto.tweetHandle.replace('@', '')}`),
                     isAi: false
-                })),
+                })).filter(cto => cto.ctotweethandle && cto.ctoname),
                 communityStory: {
                     title: data.title,
                     slogan: data.slogan,
@@ -199,7 +197,6 @@ export function CreateCommunityDialog({ onSubmit }: CreateCommunityDialogProps) 
         }
     };
 
-    // 处理点击创建社区按钮
     const handleCreateClick = () => {
         if (connected && publicKey) {
             setOpen(true);

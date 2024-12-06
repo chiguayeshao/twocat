@@ -22,11 +22,17 @@ interface CommunityDetailedInfoProps {
 export function CommunityDetailedInfo({ data, onChange }: CommunityDetailedInfoProps) {
     const addCTO = () => {
         if (data.ctos.length >= 5) return;
-        onChange('ctos', [...data.ctos, { tweetName: '', tweetHandle: '', twitter: '' }]);
+        onChange('ctos', [...data.ctos, { tweetName: '', tweetHandle: '' }]);
     };
 
     const removeCTO = (index: number) => {
         onChange('ctos', data.ctos.filter((_, i) => i !== index));
+    };
+
+    const handleTwitterHandleChange = (index: number, value: string) => {
+        const newCTOs = [...data.ctos];
+        newCTOs[index].tweetHandle = value.startsWith('@') ? value : `@${value}`;
+        onChange('ctos', newCTOs);
     };
 
     return (
@@ -39,7 +45,7 @@ export function CommunityDetailedInfo({ data, onChange }: CommunityDetailedInfoP
                     <Input
                         value={data.website}
                         onChange={(e) => onChange('website', e.target.value)}
-                        placeholder="输入网站 URL"
+                        placeholder="https://example.com"
                         className="bg-[#2f2f2f] border-[#53b991]/30 focus:border-[#53b991] text-white"
                     />
                 </div>
@@ -50,7 +56,7 @@ export function CommunityDetailedInfo({ data, onChange }: CommunityDetailedInfoP
                     <Input
                         value={data.twitter}
                         onChange={(e) => onChange('twitter', e.target.value)}
-                        placeholder="输入 Twitter URL"
+                        placeholder="https://twitter.com/username"
                         className="bg-[#2f2f2f] border-[#53b991]/30 focus:border-[#53b991] text-white"
                     />
                 </div>
@@ -61,7 +67,7 @@ export function CommunityDetailedInfo({ data, onChange }: CommunityDetailedInfoP
                     <Input
                         value={data.telegram}
                         onChange={(e) => onChange('telegram', e.target.value)}
-                        placeholder="输入 Telegram URL"
+                        placeholder="https://t.me/groupname"
                         className="bg-[#2f2f2f] border-[#53b991]/30 focus:border-[#53b991] text-white"
                     />
                 </div>
@@ -72,23 +78,23 @@ export function CommunityDetailedInfo({ data, onChange }: CommunityDetailedInfoP
                     <Input
                         value={data.discord}
                         onChange={(e) => onChange('discord', e.target.value)}
-                        placeholder="输入 Discord URL"
+                        placeholder="https://discord.gg/invite-code"
                         className="bg-[#2f2f2f] border-[#53b991]/30 focus:border-[#53b991] text-white"
                     />
                 </div>
             </div>
 
-            {/* 合约地址 - 单独一行 */}
+            {/* Token合约地址 */}
             <div className="space-y-2">
                 <label className="text-sm font-medium text-gray-300">
-                    合约地址
+                    Token合约地址
                     <span className="text-red-500 ml-1">*</span>
                 </label>
                 <Input
                     value={data.contractAddress}
                     onChange={(e) => onChange('contractAddress', e.target.value)}
-                    placeholder="输入合约地址"
-                    className="bg-[#2f2f2f] border-[#53b991]/30 focus:border-[#53b991] text-white"
+                    placeholder="例如：HeLp6NuQkmYB4pYWo2zYs22mESHXPQYzXbB8n4V98jwC"
+                    className="bg-[#2f2f2f] border-[#53b991]/30 focus:border-[#53b991] text-white font-mono text-sm"
                     required
                 />
             </div>
@@ -123,13 +129,13 @@ export function CommunityDetailedInfo({ data, onChange }: CommunityDetailedInfoP
                                             <span className="text-red-500 ml-1">*</span>
                                         </label>
                                         <Input
-                                            value={cto.tweetHandle}
+                                            value={cto.tweetName}
                                             onChange={(e) => {
                                                 const newCTOs = [...data.ctos];
-                                                newCTOs[index].tweetHandle = e.target.value;
+                                                newCTOs[index].tweetName = e.target.value;
                                                 onChange('ctos', newCTOs);
                                             }}
-                                            placeholder="输入推特用户名"
+                                            placeholder="例如：John Doe"
                                             className="bg-[#2f2f2f] border-[#53b991]/30 focus:border-[#53b991] text-white"
                                             required
                                         />
@@ -139,17 +145,18 @@ export function CommunityDetailedInfo({ data, onChange }: CommunityDetailedInfoP
                                             推特 Handle
                                             <span className="text-red-500 ml-1">*</span>
                                         </label>
-                                        <Input
-                                            value={cto.tweetHandle}
-                                            onChange={(e) => {
-                                                const newCTOs = [...data.ctos];
-                                                newCTOs[index].tweetHandle = e.target.value;
-                                                onChange('ctos', newCTOs);
-                                            }}
-                                            placeholder="输入推特 Handle"
-                                            className="bg-[#2f2f2f] border-[#53b991]/30 focus:border-[#53b991] text-white"
-                                            required
-                                        />
+                                        <div className="relative">
+                                            <Input
+                                                value={cto.tweetHandle}
+                                                onChange={(e) => handleTwitterHandleChange(index, e.target.value)}
+                                                placeholder="johndoe"
+                                                className="bg-[#2f2f2f] border-[#53b991]/30 focus:border-[#53b991] text-white pl-7"
+                                                required
+                                            />
+                                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+                                                {!cto.tweetHandle && '@'}
+                                            </span>
+                                        </div>
                                     </div>
                                 </div>
                                 <Button
