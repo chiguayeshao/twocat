@@ -14,6 +14,11 @@ interface Meme {
     updatedAt: string;
 }
 
+interface TransactionHistory {
+    timestamp: number;
+    // Add any other necessary properties here
+}
+
 export function MemeGallery({ roomId }: { roomId: string }) {
     const { connected, publicKey } = useWallet();
     const { toast } = useToast();
@@ -24,6 +29,7 @@ export function MemeGallery({ roomId }: { roomId: string }) {
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [isUploading, setIsUploading] = useState(false);
+    const [transactions, setTransactions] = useState<TransactionHistory[]>([]);
 
     useEffect(() => {
         const fetchMemes = async () => {
@@ -46,6 +52,38 @@ export function MemeGallery({ roomId }: { roomId: string }) {
 
         fetchMemes();
     }, []);
+
+    useEffect(() => {
+        const fetchTransactionHistory = async () => {
+            try {
+                const response = await fetch(`/api/rooms/treasuryhistory?roomId=${roomId}`);
+                if (!response.ok) {
+                    throw new Error('Failed to fetch transaction history');
+                }
+                const data = await response.json();
+                const sortedTransactions = data.data.sort((a: TransactionHistory, b: TransactionHistory) =>
+                    b.timestamp - a.timestamp
+                );
+                setTransactions(sortedTransactions);
+            } catch (error) {
+                console.error('Error fetching transaction history:', error);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        if (roomId) {
+            fetchTransactionHistory();
+        }
+
+        const intervalId = setInterval(() => {
+            if (roomId) {
+                fetchTransactionHistory();
+            }
+        }, 30000);
+
+        return () => clearInterval(intervalId);
+    }, [roomId]);
 
     const handleCopyLink = async (meme: Meme) => {
         try {

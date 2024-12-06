@@ -61,7 +61,10 @@ export function TreasurySummary({
                     throw new Error('Failed to fetch transaction history');
                 }
                 const data = await response.json();
-                setTransactions(data.data);
+                const sortedTransactions = data.data.sort((a: TransactionHistory, b: TransactionHistory) =>
+                    b.timestamp - a.timestamp
+                );
+                setTransactions(sortedTransactions);
             } catch (error) {
                 console.error('Error fetching transaction history:', error);
             } finally {
@@ -69,19 +72,16 @@ export function TreasurySummary({
             }
         };
 
-        // Initial fetch
         if (roomId) {
             fetchTransactionHistory();
         }
 
-        // Set up polling interval
         const intervalId = setInterval(() => {
             if (roomId) {
                 fetchTransactionHistory();
             }
-        }, 30000); // 30 seconds
+        }, 30000);
 
-        // Cleanup function to clear interval when component unmounts
         return () => clearInterval(intervalId);
     }, [roomId]);
 
