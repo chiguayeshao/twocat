@@ -345,7 +345,7 @@ export default function Home() {
                               </span>
                             </div>
                             <p className="text-gray-400 text-sm mb-4 line-clamp-2">
-                              {roomData.room.communityStory?.description || roomData.room.description || "暂无描述"}
+                              {roomData.room.description || "暂无描述"}
                             </p>
 
                             <div className="flex items-center gap-8 text-sm">
