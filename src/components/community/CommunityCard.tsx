@@ -14,7 +14,6 @@ interface CommunityCardProps {
     telegram?: string;
     discord?: string;
     tokenAddress?: string;
-    dominantColor: [number, number, number];
     imageError: boolean;
 }
 
@@ -26,7 +25,6 @@ export function CommunityCard({
     telegram,
     discord,
     tokenAddress,
-    dominantColor,
     imageError
 }: CommunityCardProps) {
     // 进一步减小倾斜效果的幅度
@@ -66,11 +64,7 @@ export function CommunityCard({
             onMouseLeave={() => api.start({ xys: [0, 0, 1] })}
             style={{
                 transform: to(springs.xys, trans),
-                background: !imageError
-                    ? `linear-gradient(135deg, 
-                        rgba(${dominantColor[0]},${dominantColor[1]},${dominantColor[2]},0.15) 0%,
-                        rgba(${dominantColor[0]},${dominantColor[1]},${dominantColor[2]},0.05) 100%)`
-                    : 'linear-gradient(135deg, rgba(83,185,145,0.15) 0%, rgba(83,185,145,0.05) 100%)',
+                background: 'linear-gradient(135deg, rgba(83,185,145,0.15) 0%, rgba(83,185,145,0.05) 100%)'
             }}
             className="relative p-5 sm:p-6 rounded-2xl backdrop-blur-sm border border-white/10 shadow-xl"
         >

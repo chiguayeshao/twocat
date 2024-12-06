@@ -2,7 +2,6 @@
 
 import { motion } from 'framer-motion';
 import { useState, useEffect } from 'react';
-import ColorThief from 'colorthief';
 import { CommunityCard } from '@/components/community/CommunityCard';
 import { CommunityLeaders } from '@/components/community/CommunityLeaders';
 import { TreasurySummary } from '@/components/community/TreasurySummary';
@@ -11,11 +10,11 @@ import { CommunityStory } from '@/components/community/CommunityStory';
 import { Room, Treasury, CommunityLevel } from '@/types/room';
 
 interface CommunityHomeProps {
-  roomId: string;
-  room: Room | null;
-  treasury: Treasury | null;
-  communityLevel: CommunityLevel | null;
-  onTreasuryUpdate: (newTreasury: Treasury, newCommunityLevel: CommunityLevel) => void;
+    roomId: string;
+    room: Room | null;
+    treasury: Treasury | null;
+    communityLevel: CommunityLevel | null;
+    onTreasuryUpdate: (newTreasury: Treasury, newCommunityLevel: CommunityLevel) => void;
 }
 
 // 添加模拟数据
@@ -27,42 +26,7 @@ const mockStats = {
 };
 
 export function CommunityHome({ roomId, room, treasury, communityLevel, onTreasuryUpdate }: CommunityHomeProps) {
-    const [dominantColor, setDominantColor] = useState<[number, number, number]>([83, 185, 145]);
     const [imageError, setImageError] = useState(false);
-
-    // 获取图片主色调
-    useEffect(() => {
-        if (!room?.avatarUrl) return;
-        
-        const colorThief = new ColorThief();
-        const img = document.createElement('img') as HTMLImageElement;
-        img.crossOrigin = 'anonymous';
-
-        img.onload = () => {
-            try {
-                const color = colorThief.getColor(img);
-                if (color) {
-                    setDominantColor(color);
-                    setImageError(false);
-                }
-            } catch (error: unknown) {
-                console.error('获取主题色失败:', error instanceof Error ? error.message : error);
-                setImageError(true);
-            }
-        };
-
-        img.onerror = (event: Event | string) => {
-            console.error('图片加载失败:', event);
-            setImageError(true);
-        };
-
-        img.src = room.avatarUrl;
-
-        return () => {
-            img.onload = null;
-            img.onerror = null;
-        };
-    }, [room?.avatarUrl]);
 
     if (!room) return null;
 
@@ -78,7 +42,6 @@ export function CommunityHome({ roomId, room, treasury, communityLevel, onTreasu
                         telegram={room.telegram}
                         discord={room.discord}
                         tokenAddress={room.tokenAddress}
-                        dominantColor={dominantColor}
                         imageError={imageError}
                     />
 
