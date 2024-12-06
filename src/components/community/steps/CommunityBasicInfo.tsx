@@ -20,10 +20,34 @@ interface CommunityBasicInfoProps {
 export function CommunityBasicInfo({ data, onChange }: CommunityBasicInfoProps) {
     const [uploading, setUploading] = useState(false);
     const { connected, publicKey } = useWallet();
+    const { toast } = useToast();
+
+    const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+    const ALLOWED_FILE_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
 
     const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file instanceof File) {
+            // 检查文件类型
+            if (!ALLOWED_FILE_TYPES.includes(file.type)) {
+                toast({
+                    title: "文件类型不支持",
+                    description: "请上传 JPG、PNG、GIF 或 WebP 格式的图片",
+                    variant: "destructive",
+                });
+                return;
+            }
+
+            // 检查文件大小
+            if (file.size > MAX_FILE_SIZE) {
+                toast({
+                    title: "文件太大",
+                    description: "请上传小于 10MB 的图片",
+                    variant: "destructive",
+                });
+                return;
+            }
+
             setUploading(true);
             try {
                 const formData = new FormData();
@@ -35,6 +59,10 @@ export function CommunityBasicInfo({ data, onChange }: CommunityBasicInfoProps) 
                 });
 
                 if (!response.ok) {
+                    // 根据状态码显示不同的错误信息
+                    if (response.status === 413) {
+                        throw new Error("文件大小超过服务器限制");
+                    }
                     throw new Error("上传失败");
                 }
 
@@ -42,11 +70,21 @@ export function CommunityBasicInfo({ data, onChange }: CommunityBasicInfoProps) 
 
                 if (success && data.url) {
                     onChange('avatar', data.url);
+                    toast({
+                        title: "上传成功",
+                        description: "社区头像已成功上传",
+                        variant: "default",
+                    });
                 } else {
                     throw new Error("上传失败");
                 }
             } catch (error) {
                 console.error('上传失败:', error);
+                toast({
+                    title: "上传失败",
+                    description: (error as Error).message || "头像上传失败，请重试",
+                    variant: "destructive",
+                });
             } finally {
                 setUploading(false);
             }
@@ -66,7 +104,7 @@ export function CommunityBasicInfo({ data, onChange }: CommunityBasicInfoProps) 
                         )}
                         <input
                             type="file"
-                            accept="image/*"
+                            accept={ALLOWED_FILE_TYPES.join(',')}
                             onChange={handleAvatarChange}
                             className="absolute inset-0 opacity-0 cursor-pointer"
                             required={!data.avatar}
@@ -75,6 +113,7 @@ export function CommunityBasicInfo({ data, onChange }: CommunityBasicInfoProps) 
                     <div className="text-sm text-gray-400">
                         <p>点击{data.avatar ? '更换' : '上传'}图片</p>
                         <p>建议尺寸 400x400</p>
+                        <p className="text-xs">支持 JPG、PNG、GIF、WebP，小于 10MB</p>
                     </div>
                 </div>
             </div>

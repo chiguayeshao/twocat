@@ -9,6 +9,7 @@ import { CommunityDetailedInfo } from './community/steps/CommunityDetailedInfo';
 import { CommunityStory } from './community/steps/CommunityStory';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useWallet, UnifiedWalletButton } from '@jup-ag/wallet-adapter';
+import { useToast } from '@/hooks/use-toast';
 
 export interface CommunityData {
     name: string;
@@ -38,6 +39,7 @@ interface CreateCommunityDialogProps {
 
 export function CreateCommunityDialog({ onSubmit }: CreateCommunityDialogProps) {
     const { connected, publicKey } = useWallet();
+    const { toast } = useToast();
     const [step, setStep] = useState(1);
     const [data, setData] = useState<CommunityData>({
         name: '',
@@ -62,6 +64,14 @@ export function CreateCommunityDialog({ onSubmit }: CreateCommunityDialogProps) 
     };
 
     const handleOpenChange = (open: boolean) => {
+        if (!connected && open) {
+            toast({
+                title: "请先连接钱包",
+                description: "创建社区需要先连接钱包",
+                variant: "destructive",
+            });
+            return;
+        }
         setOpen(open);
         if (!open) {
             setStep(1);
@@ -82,8 +92,11 @@ export function CreateCommunityDialog({ onSubmit }: CreateCommunityDialogProps) 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!connected || !publicKey) {
-            console.error('钱包未连接');
-            // 这里可以添加错误提示UI
+            toast({
+                title: "请先连接钱包",
+                description: "创建社区需要先连接钱包",
+                variant: "destructive",
+            });
             return;
         }
 
@@ -148,6 +161,12 @@ export function CreateCommunityDialog({ onSubmit }: CreateCommunityDialogProps) 
             }
 
             if (result.success) {
+                toast({
+                    title: "创建成功",
+                    description: "社区已成功创建",
+                    variant: "default",
+                });
+
                 setOpen(false);
                 setData({
                     name: '',
@@ -170,7 +189,11 @@ export function CreateCommunityDialog({ onSubmit }: CreateCommunityDialogProps) 
             }
         } catch (error) {
             console.error('创建社区失败:', error);
-            // 这里可以添加错误提示UI
+            toast({
+                title: "创建失败",
+                description: (error as Error).message || "创建社区时发生错误",
+                variant: "destructive",
+            });
         } finally {
             setIsSubmitting(false);
         }
