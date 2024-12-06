@@ -1,7 +1,8 @@
 'use client';
 
 import { Input } from '@/components/ui/input';
-import { UnifiedWalletButton } from '@jup-ag/wallet-adapter';
+import { useToast } from '@/hooks/use-toast';
+import { UnifiedWalletButton, useWallet } from '@jup-ag/wallet-adapter';
 import { Upload } from 'lucide-react';
 import Image from 'next/image';
 import { useState } from 'react';
@@ -18,18 +19,32 @@ interface CommunityBasicInfoProps {
 
 export function CommunityBasicInfo({ data, onChange }: CommunityBasicInfoProps) {
     const [uploading, setUploading] = useState(false);
+    const { connected, publicKey } = useWallet();
 
     const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file instanceof File) {
             setUploading(true);
             try {
-                // 模拟 API 调用，返回固定的 URL
-                const mockUrl = 'https://twocat-room-avatars.s3.ap-southeast-1.amazonaws.com/room-avatars/1732023482786-twocatlogo.jpg';
+                const formData = new FormData();
+                formData.append("file", file);
 
-                // 更新头像和预览
-                onChange('avatar', mockUrl);
-                onChange('avatarFile', file);
+                const response = await fetch("/api/upload/room-avatar", {
+                    method: "POST",
+                    body: formData,
+                });
+
+                if (!response.ok) {
+                    throw new Error("上传失败");
+                }
+
+                const { data, success } = await response.json();
+
+                if (success && data.url) {
+                    onChange('avatar', data.url);
+                } else {
+                    throw new Error("上传失败");
+                }
             } catch (error) {
                 console.error('上传失败:', error);
             } finally {
@@ -79,10 +94,9 @@ export function CommunityBasicInfo({ data, onChange }: CommunityBasicInfoProps) 
 
             <div className="space-y-2">
                 <label className="text-sm font-medium text-gray-300">创建者钱包地址</label>
-                {/* <UnifiedWalletButton
-                    onConnect={(address) => onChange('creatorWallet', address)}
-                    className="bg-[#2f2f2f] border-[#53b991]/30 focus:border-[#53b991] text-white"
-                /> */}
+                <div className="p-3 bg-[#2f2f2f] rounded-lg border border-[#53b991]/30 text-gray-300">
+                    {publicKey?.toString()}
+                </div>
             </div>
         </div>
     );
