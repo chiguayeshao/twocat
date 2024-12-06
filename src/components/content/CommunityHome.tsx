@@ -8,35 +8,31 @@ import { CommunityLeaders } from '@/components/community/CommunityLeaders';
 import { TreasurySummary } from '@/components/community/TreasurySummary';
 import { StatsCard } from '@/components/community/StatsCard';
 import { CommunityStory } from '@/components/community/CommunityStory';
+import { Room, Treasury, CommunityLevel } from '@/types/room';
 
-interface RoomInfo {
-    name: string;
-    slogan: string;
-    avatar: string;
-    website?: string;
-    twitter?: string;
-    telegram?: string;
-    discord?: string;
-    tokenAddress?: string;
+interface CommunityHomeProps {
+  roomId: string;
+  room: Room | null;
+  treasury: Treasury | null;
+  communityLevel: CommunityLevel | null;
 }
 
-export function CommunityHome({ roomId }: { roomId: string }) {
-    const [roomInfo, setRoomInfo] = useState<RoomInfo>({
-        name: "Two Cat",
-        slogan: "We're All Gonna Make It! 🚀",
-        avatar: "https://twocat-room-avatars.s3.ap-southeast-1.amazonaws.com/room-avatars/1732023482786-twocatlogo.jpg",
-        website: "https://example.com",
-        twitter: "https://twitter.com/example",
-        telegram: "https://t.me/example",
-        discord: "https://discord.gg/example",
-        tokenAddress: "GxdTh6udNstGmLLk9ztBb6bkrms7oLbrJp5yzUaVpump"
-    });
+// 添加模拟数据
+const mockStats = {
+    holders: Math.floor(Math.random() * 10000),
+    marketValue: (Math.random() * 100).toFixed(2),
+    volume: (Math.random() * 1000).toFixed(2),
+    liquidity: (Math.random() * 500).toFixed(2)
+};
 
+export function CommunityHome({ roomId, room, treasury, communityLevel }: CommunityHomeProps) {
     const [dominantColor, setDominantColor] = useState<[number, number, number]>([83, 185, 145]);
     const [imageError, setImageError] = useState(false);
 
     // 获取图片主色调
     useEffect(() => {
+        if (!room?.avatarUrl) return;
+        
         const colorThief = new ColorThief();
         const img = document.createElement('img') as HTMLImageElement;
         img.crossOrigin = 'anonymous';
@@ -59,118 +55,64 @@ export function CommunityHome({ roomId }: { roomId: string }) {
             setImageError(true);
         };
 
-        img.src = roomInfo.avatar;
+        img.src = room.avatarUrl;
 
-        // 清理函数
         return () => {
             img.onload = null;
             img.onerror = null;
         };
-    }, [roomInfo.avatar]);
+    }, [room?.avatarUrl]);
 
-    // 假设这些值是从某个地方获取的，您可以根据实际情况进行调整
-    const currentLevel = 1; // 默认等级
-    const currentVolume = 30; // 当前交易量
-    const currentDonation = 0.2; // 当前捐赠量
+    if (!room) return null;
 
     return (
         <div className="min-h-screen">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-8 sm:pt-16">
-                {/* 顶部卡片区域 */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-12 items-start w-full">
-                    {/* 社区名片 */}
                     <CommunityCard
-                        name={roomInfo.name}
-                        avatar={roomInfo.avatar}
-                        website={roomInfo.website}
-                        twitter={roomInfo.twitter}
-                        telegram={roomInfo.telegram}
-                        discord={roomInfo.discord}
-                        tokenAddress={roomInfo.tokenAddress}
+                        name={room.roomName}
+                        avatar={room.avatarUrl}
+                        website={room.website}
+                        twitter={room.twitter}
+                        telegram={room.telegram}
+                        discord={room.discord}
+                        tokenAddress={room.tokenAddress}
                         dominantColor={dominantColor}
                         imageError={imageError}
                     />
 
-                    {/* 社区领袖 */}
                     <CommunityLeaders
-                        leaders={[
-                            {
-                                name: "Alice",
-                                twitterName: "alice_crypto",
-                                twitterId: "1234567890",
-                                avatar: "https://twocat-room-avatars.s3.ap-southeast-1.amazonaws.com/room-avatars/1732023482786-twocatlogo.jpg"
-                            },
-                            {
-                                name: "Bob",
-                                twitterName: "bob_web3",
-                                twitterId: "2345678901",
-                                avatar: "https://twocat-room-avatars.s3.ap-southeast-1.amazonaws.com/room-avatars/1732023482786-twocatlogo.jpg"
-                            },
-                            {
-                                name: "Charlie",
-                                twitterName: "charlie_tech",
-                                twitterId: "3456789012",
-                                avatar: "https://twocat-room-avatars.s3.ap-southeast-1.amazonaws.com/room-avatars/1732023482786-twocatlogo.jpg"
-                            },
-                            {
-                                name: "Dave",
-                                twitterName: "dave_community",
-                                twitterId: "4567890123",
-                                avatar: "https://twocat-room-avatars.s3.ap-southeast-1.amazonaws.com/room-avatars/1732023482786-twocatlogo.jpg"
-                            },
-                            {
-                                name: "Eve",
-                                twitterName: "eve_marketing",
-                                twitterId: "5678901234",
-                                avatar: "https://twocat-room-avatars.s3.ap-southeast-1.amazonaws.com/room-avatars/1732023482786-twocatlogo.jpg"
-                            }
-                        ]}
+                        leaders={room.cto.map(member => ({
+                            name: member.ctoname,
+                            twitterName: member.ctotweethandle.replace('@', ''),
+                            twitterId: member.ctotweethandle,
+                            isAi: member.isAi
+                        }))}
                     />
                 </div>
 
-                {/* 社区故事 */}
                 <div className="mt-6 sm:mt-12">
                     <CommunityStory
-                        title="Two Cat 的梗图故事"
-                        description="源于一个表情包，成就一个充满欢乐的社区"
-                        stories={[
+                        title={`${room.roomName} 的故事`}
+                        description={room.description}
+                        stories={room.stories || [
                             {
                                 emoji: "😺",
-                                title: "两只猫的诞生",
-                                content: "一切开始于一个爆火的猫咪表情包，两只可爱的猫咪让每个人都会心一笑。我们想，为什么不让这份快乐持续下去呢？"
-                            },
-                            {
-                                emoji: "🎭",
-                                title: "玩梗大师",
-                                content: "在这里，人人都是玩梗大师。我们用表情包交流，用梗图表达，让社交变得更有趣、更轻松。"
-                            },
-                            {
-                                emoji: "🌈",
-                                title: "快乐社区",
-                                content: "Two Cat 不仅是一个代币，更是一个分享快乐的社区。在这里，我们用欢笑连接彼此，用创意传递价值。"
-                            },
-                            {
-                                emoji: "🎮",
-                                title: "玩出未来",
-                                content: "谁说金融就要很严肃？我们用游戏化的方式重新定义社区互动，让每个人都能快乐参与。"
+                                title: "社区的诞生",
+                                content: room.description
                             }
                         ]}
                     />
                 </div>
 
-                {/* 社区金库概览 */}
                 <div className="mt-6 sm:mt-12">
                     <TreasurySummary
-                        balance="$42,069"
-                        dailyVolume="$69,420"
-                        weeklyIncome="$4,200"
-                        currentLevel={currentLevel}
-                        currentVolume={currentVolume}
-                        currentDonation={currentDonation}
+                        treasury={treasury}
+                        communityLevel={communityLevel}
+                        roomId={roomId}
                     />
                 </div>
 
-                {/* 社区数据统计 */}
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -178,27 +120,27 @@ export function CommunityHome({ roomId }: { roomId: string }) {
                 >
                     <StatsCard
                         title="持有人数"
-                        value="42,069"
+                        value={mockStats.holders.toLocaleString()}
                         icon="🦍"
-                        change="+420%"
+                        change="+12.5%"
                     />
                     <StatsCard
                         title="市值"
-                        value="$1.69M"
+                        value={`$${mockStats.marketValue}M`}
                         icon="💎"
-                        change="+69%"
+                        change="+8.3%"
                     />
                     <StatsCard
                         title="交易量"
-                        value="$420K"
+                        value={`$${mockStats.volume}K`}
                         icon="📊"
-                        change="+42%"
+                        change="+15.7%"
                     />
                     <StatsCard
                         title="流动性"
-                        value="$690K"
+                        value={`$${mockStats.liquidity}K`}
                         icon="💧"
-                        change="+169%"
+                        change="+5.2%"
                     />
                 </motion.div>
             </div>

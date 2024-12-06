@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion";
 import { useState } from 'react';
 import { DonationDialog } from './DonationDialog';
+import { Room, Treasury, CommunityLevel } from '@/types/room';
 
 interface TreasuryTransaction {
     date: string;
@@ -21,110 +22,60 @@ interface TreasuryTransaction {
 }
 
 interface TreasurySummaryProps {
-    balance: string;
-    dailyVolume: string;
-    weeklyIncome: string;
-    recentTransactions?: TreasuryTransaction[];
-    currentLevel: number;
-    currentVolume: number;
-    currentDonation: number;
+    treasury: Treasury | null;
+    communityLevel: CommunityLevel | null;
+    roomId: string;
 }
 
-const defaultTransactions: TreasuryTransaction[] = [
-    {
-        date: "2024-03-20 14:30",
-        amount: "+$1,337",
-        type: 'income',
-        description: "交易手续费收入"
-    },
-    {
-        date: "2024-03-20 12:15",
-        amount: "-$420",
-        type: 'expense',
-        description: "社区空投活动"
-    },
-    {
-        date: "2024-03-20 10:45",
-        amount: "+$890",
-        type: 'income',
-        description: "交易手续费收入"
-    },
-    {
-        date: "2024-03-19 23:20",
-        amount: "+$655",
-        type: 'income',
-        description: "交易手续费收入"
-    },
-    {
-        date: "2024-03-19 20:10",
-        amount: "-$300",
-        type: 'expense',
-        description: "社区营销支出"
-    },
-    {
-        date: "2024-03-19 18:45",
-        amount: "+$720",
-        type: 'income',
-        description: "交易手续费收入"
-    },
-    {
-        date: "2024-03-19 15:30",
-        amount: "-$250",
-        type: 'expense',
-        description: "流动性支持"
-    },
-    {
-        date: "2024-03-19 12:20",
-        amount: "+$445",
-        type: 'income',
-        description: "交易手续费收入"
-    },
-    {
-        date: "2024-03-19 10:15",
-        amount: "+$980",
-        type: 'income',
-        description: "交易手续费收入"
-    },
-    {
-        date: "2024-03-18 22:40",
-        amount: "-$500",
-        type: 'expense',
-        description: "社区建设支出"
-    }
+const COMMUNITY_LEVELS = [
+    { level: 1, volumeReq: 0, donationReq: 0 },
+    { level: 2, volumeReq: 50, donationReq: 0.5 },
+    { level: 3, volumeReq: 200, donationReq: 2 },
+    { level: 4, volumeReq: 500, donationReq: 5 },
+    { level: 5, volumeReq: 2000, donationReq: 20 },
 ];
 
 export function TreasurySummary({
-    balance = "$42,069",
-    dailyVolume = "$69,420",
-    weeklyIncome = "$4,200",
-    recentTransactions = defaultTransactions,
-    currentLevel = 1,
-    currentVolume = 30,
-    currentDonation = 0.2
+    treasury,
+    communityLevel,
+    roomId
 }: TreasurySummaryProps) {
-    const levels = [
-        { level: 1, cashback: 20, volumeReq: 0, donationReq: 0, aiUsage: 10 },
-        { level: 2, cashback: 30, volumeReq: 50, donationReq: 0.5, aiUsage: 50 },
-        { level: 3, cashback: 40, volumeReq: 200, donationReq: 2, aiUsage: 200 },
-        { level: 4, cashback: 50, volumeReq: 500, donationReq: 5, aiUsage: 500 },
-        { level: 5, cashback: 60, volumeReq: 2000, donationReq: 20, aiUsage: 1000 },
-    ];
-
     const [isDonationDialogOpen, setIsDonationDialogOpen] = useState(false);
 
+    // Add handleDonate function
     const handleDonate = (amount: number) => {
-        // 处理捐赠逻辑
-        console.log(`Donating ${amount} SOL`);
-        setIsDonationDialogOpen(false);
+        if (communityLevel) {
+            // Update the local state if needed
+            communityLevel.currentDonationVolume += amount;
+        }
     };
 
-    const getCurrentLevelProgress = () => {
-        if (currentLevel >= 5) return 100;
-        const nextLevel = levels[currentLevel];
-        const volumeProgress = (currentVolume / nextLevel.volumeReq) * 100;
-        const donationProgress = (currentDonation / nextLevel.donationReq) * 100;
-        return Math.min(Math.max(volumeProgress, donationProgress), 100);
+    // 格式化金额为美元字符串
+    const formatUSD = (amount: number) => {
+        return `$${amount.toLocaleString('en-US', { 
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2 
+        })}`;
     };
+
+    // 计算等级进度
+    const getCurrentLevelProgress = () => {
+        if (!communityLevel || !treasury) return 0;
+        // 如果捐赠或交易量任一达标，返回100%
+        if (communityLevel.currentDonationVolume >= communityLevel.unlockNextLevelDonationVolume ||
+            communityLevel.currentVolume >= communityLevel.unlockNextLevelVolume) {
+            return 100;
+        }
+        // 否则使用较高的进度
+        const volumeProgress = (communityLevel.currentVolume / communityLevel.unlockNextLevelVolume) * 100;
+        const donationProgress = (communityLevel.currentDonationVolume / communityLevel.unlockNextLevelDonationVolume) * 100;
+        return Math.max(volumeProgress, donationProgress);
+    };
+
+    // 如果没有数据，显示加载状态或默认值
+    if (!treasury || !communityLevel) {
+        return <div>Loading...</div>;
+    }
 
     return (
         <motion.div
@@ -145,16 +96,16 @@ export function TreasurySummary({
                         {/* 金库余额和数据 */}
                         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4">
                             <div className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-pink-400">
-                                {balance}
+                                {formatUSD(treasury.treasuryBalance)}
                             </div>
                             <div className="flex flex-col sm:flex-row sm:space-x-8 mt-4 sm:mt-0">
                                 <div>
                                     <div className="text-white/60 text-sm">日交易量</div>
-                                    <div className="text-[#53b991] font-bold">{dailyVolume}</div>
+                                    <div className="text-[#53b991] font-bold">{formatUSD(treasury.dailyVolume)}</div>
                                 </div>
                                 <div className="mt-2 sm:mt-0">
                                     <div className="text-white/60 text-sm">本周收入</div>
-                                    <div className="text-[#53b991] font-bold">{weeklyIncome}</div>
+                                    <div className="text-[#53b991] font-bold">{formatUSD(treasury.weeklyProfit)}</div>
                                 </div>
                             </div>
                         </div>
@@ -185,7 +136,7 @@ export function TreasurySummary({
                         </div>
                     </div>
 
-                    {/* 新增：等级系统 */}
+                    {/* 社区等级部分 */}
                     <div className="bg-white/5 rounded-xl p-6 border border-white/10">
                         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4">
                             <div className="flex items-center gap-2">
@@ -196,9 +147,9 @@ export function TreasurySummary({
                                             <Info className="w-4 h-4 text-white/60 cursor-pointer" />
                                         </TooltipTrigger>
                                         <TooltipContent className="bg-black/90 border border-white/10 text-white p-4 rounded-lg w-80">
-                                            <div className="text-sm font-bold mb-2">社区等级解锁条件</div>
+                                            <div className="text-sm font-bold mb-2">社区等级锁条件</div>
                                             <div className="space-y-2">
-                                                {levels.map((level, index) => (
+                                                {COMMUNITY_LEVELS.map((level, index) => (
                                                     <div key={index} className="flex items-center justify-between">
                                                         <div className="text-white/70">Level {level.level}</div>
                                                         <div className="text-xs text-white/50">
@@ -212,7 +163,7 @@ export function TreasurySummary({
                                 </TooltipProvider>
                             </div>
                             <div className="mt-2 sm:mt-0 px-3 py-1 rounded-full bg-purple-500/20 text-purple-400">
-                                Level {currentLevel}
+                                Level {treasury.communityLevel}
                             </div>
                         </div>
 
@@ -224,91 +175,56 @@ export function TreasurySummary({
                             />
                         </div>
 
-                        {/* 当前等级信息和收益 */}
+                        {/* 当前等级信息 */}
                         <div className="mb-6">
                             <div className="flex items-center justify-between">
-                                <div className="text-white/70 text-sm">
-                                    返佣比例
-                                </div>
-                                <div className="flex items-center gap-2">
-                                    <span className="text-[#53b991] font-bold">{levels[currentLevel - 1].cashback}%</span>
-                                    <ArrowRight className="w-4 h-4 text-white/40" />
-                                    <span className="text-purple-400 font-bold">{levels[currentLevel].cashback}%</span>
-                                </div>
+                                <div className="text-white/70 text-sm">返佣比例</div>
+                                <div className="text-[#53b991] font-bold">{treasury.rebateRate}%</div>
                             </div>
                             <div className="flex items-center justify-between mt-2">
-                                <div className="text-white/70 text-sm">
-                                    AI 功能使用次数
-                                </div>
+                                <div className="text-white/70 text-sm">当前等级</div>
                                 <div className="flex items-center gap-2">
-                                    <span className="text-[#53b991] font-bold">{levels[currentLevel - 1].aiUsage}次/天</span>
-                                    <ArrowRight className="w-4 h-4 text-white/40" />
-                                    <span className="text-purple-400 font-bold">{levels[currentLevel].aiUsage}次/天</span>
+                                    <span className="text-[#53b991] font-bold">Level {treasury.communityLevel}</span>
+                                    {treasury.communityLevel < 5 && (
+                                        <>
+                                            <ArrowRight className="w-4 h-4 text-white/40" />
+                                            <span className="text-purple-400 font-bold">Level {treasury.communityLevel + 1}</span>
+                                        </>
+                                    )}
                                 </div>
                             </div>
                         </div>
 
                         {/* 升级信息 */}
-                        {currentLevel < 5 && (
-                            <div className="space-y-4">
-                                <div className="flex items-center justify-between">
-                                    <div className="flex items-center gap-2">
-                                        <span className="text-white/70">升级到 Level {currentLevel + 1} 条件</span>
-                                        <TooltipProvider>
-                                            <Tooltip>
-                                                <TooltipTrigger>
-                                                    <Info className="w-4 h-4 text-white/60" />
-                                                </TooltipTrigger>
-                                                <TooltipContent>
-                                                    <p>满足任一条件即可升级：</p>
-                                                    <p>1. 达到交易量要求</p>
-                                                    <p>2. 完成社区捐赠</p>
-                                                </TooltipContent>
-                                            </Tooltip>
-                                        </TooltipProvider>
-                                    </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div className="bg-white/5 p-4 rounded-lg">
+                                <div className="text-white/90 font-medium mb-2">当前交易量</div>
+                                <div className="text-2xl font-bold">
+                                    <span className="text-[#53b991]">{communityLevel.currentVolume}</span>
+                                    <span className="text-white/60"> / {communityLevel.unlockNextLevelVolume} SOL</span>
                                 </div>
+                            </div>
 
-                                {/* 升级方式选项 */}
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                    <div className="bg-white/5 p-4 rounded-lg">
-                                        <div className="text-white/90 font-medium mb-2">通过交易量升级</div>
-                                        <div className="text-2xl font-bold">
-                                            <span className="text-[#53b991]">{currentVolume}</span> / <span className="text-white/60">{levels[currentLevel].volumeReq} SOL</span>
-                                        </div>
-                                        <div className="text-white/60 text-sm">
-                                            继续交易即可升级
-                                        </div>
-                                    </div>
-
-                                    <div className="bg-white/5 p-4 rounded-lg">
-                                        <div className="text-white/90 font-medium mb-2">通过捐赠升级</div>
-                                        <div className="text-2xl font-bold">
-                                            <span className="text-[#53b991]">{currentDonation}</span> / <span className="text-white/60">{levels[currentLevel].donationReq} SOL</span>
-                                        </div>
-                                        <Button
-                                            variant="secondary"
-                                            className="w-full bg-purple-500/20 hover:bg-purple-500/30 text-purple-400"
-                                            onClick={() => setIsDonationDialogOpen(true)}
-                                        >
-                                            <Coins className="w-4 h-4 mr-2" />
-                                            捐赠社区
-                                        </Button>
-                                    </div>
+                            <div className="bg-white/5 p-4 rounded-lg">
+                                <div className="text-white/90 font-medium mb-2">当前捐赠</div>
+                                <div className="text-2xl font-bold">
+                                    <span className="text-[#53b991]">{communityLevel.currentDonationVolume}</span>
+                                    <span className="text-white/60"> / {communityLevel.unlockNextLevelDonationVolume} SOL</span>
                                 </div>
-
+                                <Button
+                                    variant="secondary"
+                                    className="w-full bg-purple-500/20 hover:bg-purple-500/30 text-purple-400"
+                                    onClick={() => setIsDonationDialogOpen(true)}
+                                >
+                                    <Coins className="w-4 h-4 mr-2" />
+                                    捐赠社区
+                                </Button>
                             </div>
-                        )}
-
-                        {currentLevel === 5 && (
-                            <div className="text-center text-white/70 py-2">
-                                🎉 恭喜！您已达到最高等级
-                            </div>
-                        )}
+                        </div>
                     </div>
                 </div>
 
-                {/* 右侧：最近交易记录 */}
+                {/* 右侧：交易历史 */}
                 <div className="bg-white/5 rounded-xl p-6 border border-white/10">
                     <div className="flex items-center justify-between mb-4">
                         <h3 className="text-lg font-bold text-white/90">最近交易</h3>
@@ -316,20 +232,23 @@ export function TreasurySummary({
                     </div>
                     <div className="h-[550px] overflow-y-auto">
                         <div className="space-y-3">
-                            {recentTransactions.map((tx, index) => (
+                            {treasury.transactionHistory.map((tx, index) => (
                                 <div
                                     key={index}
                                     className="flex items-center justify-between p-3 rounded-lg bg-white/5 hover:bg-white/10 transition-colors"
                                 >
                                     <div>
-                                        <div className="text-sm text-white/90">{tx.description}</div>
-                                        <div className="text-xs text-white/60">{tx.date}</div>
+                                        <div className="text-sm text-white/90">
+                                            {tx.type === 'donation' ? '社区捐赠' : '交易返佣'}
+                                        </div>
+                                        <div className="text-xs text-white/60">
+                                            {new Date(tx.timestamp).toLocaleString()}
+                                        </div>
                                     </div>
-                                    <div className={`font-mono font-bold ${tx.type === 'income'
-                                        ? 'text-[#53b991]'  // 收入显示绿色
-                                        : 'text-[#de5569]'  // 支出显示红色
-                                        }`}>
-                                        {tx.amount}
+                                    <div className={`font-mono font-bold ${
+                                        tx.amount >= 0 ? 'text-[#53b991]' : 'text-[#de5569]'
+                                    }`}>
+                                        {formatUSD(tx.amount)}
                                     </div>
                                 </div>
                             ))}
@@ -341,8 +260,9 @@ export function TreasurySummary({
             <DonationDialog
                 isOpen={isDonationDialogOpen}
                 onClose={() => setIsDonationDialogOpen(false)}
-                currentDonation={currentDonation}
+                currentDonation={communityLevel.currentDonationVolume}
                 onDonate={handleDonate}
+                roomId={roomId}
             />
         </motion.div>
     );

@@ -37,6 +37,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from "@/components/ui/skeleton";
 import Image from 'next/image';
 import { ContentType } from '@/types/content';
+import { Room, Treasury, CommunityLevel } from '@/types/room';
 
 // 定义视图类型
 type View = {
@@ -113,32 +114,28 @@ interface MonitoredWallet {
     description: string;
 }
 
-interface Room {
-    _id: string;
-    roomName: string;
-    description: string;
-    isPrivate: boolean;
-    creatorWallet: string;
-    memberCount: number;
-    members: string[];
-    monitoredWallets: MonitoredWallet[];
-    channels: string[];
-    avatarUrl: string;
-    createdAt: string;
-    updatedAt: string;
-}
-
 interface SidebarProps {
     roomId: string;
     activeContent: ContentType;
     onContentChange: (content: ContentType) => void;
     onClose?: () => void;
+    room: Room | null;
+    treasury: Treasury | null;
+    communityLevel: CommunityLevel | null;
+    loading: boolean;
 }
 
-export function Sidebar({ roomId, activeContent = ContentType.COMMUNITY_HOME, onContentChange, onClose }: SidebarProps) {
+export function Sidebar({ 
+    roomId, 
+    activeContent = ContentType.COMMUNITY_HOME, 
+    onContentChange, 
+    onClose,
+    room,
+    treasury,
+    communityLevel,
+    loading 
+}: SidebarProps) {
     const pathname = usePathname();
-    const [room, setRoom] = useState<Room | null>(null);
-    const [loading, setLoading] = useState(true);
     const [isCopied, setIsCopied] = useState(false);
 
     useEffect(() => {
@@ -149,34 +146,6 @@ export function Sidebar({ roomId, activeContent = ContentType.COMMUNITY_HOME, on
             localStorage.removeItem('activeContent'); // 清除存储的值
         }
     }, [onContentChange]);
-
-    console.log(roomId, roomId);
-
-    useEffect(() => {
-        const loadRoomInfo = async () => {
-            try {
-                const response = await fetch(`/api/twocat-core/rooms?roomId=${roomId}`);
-                if (!response.ok) {
-                    throw new Error('Failed to fetch room info');
-                }
-                const responseData = await response.json();
-
-                if (responseData.success && responseData.data.room) {
-                    setRoom(responseData.data.room);
-                } else {
-                    throw new Error('Invalid room data structure');
-                }
-            } catch (error) {
-                console.error('Failed to load room info:', error);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        if (roomId) {
-            loadRoomInfo();
-        }
-    }, [roomId]);
 
     // 处理钱包地址显示
     const formatWalletAddress = (address: string) => {
@@ -413,7 +382,7 @@ export function Sidebar({ roomId, activeContent = ContentType.COMMUNITY_HOME, on
 
                     {/* 导航菜单 */}
                     <nav className="mt-4 space-y-1">
-                        {/* 快速交易按钮 */}
+                        {/* 快交易按钮 */}
                         <div className="px-2 mb-4">
                             <button
                                 onClick={() => onContentChange(ContentType.QUICK_TRADE)}
