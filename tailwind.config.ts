@@ -51,11 +51,11 @@ export default {
           "5": "hsl(var(--chart-5))",
         },
         discord: {
-          primary: "#131313", // 主背景色
-          secondary: "#1e1f22", // 侧边栏背景
-          hover: "#2b2d31", // 悬浮状态
-          muted: "#949ba4", // 次要文字
-          divider: "#2d2d2f", // 分割线
+          primary: "#131313",
+          secondary: "#1e1f22",
+          hover: "#2b2d31",
+          muted: "#949ba4",
+          divider: "#2d2d2f",
         },
       },
       borderRadius: {
@@ -74,6 +74,39 @@ export default {
       spacing: {
         "18": "4.5rem",
         "22": "5.5rem",
+      },
+      animation: {
+        "gradient-x": "gradient-x 15s ease infinite",
+        "accordion-down": "accordion-down 0.2s ease-out",
+        "accordion-up": "accordion-up 0.2s ease-out",
+      },
+      keyframes: {
+        "gradient-x": {
+          "0%, 100%": {
+            "background-size": "200% 200%",
+            "background-position": "left center",
+          },
+          "50%": {
+            "background-size": "200% 200%",
+            "background-position": "right center",
+          },
+        },
+        "accordion-down": {
+          from: {
+            height: "0",
+          },
+          to: {
+            height: "var(--radix-accordion-content-height)",
+          },
+        },
+        "accordion-up": {
+          from: {
+            height: "var(--radix-accordion-content-height)",
+          },
+          to: {
+            height: "0",
+          },
+        },
       },
     },
   },

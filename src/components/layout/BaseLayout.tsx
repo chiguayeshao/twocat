@@ -10,6 +10,15 @@ import { TransactionList } from '@/components/transactions/TransactionList';
 import { KLineChart } from '@/components/charts/KLineChart';
 import { TokenStats } from '@/components/token/TokenStats';
 import { WalletInfo } from '@/components/wallet/WalletInfo';
+import { ContentType } from '@/types/content';
+import { CommunityHome } from '../content/CommunityHome';
+import { ChineseTweets } from '@/components/content/ChineseTweets';
+import { EnglishTweets } from '../content/EnglishTweets';
+import { BoostAddresses } from '../content/BoostAddresses';
+import { MemeGallery } from '../content/MemeGallery';
+import { TweetMonitor } from '../content/TweetMonitor';
+import { AIAgents } from '../content/AIAgents';
+import { Room, Treasury, CommunityLevel } from '@/types/room';
 
 interface BaseLayoutProps {
   children: React.ReactNode;
@@ -20,6 +29,40 @@ export function BaseLayout({ children, roomId }: BaseLayoutProps) {
   const [selectedTokenAddress, setSelectedTokenAddress] = useState<string | null>(null);
   const [selectedWalletAddress, setSelectedWalletAddress] = useState<string | null>(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [activeContent, setActiveContent] = useState<ContentType>(ContentType.COMMUNITY_HOME);
+
+  const [room, setRoom] = useState<Room | null>(null);
+  const [treasury, setTreasury] = useState<Treasury | null>(null);
+  const [communityLevel, setCommunityLevel] = useState<CommunityLevel | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadRoomInfo = async () => {
+      try {
+        const response = await fetch(`/api/twocat-core/rooms?roomId=${roomId}`);
+        if (!response.ok) {
+          throw new Error('Failed to fetch room info');
+        }
+        const data = await response.json();
+
+        if (data.success) {
+          setRoom(data.data.room);
+          setTreasury(data.data.treasury);
+          setCommunityLevel(data.data.communityLevel);
+          setSelectedTokenAddress(data.data.room.ca);
+        }
+      } catch (error) {
+        console.error('Failed to load room info:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (roomId) {
+      loadRoomInfo();
+      
+    }
+  }, [roomId]);
 
   const handleTransactionClick = (walletAddress: string, tokenAddress: string) => {
     setSelectedWalletAddress(walletAddress);
@@ -30,53 +73,17 @@ export function BaseLayout({ children, roomId }: BaseLayoutProps) {
     setSelectedTokenAddress(tokenAddress);
   };
 
-  return (
-    <div className="flex h-screen bg-discord-primary text-white overflow-hidden">
-      {/* 移动端遮罩 */}
-      {isSidebarOpen && (
-        <div
-          className="fixed inset-0 bg-black/50 z-[998] lg:hidden"
-          onClick={() => setIsSidebarOpen(false)}
-        />
-      )}
+  const handleTreasuryUpdate = (newTreasury: Treasury, newCommunityLevel: CommunityLevel) => {
+    setTreasury(newTreasury);
+    setCommunityLevel(newCommunityLevel);
+  };
 
-      {/* 侧边栏容器 */}
-      <div
-        className={cn(
-          // 基础样式
-          "w-[280px] lg:w-60 shrink-0",
-          // 移动端样式
-          "fixed lg:relative inset-y-0 left-0 z-[999]",
-          "transform transition-transform duration-200 ease-in-out",
-          // 控制显示/隐藏
-          isSidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
-        )}
-      >
-        <Sidebar
-          roomId={roomId}
-          onClose={() => setIsSidebarOpen(false)}
-        />
-      </div>
-
-      {/* 主内容区域 */}
-      <div className="flex-1 flex flex-col min-w-0">
-        {/* 移动端顶部导航栏 */}
-        <div className="sticky top-0 z-[997] lg:hidden bg-discord-secondary/95 backdrop-blur-sm px-4 h-14 flex items-center border-b border-discord-divider">
-          <button
-            onClick={() => setIsSidebarOpen(true)}
-            className="p-2 hover:bg-discord-hover rounded-md transition-colors"
-          >
-            <Menu className="h-5 w-5" />
-          </button>
-          <span className="ml-3 font-semibold">Two Cat</span>
-        </div>
-
-        <Header onTokenSelect={setSelectedTokenAddress} />
-
-        {/* 主要内容区域 */}
-        <main className="flex-1 p-2 sm:p-3 md:p-4 overflow-y-auto">
+  const renderContent = () => {
+    switch (activeContent) {
+      case ContentType.QUICK_TRADE:
+        return (
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-2 sm:gap-3 md:gap-4">
-            {/* 左侧区域 */}
+            {/* 交易列表 */}
             <div className="lg:col-span-8 space-y-2 sm:space-y-3 md:space-y-4">
               {/* 交易列表 */}
               <div className="bg-discord-secondary rounded-lg border border-discord-divider">
@@ -162,11 +169,96 @@ export function BaseLayout({ children, roomId }: BaseLayoutProps) {
                   lg:h-[400px] 
                   overflow-y-auto custom-scrollbar
                 ">
-                  <TradeBox tokenAddress={selectedTokenAddress} />
+                  <TradeBox tokenAddress={selectedTokenAddress} roomId={roomId}  onTreasuryUpdate={handleTreasuryUpdate} />
                 </div>
               </div>
             </div>
           </div>
+        );
+      case ContentType.COMMUNITY_HOME:
+        return <CommunityHome
+          roomId={roomId}
+          room={room}
+          treasury={treasury}
+          communityLevel={communityLevel}
+          onTreasuryUpdate={handleTreasuryUpdate}
+        />;
+      case ContentType.CHINESE_TWEETS:
+        console.log('Rendering Chinese Tweets');
+        return <ChineseTweets roomId={roomId} />;
+      case ContentType.ENGLISH_TWEETS:
+        console.log('Rendering English Tweets');
+        return <EnglishTweets roomId={roomId} />;
+      case ContentType.BOOST_ADDRESSES:
+        console.log('Rendering Boost Addresses');
+        return <BoostAddresses roomId={roomId} />;
+      case ContentType.MEME_GALLERY:
+        console.log('Rendering Meme Gallery');
+        return <MemeGallery roomId={roomId} />;
+      case ContentType.TWEET_MONITOR:
+        console.log('Rendering Tweet Monitor');
+        return <TweetMonitor />;
+      case ContentType.AI_AGENTS:
+        console.log('Rendering AI Agents');
+        return <AIAgents />;
+      default:
+        console.log('Unknown content type:', activeContent);
+        return null;
+    }
+  };
+
+  return (
+    <div className="flex h-screen bg-discord-primary text-white overflow-hidden">
+      {/* 移动端遮罩 */}
+      {isSidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black/50 z-[998] lg:hidden"
+          onClick={() => setIsSidebarOpen(false)}
+        />
+      )}
+
+      {/* 侧边栏容器 */}
+      <div
+        className={cn(
+          // 基础样式
+          "w-[280px] lg:w-60 shrink-0",
+          // 移动端样式
+          "fixed lg:relative inset-y-0 left-0 z-[999]",
+          "transform transition-transform duration-200 ease-in-out",
+          // 控制显示/隐藏
+          isSidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
+        )}
+      >
+        <Sidebar
+          roomId={roomId}
+          activeContent={activeContent}
+          onContentChange={setActiveContent}
+          onClose={() => setIsSidebarOpen(false)}
+          room={room}
+          treasury={treasury}
+          communityLevel={communityLevel}
+          loading={loading}
+        />
+      </div>
+
+      {/* 主内容区域 */}
+      <div className="flex-1 flex flex-col min-w-0">
+        {/* 移动端顶部导航栏 */}
+        <div className="sticky top-0 z-[997] lg:hidden bg-discord-secondary/95 backdrop-blur-sm px-4 h-14 flex items-center border-b border-discord-divider">
+          <button
+            onClick={() => setIsSidebarOpen(true)}
+            className="p-2 hover:bg-discord-hover rounded-md transition-colors"
+          >
+            <Menu className="h-5 w-5" />
+          </button>
+          <span className="ml-3 font-semibold">MCGA</span>
+        </div>
+
+        <Header onTokenSelect={setSelectedTokenAddress} />
+
+        {/* 主要内容区 */}
+        <main className="flex-1 p-2 sm:p-3 md:p-4 overflow-y-auto">
+          {renderContent()}
         </main>
       </div>
     </div>
