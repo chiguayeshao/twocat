@@ -23,6 +23,7 @@ export function MemeGallery({ roomId }: { roomId: string }) {
     const [isUploadModalOpen, setIsUploadModalOpen] = useState<boolean>(false);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [isUploading, setIsUploading] = useState(false);
 
     useEffect(() => {
         const fetchMemes = async () => {
@@ -86,11 +87,12 @@ export function MemeGallery({ roomId }: { roomId: string }) {
             return;
         }
 
+        setIsUploading(true);
+
         try {
             const formData = new FormData();
             formData.append("file", file);
 
-            // 使用新的图片上传 API
             const uploadResponse = await fetch('/api/upload/image', {
                 method: 'POST',
                 body: formData
@@ -101,12 +103,11 @@ export function MemeGallery({ roomId }: { roomId: string }) {
             }
 
             const uploadResult = await uploadResponse.json();
-            
+
             if (!uploadResult.success) {
                 throw new Error(uploadResult.message || 'Failed to upload image');
             }
 
-            // 使用返回的图片 URL 创建社区图片
             const response = await fetch(`/api/rooms/community-images?roomId=${roomId}`, {
                 method: 'POST',
                 headers: {
@@ -123,14 +124,14 @@ export function MemeGallery({ roomId }: { roomId: string }) {
             }
 
             const result = await response.json();
-            
+
             if (result.success) {
                 const updatedResponse = await fetch(`/api/rooms/community-images?roomId=${roomId}`);
                 const updatedData = await updatedResponse.json();
                 if (updatedData.success && updatedData.data) {
                     setMemes(updatedData.data);
                 }
-                
+
                 toast({
                     title: "上传成功",
                     description: "图片已成功添加到社区",
@@ -145,6 +146,8 @@ export function MemeGallery({ roomId }: { roomId: string }) {
                 description: "请稍后重试",
                 variant: "destructive",
             });
+        } finally {
+            setIsUploading(false);
         }
     };
 
@@ -291,8 +294,13 @@ export function MemeGallery({ roomId }: { roomId: string }) {
 
             <UploadMemeModal
                 isOpen={isUploadModalOpen}
-                onClose={() => setIsUploadModalOpen(false)}
+                onClose={() => {
+                    if (!isUploading) {
+                        setIsUploadModalOpen(false);
+                    }
+                }}
                 onUpload={handleUpload}
+                isUploading={isUploading}
             />
         </div>
     );

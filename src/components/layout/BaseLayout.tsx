@@ -250,7 +250,7 @@ export function BaseLayout({ children, roomId }: BaseLayoutProps) {
           >
             <Menu className="h-5 w-5" />
           </button>
-          <span className="ml-3 font-semibold">Two Cat</span>
+          <span className="ml-3 font-semibold">MCGA</span>
         </div>
 
         <Header onTokenSelect={setSelectedTokenAddress} />

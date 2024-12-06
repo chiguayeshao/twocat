@@ -97,7 +97,7 @@ export function EnglishTweets({ roomId }: { roomId: string }) {
                             Community Tweet Library
                         </h1>
                         <p className="text-sm sm:text-base text-white/60 mt-2">
-                            Find the perfect tweets to help spread the Two Cat story
+                            Find the perfect tweets to help spread our story
                         </p>
                     </div>
 

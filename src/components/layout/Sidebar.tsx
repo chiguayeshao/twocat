@@ -186,25 +186,27 @@ export function Sidebar({
 
             {/* 顶部区域 */}
             <div className="p-3 border-b border-discord-divider">
-                <div className="bg-discord-primary rounded-md p-2 flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                        <div className="rounded-full overflow-hidden">
-                            <Image
-                                src="/images/twocatlogo.jpg"
-                                alt="Two Cat Logo"
-                                width={28}
-                                height={28}
-                                className="object-cover"
-                            />
-                        </div>
-                        <div className="flex items-center gap-1.5">
-                            <span className="font-semibold text-[15px]">Two Cat</span>
-                            <div className="px-1.5 py-0.5 bg-[#53b991]/10 rounded-md border border-[#53b991]/20">
-                                <span className="text-xs font-medium text-[#53b991]">BETA</span>
+                <Link href="/" className="block">
+                    <div className="bg-discord-primary rounded-md p-2 flex items-center justify-between hover:bg-discord-primary/80 transition-colors">
+                        <div className="flex items-center gap-2">
+                            <div className="rounded-full overflow-hidden">
+                                <Image
+                                    src="/images/twocatlogo.jpg"
+                                    alt="MCGA Logo"
+                                    width={28}
+                                    height={28}
+                                    className="object-cover"
+                                />
+                            </div>
+                            <div className="flex items-center gap-1.5">
+                                <span className="font-semibold text-[15px]">MCGA</span>
+                                <div className="px-1.5 py-0.5 bg-[#53b991]/10 rounded-md border border-[#53b991]/20">
+                                    <span className="text-xs font-medium text-[#53b991]">BETA</span>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
+                </Link>
             </div>
 
             <div className="flex-1 overflow-y-auto">

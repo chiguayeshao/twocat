@@ -52,7 +52,7 @@ export function ChineseTweets({ roomId }: { roomId: string }) {
         setTimeout(() => setCopiedId(null), 2000);
     };
 
-    const handleAddTweet = async (content: string,publicKey:string) => {
+    const handleAddTweet = async (content: string, publicKey: string) => {
         try {
             const response = await fetch(`/api/rooms/chinese-tweets?roomId=${roomId}`, {
                 method: "POST",
@@ -108,7 +108,7 @@ export function ChineseTweets({ roomId }: { roomId: string }) {
                             社区推文库
                         </h1>
                         <p className="text-sm sm:text-base text-white/60 mt-2">
-                            在这里找到完美的推文，帮助传播 Two Cat 的故事
+                            在这里找到完美的推文，帮助传播我们的故事
                         </p>
                     </div>
 
