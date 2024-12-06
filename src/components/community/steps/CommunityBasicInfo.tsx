@@ -24,11 +24,25 @@ export function CommunityBasicInfo({ data, onChange }: CommunityBasicInfoProps) 
         if (file instanceof File) {
             setUploading(true);
             try {
-                // 模拟 API 调用，返回固定的 URL
-                const mockUrl = 'https://twocat-room-avatars.s3.ap-southeast-1.amazonaws.com/room-avatars/1732023482786-twocatlogo.jpg';
+                const formData = new FormData();
+                formData.append("file", file);
 
-                // 只更新头像 URL
-                onChange('avatar', mockUrl);
+                const response = await fetch("/api/upload/room-avatar", {
+                    method: "POST",
+                    body: formData,
+                });
+
+                if (!response.ok) {
+                    throw new Error("上传失败");
+                }
+
+                const { data, success } = await response.json();
+
+                if (success && data.url) {
+                    onChange('avatar', data.url);
+                } else {
+                    throw new Error("上传失败");
+                }
             } catch (error) {
                 console.error('上传失败:', error);
             } finally {
