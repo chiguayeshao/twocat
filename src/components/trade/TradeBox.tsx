@@ -21,6 +21,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Wallet } from 'lucide-react';
 import { BarChart3 } from 'lucide-react';
 import { ArrowLeftRight, Coins, Info } from 'lucide-react';
+import { Room, Treasury, CommunityLevel } from '@/types/room';
 
 type TradeMode = 'buy' | 'sell';
 type AmountPercentage = 25 | 50 | 75 | 100;
@@ -75,8 +76,12 @@ const EmptyState = () => (
 
 export default function TradeBox({
   tokenAddress,
+  roomId,
+  onTreasuryUpdate,
 }: {
   tokenAddress: string | null;
+  roomId: string | null;
+  onTreasuryUpdate: (newTreasury: Treasury, newCommunityLevel: CommunityLevel) => void;
 }) {
   const isValidAddress = useMemo(() => {
     try {
@@ -198,6 +203,38 @@ export default function TradeBox({
     data?: unknown; // 或者
   }
 
+  const updateVolume = useCallback(async (volume: number) => {
+    if (!publicKey) return;
+  
+    try {
+      const response = await fetch(`/api/rooms/update-swap?roomId=${roomId}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          volume,
+          userAddress: publicKey.toString(),
+        }),
+      });
+  
+      if (!response.ok) {
+        throw new Error('更新交易量失败');
+      }
+  
+      const data = await response.json();
+      console.log('交易量更新成功:', data);
+      onTreasuryUpdate(data.data.treasury, data.data.communityLevel);
+    } catch (error) {
+      console.error('更新交易量错误:', error);
+      toast({
+        title: '更新交易量失败',
+        description: '无法更新交易量统计',
+        variant: 'destructive',
+      });
+    }
+  }, [publicKey, tokenAddress, toast]);
+
   // 预留交易接口
   const executeJupiterTrade = useCallback(async () => {
     if (!connected || !publicKey || !signTransaction) {
@@ -229,9 +266,6 @@ export default function TradeBox({
       if (atomicAmount <= 0) {
         throw new Error('金额转换失败');
       }
-
-      // 计算手续费金额 (1% of input amount)
-      const feeAmount = Math.floor(Number(atomicAmount) * FEE_PERCENTAGE);
 
       // 使用 tokenAddress 替代 MONKEY_MINT_ADDRESS
       const quoteParams = {
@@ -289,6 +323,16 @@ export default function TradeBox({
       //   手续费: `${(feeAmount / 1e9).toFixed(9)} ${tokenInfo.solSymbol}`,
       // });
 
+         // 根据交易模式计算手续费
+    // 买入时基于输入的 SOL 金额计算手续费
+    // 卖出时基于输出的 SOL 金额计算手续费
+    const feeAmount = Math.floor(
+      (mode === 'buy' ? 
+        Number(atomicAmount) : // 买入时用输入的 SOL 金额
+        Number(quoteResponse.outAmount) // 卖出时用输出的 SOL 金额
+      ) * FEE_PERCENTAGE
+    );
+
       console.log('正在准备交易...');
       // 使用 Jupiter API 的类型
       const swapParams = {
@@ -335,6 +379,7 @@ export default function TradeBox({
 
       console.log('交易已发送:', signature);
 
+
       toast({
         title: '交易成功',
         description: (
@@ -364,7 +409,17 @@ export default function TradeBox({
       });
 
       // 刷新余额
-      await refreshBalance();
+      setTimeout(async () => {
+        await refreshBalance();
+      }, 3000);
+
+      // 计算需要更新的交易量
+      const volumeToUpdate = mode === 'buy' ? 
+        Number(parseFloat(amount).toFixed(4)) : // 买入时用输入的 SOL 金额
+        Number((Number(quoteResponse.outAmount) / Math.pow(10, tokenInfo.solDecimals)).toFixed(4)); // 卖出时用输出的 SOL 金额
+
+      // 更新交易量
+      await updateVolume(volumeToUpdate);
     } catch (error) {
       console.error('Trade failed:', error);
       const tradeError = error as TradeError;

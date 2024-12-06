@@ -94,8 +94,8 @@ export function TreasurySummary({
     // 格式化金额为美元字符串
     const formatUSD = (amount: number) => {
         return `$${amount.toLocaleString('en-US', {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2
+            minimumFractionDigits: 1,
+            maximumFractionDigits: 4
         })}`;
     };
 

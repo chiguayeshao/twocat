@@ -60,6 +60,7 @@ export function BaseLayout({ children, roomId }: BaseLayoutProps) {
 
     if (roomId) {
       loadRoomInfo();
+      
     }
   }, [roomId]);
 
@@ -168,7 +169,7 @@ export function BaseLayout({ children, roomId }: BaseLayoutProps) {
                   lg:h-[400px] 
                   overflow-y-auto custom-scrollbar
                 ">
-                  <TradeBox tokenAddress={selectedTokenAddress} />
+                  <TradeBox tokenAddress={selectedTokenAddress} roomId={roomId}  onTreasuryUpdate={handleTreasuryUpdate} />
                 </div>
               </div>
             </div>
@@ -255,7 +256,7 @@ export function BaseLayout({ children, roomId }: BaseLayoutProps) {
 
         <Header onTokenSelect={setSelectedTokenAddress} />
 
-        {/* 主要内容区��� */}
+        {/* 主要内容区 */}
         <main className="flex-1 p-2 sm:p-3 md:p-4 overflow-y-auto">
           {renderContent()}
         </main>
