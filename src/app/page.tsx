@@ -16,6 +16,7 @@ import {
 import { CreateCommunityDialog } from '@/components/CreateCommunityDialog';
 import { CommunityData } from '@/components/CreateCommunityDialog';
 import { ContentType } from '@/types/content';
+import { Footer } from '@/components/layout/Footer';
 
 interface RoomData {
   room: {
@@ -111,7 +112,7 @@ export default function Home() {
   }, []);
 
   return (
-    <div className="min-h-screen relative">
+    <div className="min-h-screen relative flex flex-col">
       {/* 修改背景实现 */}
       <div className="fixed inset-0 z-0 overflow-hidden">
         {/* 第一层：主渐变背景 */}
@@ -365,6 +366,9 @@ export default function Home() {
           </Tabs>
         </div>
       </div>
+
+      {/* Footer */}
+      <Footer />
     </div>
   );
 }
