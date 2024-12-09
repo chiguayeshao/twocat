@@ -17,8 +17,8 @@ const geistMono = localFont({
 });
 
 export const metadata: Metadata = {
-  title: 'TwoCat - Solana Smart Money Fucker',
-  description: 'TwoCat - Solana Smart Money Fucker',
+  title: 'MCGA - Make Community Great Again',
+  description: 'MCGA - Make Community Great Again',
 };
 
 export default function RootLayout({

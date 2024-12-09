@@ -172,52 +172,27 @@ export default function Home() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
             <div className="text-center">
               <motion.h1
-                className="text-4xl sm:text-6xl font-bold mb-6"
+                className="text-4xl sm:text-5xl font-bold mb-6"
                 initial={{ y: 20, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ duration: 0.5 }}
               >
                 <span className="bg-gradient-to-r from-[#53b991] to-[#9ad499] text-transparent bg-clip-text">
-                  AI赋能的社区
+                  Make Community Great Again！
                 </span>
               </motion.h1>
               <motion.p
-                className="text-gray-400 text-lg sm:text-xl max-w-2xl mx-auto mb-10"
+                className="text-gray-400 text-lg sm:text-3xl mx-auto mb-10"
                 initial={{ y: 20, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ duration: 0.5, delay: 0.1 }}
               >
-                加入我们，一起让社区再次伟大！通过AI的力量，发现更多机会 🚀
+                交易即建设，AI 即赋能，MCGA 予力每一个社区，成就无限可能！
               </motion.p>
             </div>
           </div>
 
           {/* 简化的搜索区域 */}
-          <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 mb-12">
-            <motion.div
-              className="flex items-center gap-4"
-              initial={{ y: 20, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-            >
-              <div className="relative flex-1">
-                <Input
-                  placeholder="探索Meme社区..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="bg-[#2f2f2f]/30 
-                             border-[#53b991]/40
-                             focus:border-[#53b991]/40
-                             focus:ring-0
-                             rounded-full h-12 pl-12 pr-6 text-lg 
-                             placeholder:text-gray-500 
-                             text-[#53b991]
-                             transition-all duration-300"
-                />
-                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-              </div>
-            </motion.div>
-          </div>
         </div>
 
         {/* 分类标签和社区列表 */}
