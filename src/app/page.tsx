@@ -6,7 +6,7 @@ import Image from 'next/image';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Flame as Fire, Users, Coins, Search, Sparkles } from 'lucide-react';
+import { Flame as Fire, Users, Coins, Search, Sparkles, BotIcon } from 'lucide-react';
 import {
   Tabs,
   TabsList,
@@ -213,20 +213,12 @@ export default function Home() {
                   热门社区
                 </TabsTrigger>
                 <TabsTrigger
-                  value="newest"
+                  value="ai"
                   className="data-[state=active]:bg-[#53b991] data-[state=active]:text-white
                              transition-all duration-300"
                 >
-                  <Sparkles className="w-4 h-4 mr-2" />
-                  最新社区
-                </TabsTrigger>
-                <TabsTrigger
-                  value="richest"
-                  className="data-[state=active]:bg-[#53b991] data-[state=active]:text-white
-                             transition-all duration-300"
-                >
-                  <Coins className="w-4 h-4 mr-2" />
-                  富豪榜
+                  <BotIcon className="w-4 h-4 mr-2" />
+                  AI 社区
                 </TabsTrigger>
               </TabsList>
             </motion.div>
@@ -359,12 +351,16 @@ export default function Home() {
               </motion.div>
             </TabsContent>
 
-            <TabsContent value="newest">
-              {/* ... 类似的结构 ... */}
-            </TabsContent>
-
-            <TabsContent value="richest">
-              {/* ... 类似的结构 ... */}
+            <TabsContent value="ai">
+              {/* AI社区内容，使用相同的展示格式 */}
+              <motion.div
+                className="space-y-4 mt-6"
+                initial={{ y: 20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ duration: 0.5, delay: 0.3 }}
+              >
+                {/* AI社区列表，格式与热门社区相同 */}
+              </motion.div>
             </TabsContent>
           </Tabs>
         </div>
