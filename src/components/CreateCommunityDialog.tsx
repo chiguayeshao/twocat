@@ -321,7 +321,7 @@ export function CreateCommunityDialog({ onSubmit }: CreateCommunityDialogProps) 
                             {isSubmitting ? (
                                 '提交中...'
                             ) : step === 3 ? (
-                                '完成创建'
+                                '提交申请&等待审核'
                             ) : (
                                 <>
                                     下一步
