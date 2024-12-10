@@ -40,7 +40,10 @@ export function MemeGallery({ roomId }: { roomId: string }) {
                 }
                 const data = await response.json();
                 if (data.success && data.data) {
-                    setMemes(data.data);
+                    const sortedMemes = data.data.sort((a: Meme, b: Meme) => {
+                        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+                    });
+                    setMemes(sortedMemes);
                 }
             } catch (err) {
                 setError('Failed to load memes');

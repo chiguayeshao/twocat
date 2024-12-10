@@ -84,7 +84,7 @@ const channels = [
     },
     {
         id: 'boost-addresses',
-        name: '冲推地址',
+        name: '一键冲推',
         href: '/boost-addresses',
         icon: <Rocket className="h-4 w-4" />,
     },
@@ -94,18 +94,18 @@ const channels = [
         href: '/meme-gallery',
         icon: <ImageIcon className="h-4 w-4" />,
     },
-    {
-        id: 'tweet-monitor',
-        name: '推文监控',
-        href: '/tweet-monitor',
-        icon: <Eye className="h-4 w-4" />,
-    },
-    {
-        id: 'ai-agents',
-        name: 'AI 代理',
-        href: '/ai-agents',
-        icon: <BotIcon className="h-4 w-4" />,
-    },
+    // {
+    //     id: 'tweet-monitor',
+    //     name: '推文监控',
+    //     href: '/tweet-monitor',
+    //     icon: <Eye className="h-4 w-4" />,
+    // },
+    // {
+    //     id: 'ai-agents',
+    //     name: 'AI 代理',
+    //     href: '/ai-agents',
+    //     icon: <BotIcon className="h-4 w-4" />,
+    // },
 ];
 
 interface MonitoredWallet {
@@ -191,7 +191,7 @@ export function Sidebar({
                         <div className="flex items-center gap-2">
                             <div className="rounded-full overflow-hidden">
                                 <Image
-                                    src="/images/twocatlogo.jpg"
+                                    src="/images/mcgalogo.png"
                                     alt="MCGA Logo"
                                     width={28}
                                     height={28}
@@ -285,18 +285,18 @@ export function Sidebar({
                                     </>
                                 ) : (
                                     <>
-                                        {/* <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
                                             <UsersIcon className="h-4 w-4" />
                                             <span>{room?.memberCount || 0} 位成员</span>
-                                        </div> */}
+                                        </div>
                                         <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                                            <ListIcon className="h-4 w-4" />
+                                            {/* <ListIcon className="h-4 w-4" /> */}
                                             <Dialog>
-                                                <DialogTrigger>
+                                                {/* <DialogTrigger>
                                                     <div className="flex items-center gap-2 text-sm text-muted-foreground hover:text-white transition-colors">
                                                         <span>监控地址列表</span>
                                                     </div>
-                                                </DialogTrigger>
+                                                </DialogTrigger> */}
                                                 <DialogContent className="bg-discord-secondary border-discord-divider">
                                                     <DialogHeader>
                                                         <DialogTitle className="text-lg font-medium text-white">监控地址列表</DialogTitle>
@@ -385,7 +385,7 @@ export function Sidebar({
                     {/* 导航菜单 */}
                     <nav className="mt-4 space-y-1">
                         {/* 快交易按钮 */}
-                        <div className="px-2 mb-4">
+                        {/* <div className="px-2 mb-4">
                             <button
                                 onClick={() => onContentChange(ContentType.QUICK_TRADE)}
                                 className={cn(
@@ -409,7 +409,7 @@ export function Sidebar({
                                     />
                                 )}
                             </button>
-                        </div>
+                        </div> */}
 
                         {/* 分割线 */}
                         <div className="h-px bg-discord-divider mx-2 my-2" />

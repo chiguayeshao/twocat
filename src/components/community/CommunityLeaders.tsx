@@ -52,7 +52,8 @@ export function CommunityLeaders({ leaders, avatarUrl }: CommunityLeadersProps) 
                         checked={includeAI}
                         onCheckedChange={leaders.some(leader => leader.isAi) ? setIncludeAI : undefined}
                         className={`data-[state=checked]:bg-[#53b991] ${!leaders.some(leader => leader.isAi) ? 'opacity-50 cursor-not-allowed' : ''}`}
-                        disabled={!leaders.some(leader => leader.isAi)}
+                        // disabled={!leaders.some(leader => leader.isAi)}
+                        disabled={true}
                     />
                 </div>
             </motion.div>

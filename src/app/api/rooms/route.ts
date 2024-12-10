@@ -50,7 +50,7 @@ export async function POST(request: NextRequest) {
 
     console.log("Sending to backend:", requestBody);
 
-    const response = await fetchWithRetry(`${BACKEND_API_URL}/rooms`, {
+    const response = await fetchWithRetry(`${BACKEND_API_URL}/rooms/pending`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

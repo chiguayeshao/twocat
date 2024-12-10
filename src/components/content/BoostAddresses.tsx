@@ -36,7 +36,10 @@ export function BoostAddresses({ roomId }: { roomId: string }) {
             }
             const result = await response.json();
             if (result.success && result.data) {
-                setTweets(result.data);
+                const sortedTweets = result.data.sort((a: Tweet, b: Tweet) => {
+                    return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+                });
+                setTweets(sortedTweets);
             } else {
                 setError(result.message || '获取推文失败');
             }
@@ -165,7 +168,7 @@ export function BoostAddresses({ roomId }: { roomId: string }) {
                                     </button>
 
                                     {/* 回复按钮 */}
-                                    <ReplyDialog 
+                                    <ReplyDialog
                                         tweet={{
                                             tweetUrl: tweet.tweetLink,
                                             author: {
@@ -173,7 +176,7 @@ export function BoostAddresses({ roomId }: { roomId: string }) {
                                                 handle: tweet.tweetHandle
                                             },
                                             content: tweet.tweetContent
-                                        }} 
+                                        }}
                                     />
 
                                     {/* 访问按钮 */}

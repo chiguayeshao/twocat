@@ -35,6 +35,7 @@ export function CommunityHome({ roomId, room, treasury, communityLevel, onTreasu
             <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-8 sm:pt-16">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-12 items-start w-full">
                     <CommunityCard
+                        roomId={roomId}
                         name={room.roomName}
                         avatar={room.avatarUrl}
                         website={room.website}
@@ -70,14 +71,14 @@ export function CommunityHome({ roomId, room, treasury, communityLevel, onTreasu
                     />
                 </div>
 
-                <div className="mt-6 sm:mt-12">
+                {/* <div className="mt-6 sm:mt-12">
                     <TreasurySummary
                         treasury={treasury}
                         communityLevel={communityLevel}
                         roomId={roomId}
                         onUpdate={onTreasuryUpdate}
                     />
-                </div>
+                </div> */}
             </div>
         </div>
     );

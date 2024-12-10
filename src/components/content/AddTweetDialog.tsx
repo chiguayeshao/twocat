@@ -68,21 +68,12 @@ export function AddTweetDialog({ onAddTweet }: AddTweetDialogProps) {
                 </DialogHeader>
 
                 <div className="mt-6 space-y-4">
-                    <input
-                        type="text"
-                        value={newTweet.tweetUrl}
-                        onChange={(e) => setNewTweet({ ...newTweet, tweetUrl: e.target.value })}
-                        placeholder="推文链接"
-                        className="w-full p-3 rounded-lg bg-white/5 border border-white/10 
-                                 text-white/90 placeholder-white/40
-                                 focus:outline-none focus:ring-2 focus:ring-[#53b991]/50
-                                 transition-all duration-200"
-                    />
+                 
                     <input
                         type="text"
                         value={newTweet.authorName}
                         onChange={(e) => setNewTweet({ ...newTweet, authorName: e.target.value })}
-                        placeholder="作者姓名"
+                        placeholder="推文作者"
                         className="w-full p-3 rounded-lg bg-white/5 border border-white/10 
                                  text-white/90 placeholder-white/40
                                  focus:outline-none focus:ring-2 focus:ring-[#53b991]/50
@@ -92,7 +83,7 @@ export function AddTweetDialog({ onAddTweet }: AddTweetDialogProps) {
                         type="text"
                         value={newTweet.authorHandle}
                         onChange={(e) => setNewTweet({ ...newTweet, authorHandle: e.target.value })}
-                        placeholder="作者推特账号"
+                        placeholder="推文句柄@"
                         className="w-full p-3 rounded-lg bg-white/5 border border-white/10 
                                  text-white/90 placeholder-white/40
                                  focus:outline-none focus:ring-2 focus:ring-[#53b991]/50
@@ -107,6 +98,17 @@ export function AddTweetDialog({ onAddTweet }: AddTweetDialogProps) {
                                  focus:outline-none focus:ring-2 focus:ring-[#53b991]/50
                                  transition-all duration-200"
                         rows={4}
+                    />
+
+<input
+                        type="text"
+                        value={newTweet.tweetUrl}
+                        onChange={(e) => setNewTweet({ ...newTweet, tweetUrl: e.target.value })}
+                        placeholder="推文链接"
+                        className="w-full p-3 rounded-lg bg-white/5 border border-white/10 
+                                 text-white/90 placeholder-white/40
+                                 focus:outline-none focus:ring-2 focus:ring-[#53b991]/50
+                                 transition-all duration-200"
                     />
 
                     <motion.button

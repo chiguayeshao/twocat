@@ -261,7 +261,7 @@ export function CreateCommunityDialog({ onSubmit }: CreateCommunityDialogProps) 
                                 type="button"
                             >
                                 <Sparkles className="w-4 h-4 mr-2" />
-                                链接钱包创建社区
+                                连接钱包
                             </Button>
                         }
                     />
@@ -321,7 +321,7 @@ export function CreateCommunityDialog({ onSubmit }: CreateCommunityDialogProps) 
                             {isSubmitting ? (
                                 '提交中...'
                             ) : step === 3 ? (
-                                '完成创建'
+                                '提交申请&等待审核'
                             ) : (
                                 <>
                                     下一步
