@@ -4,6 +4,7 @@ import './globals.css';
 import { WalletContextProvider } from '@/components/providers/WalletProvider';
 import { Toaster } from '@/components/ui/toaster';
 import { Analytics } from '@vercel/analytics/next';
+import { Footer } from '@/components/layout/Footer';
 
 const geistSans = localFont({
   src: './fonts/GeistVF.woff',
@@ -17,21 +18,27 @@ const geistMono = localFont({
 });
 
 export const metadata: Metadata = {
-  title: 'TwoCat - Solana Smart Money Fucker',
-  description: 'TwoCat - Solana Smart Money Fucker',
+  title: 'MCGA - Make Community Great Again',
+  description: 'MCGA - Make Community Great Again',
 };
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
-    <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        <WalletContextProvider>{children}</WalletContextProvider>
+    <html lang="en" className="dark h-full">
+      <body className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased 
+                       bg-[#1a1b1e] text-white h-full`}>
+        <div className="flex flex-col min-h-screen h-full">
+          <WalletContextProvider>
+            <main className="flex-1 flex flex-col">
+              {children}
+            </main>
+            <Footer />
+          </WalletContextProvider>
+        </div>
         <Analytics />
         <Toaster />
       </body>

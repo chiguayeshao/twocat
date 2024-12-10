@@ -6,7 +6,7 @@ import Image from 'next/image';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Flame as Fire, Users, Coins, Search, Sparkles } from 'lucide-react';
+import { Flame as Fire, Users, Coins, Search, Sparkles, BotIcon, Heart } from 'lucide-react';
 import {
   Tabs,
   TabsList,
@@ -16,6 +16,7 @@ import {
 import { CreateCommunityDialog } from '@/components/CreateCommunityDialog';
 import { CommunityData } from '@/components/CreateCommunityDialog';
 import { ContentType } from '@/types/content';
+import { useWallet } from '@solana/wallet-adapter-react';
 
 interface RoomData {
   room: {
@@ -66,6 +67,8 @@ export default function Home() {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState('trending');
   const [navigating, setNavigating] = useState(false);
+  const [joinedRooms, setJoinedRooms] = useState<RoomData[]>([]);
+  const { connected, publicKey } = useWallet();
 
   const handleTabChange = (value: string) => {
     setActiveTab(value);
@@ -110,8 +113,34 @@ export default function Home() {
     fetchRooms();
   }, []);
 
+  // 获取已加入的社区
+  useEffect(() => {
+    const fetchJoinedRooms = async () => {
+      if (!connected || !publicKey) return;
+
+      try {
+        const response = await fetch(
+          `/api/twocat-core/rooms/joined?walletAddress=${publicKey.toString()}`
+        );
+        const result = await response.json();
+
+        if (result.success) {
+          setJoinedRooms(result.data);
+        } else {
+          console.error('获取已加入社区失败:', result.error);
+        }
+      } catch (error) {
+        console.error('获取已加入社区错误:', error);
+      }
+    };
+
+    if (connected && publicKey) {
+      fetchJoinedRooms();
+    }
+  }, [connected, publicKey]);
+
   return (
-    <div className="min-h-screen relative">
+    <div className="min-h-screen relative flex flex-col">
       {/* 修改背景实现 */}
       <div className="fixed inset-0 z-0 overflow-hidden">
         {/* 第一层：主渐变背景 */}
@@ -172,52 +201,27 @@ export default function Home() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
             <div className="text-center">
               <motion.h1
-                className="text-4xl sm:text-6xl font-bold mb-6"
+                className="text-4xl sm:text-5xl font-bold mb-6"
                 initial={{ y: 20, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ duration: 0.5 }}
               >
                 <span className="bg-gradient-to-r from-[#53b991] to-[#9ad499] text-transparent bg-clip-text">
-                  AI赋能的社区
+                  Make Community Great Again！
                 </span>
               </motion.h1>
               <motion.p
-                className="text-gray-400 text-lg sm:text-xl max-w-2xl mx-auto mb-10"
+                className="text-gray-400 text-lg sm:text-3xl mx-auto mb-10"
                 initial={{ y: 20, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ duration: 0.5, delay: 0.1 }}
               >
-                加入我们，一起让社区再次伟大！通过AI的力量，发现更多机会 🚀
+                交易即建设，AI 即赋能，MCGA 予力每一个社区，成就无限可能！
               </motion.p>
             </div>
           </div>
 
           {/* 简化的搜索区域 */}
-          <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 mb-12">
-            <motion.div
-              className="flex items-center gap-4"
-              initial={{ y: 20, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-            >
-              <div className="relative flex-1">
-                <Input
-                  placeholder="探索Meme社区..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="bg-[#2f2f2f]/30 
-                             border-[#53b991]/40
-                             focus:border-[#53b991]/40
-                             focus:ring-0
-                             rounded-full h-12 pl-12 pr-6 text-lg 
-                             placeholder:text-gray-500 
-                             text-[#53b991]
-                             transition-all duration-300"
-                />
-                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-              </div>
-            </motion.div>
-          </div>
         </div>
 
         {/* 分类标签和社区列表 */}
@@ -238,20 +242,20 @@ export default function Home() {
                   热门社区
                 </TabsTrigger>
                 <TabsTrigger
-                  value="newest"
+                  value="ai"
                   className="data-[state=active]:bg-[#53b991] data-[state=active]:text-white
                              transition-all duration-300"
                 >
-                  <Sparkles className="w-4 h-4 mr-2" />
-                  最新社区
+                  <BotIcon className="w-4 h-4 mr-2" />
+                  AI 社区
                 </TabsTrigger>
                 <TabsTrigger
-                  value="richest"
+                  value="joined"
                   className="data-[state=active]:bg-[#53b991] data-[state=active]:text-white
                              transition-all duration-300"
                 >
-                  <Coins className="w-4 h-4 mr-2" />
-                  富豪榜
+                  <Heart className="w-4 h-4 mr-2" />
+                  已加入
                 </TabsTrigger>
               </TabsList>
             </motion.div>
@@ -384,16 +388,129 @@ export default function Home() {
               </motion.div>
             </TabsContent>
 
-            <TabsContent value="newest">
-              {/* ... 类似的结构 ... */}
+            <TabsContent value="ai">
+              {/* AI社区内容，使用相同的展示格式 */}
+              <motion.div
+                className="space-y-4 mt-6"
+                initial={{ y: 20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ duration: 0.5, delay: 0.3 }}
+              >
+                {/* AI社区列表，格式与热门社区相同 */}
+              </motion.div>
             </TabsContent>
 
-            <TabsContent value="richest">
-              {/* ... 类似的结构 ... */}
+            <TabsContent value="joined">
+              <motion.div
+                className="space-y-4 mt-6"
+                initial={{ y: 20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ duration: 0.5, delay: 0.3 }}
+              >
+                {!connected ? (
+                  <div className="text-center py-12">
+                    <p className="text-gray-400 mb-4">请先连接钱包查看已加入的社区</p>
+                  </div>
+                ) : joinedRooms.length === 0 ? (
+                  <div className="text-center py-12">
+                    <p className="text-gray-400 mb-4">还没有加入任何社区</p>
+                  </div>
+                ) : (
+                  <AnimatePresence>
+                    {joinedRooms.map((roomData, index) => (
+                      <motion.div
+                        key={roomData.room._id}
+                        onClick={() => handleCommunityClick(roomData.room._id)}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -20 }}
+                        transition={{
+                          duration: 0.3,
+                          delay: index * 0.1,
+                          type: "spring",
+                          stiffness: 100,
+                          damping: 15
+                        }}
+                        className={`bg-[#2f2f2f]/50 backdrop-blur-sm rounded-2xl p-6 
+                                 border border-[#53b991]/10
+                                 cursor-pointer gpu-accelerated
+                                 hover:bg-[#2f2f2f]/70 
+                                 transition-all duration-300
+                                 hover-glow
+                                 ${navigating ? 'pointer-events-none opacity-50' : ''}`}
+                      >
+                        <div className="flex items-center gap-6">
+                          <div className="relative group shrink-0">
+                            {roomData.room.avatarUrl ? (
+                              <Image
+                                src={roomData.room.avatarUrl}
+                                alt={roomData.room.roomName || 'Community Avatar'}
+                                width={80}
+                                height={80}
+                                className="rounded-2xl ring-2 ring-[#53b991]/20 group-hover:ring-[#53b991]/40 
+                                             transition-all duration-300"
+                              />
+                            ) : (
+                              <div className="w-[80px] h-[80px] rounded-2xl bg-[#2f2f2f] 
+                                          ring-2 ring-[#53b991]/20 group-hover:ring-[#53b991]/40 
+                                          transition-all duration-300 flex items-center justify-center">
+                                <Users className="w-8 h-8 text-gray-400" />
+                              </div>
+                            )}
+                          </div>
+
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-3 mb-2">
+                              <h3 className="text-xl font-bold text-[#53b991]">
+                                {roomData.room.roomName}
+                              </h3>
+                              <span className="text-xs px-2 py-0.5 rounded-full bg-[#53b991]/10 text-[#53b991]">
+                                Lv.{roomData.treasury.communityLevel}
+                              </span>
+                            </div>
+                            <p className="text-gray-400 text-sm mb-4 line-clamp-2">
+                              {roomData.room.description || "暂无描述"}
+                            </p>
+
+                            <div className="flex items-center gap-8 text-sm">
+                              <div className="flex items-center gap-2 text-gray-300">
+                                <Users className="w-4 h-4" />
+                                <span>{roomData.room.memberCount.toLocaleString()} 成员</span>
+                              </div>
+
+                              <div className="flex items-center gap-2">
+                                <div className="flex items-center gap-1.5 text-[#9ad499]">
+                                  <Fire className="w-4 h-4" />
+                                  <span>{formatNumber(roomData.communityLevel.currentVolume)}</span>
+                                </div>
+                                <span className="text-xs text-gray-400">SOL 交易量</span>
+                              </div>
+
+                              <div className="flex items-center gap-2">
+                                <div className="flex items-center gap-1.5 text-[#acc97e]">
+                                  <Coins className="w-4 h-4" />
+                                  <span>
+                                    {formatNumber(
+                                      roomData.treasury.treasuryBalance +
+                                      roomData.communityLevel.currentDonationVolume
+                                    )}
+                                  </span>
+                                </div>
+                                <span className="text-xs text-gray-400">SOL 金库</span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </motion.div>
+                    ))}
+                  </AnimatePresence>
+                )}
+              </motion.div>
             </TabsContent>
           </Tabs>
         </div>
       </div>
+
     </div>
   );
 }

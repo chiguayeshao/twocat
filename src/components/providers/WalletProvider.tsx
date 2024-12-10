@@ -55,8 +55,8 @@ export function WalletContextProvider({
     autoConnect: shouldAutoConnect,
     env: 'mainnet-beta',
     metadata: {
-      name: 'TwoCat',
-      description: 'Solana Smart Money Fucker',
+      name: 'MCGA',
+      description: 'Make Community Great Again!',
       url: 'https://twocat.com',
       iconUrls: ['/favicon.ico'],
     },
