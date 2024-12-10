@@ -261,7 +261,7 @@ export function CreateCommunityDialog({ onSubmit }: CreateCommunityDialogProps) 
                                 type="button"
                             >
                                 <Sparkles className="w-4 h-4 mr-2" />
-                                链接钱包创建社区
+                                连接钱包
                             </Button>
                         }
                     />

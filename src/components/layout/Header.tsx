@@ -2,6 +2,8 @@
 
 import { UnifiedWalletButton } from '@jup-ag/wallet-adapter';
 import { SearchBox } from '@/components/search/SearchBox';
+import { Button } from '../ui/button';
+import { Sparkles } from 'lucide-react';
 
 interface HeaderProps {
     onTokenSelect: (address: string) => void;
@@ -20,9 +22,18 @@ export function Header({ onTokenSelect }: HeaderProps) {
                 </div>
 
                 {/* 钱包按钮 - 移动端更紧凑 */}
-                <div className="shrink-0 ml-2 sm:ml-0 sm:w-[180px] flex justify-end">
-                    <UnifiedWalletButton />
-                </div>
+                <UnifiedWalletButton
+                    buttonClassName="bg-gradient-to-r from-[#53b991] to-[#9ad499] hover:opacity-90 transition-opacity rounded-lg"
+                    overrideContent={
+                        <Button
+                            className="bg-transparent hover:bg-transparent flex items-center"
+                            type="button"
+                        >
+                            <Sparkles className="w-4 h-4 mr-2" />
+                            连接钱包
+                        </Button>
+                    }
+                />
             </div>
         </div>
     );
