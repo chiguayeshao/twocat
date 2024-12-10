@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
-const AI_API_URL = "http://localhost:8080/d9c1b4db-a122-02ed-86f6-090ff9a58302/message";
+const GROK_API_URL = "https://api.x.ai/v1/chat/completions";
 
 // 检测文本是否包含中文字符
 function containsChinese(text: string): boolean {
@@ -8,7 +8,9 @@ function containsChinese(text: string): boolean {
 }
 
 const PROMPTS = {
-  zh: (tweet: string) => `作为ai16z社区成员，请对以下推文生成一个友好且自然的中文评论。要求：
+  zh: (tweet: string) => ({
+    role: "system",
+    content: `作为ai16z社区成员，请对以下推文生成一个友好且自然的中文评论。要求：
 1. 首先对推文内容做出真诚的回应
 2. 然后自然地联系到ai16z相关的一个场景或经历并提到ai16z
 3. 评论要像真实用户的对话，避免硬广告感
@@ -24,13 +26,12 @@ const PROMPTS = {
 - 社区最近的有趣项目
 - DAO治理经历
 - 社区活动见闻
-- 个人使用AI工具的经历
-
-推文内容：${tweet}
-
-直接返回评论内容，不要解释。`,
+- 个人使用AI工具的经历`
+  }),
   
-  en: (tweet: string) => `As an ai16z community member, generate a friendly and natural comment for this tweet. Requirements:
+  en: (tweet: string) => ({
+    role: "system",
+    content: `As an ai16z community member, generate a friendly and natural comment for this tweet. Requirements:
 1. First, respond genuinely to the tweet's content
 2. Then naturally connect it to an ai16z-related experience or insight
 3. Comment should sound like real user conversation, avoid promotional tone
@@ -45,11 +46,8 @@ Elements to potentially include (randomly choose 1-2):
 - Interesting recent community projects
 - DAO governance experience
 - Community event insights
-- Personal experience with AI tools
-
-Tweet: ${tweet}
-
-Return only the comment, no explanation.`
+- Personal experience with AI tools`
+  })
 };
 
 export async function POST(request: NextRequest) {
@@ -64,28 +62,35 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 自动检测语言
     const language = containsChinese(tweet) ? "zh" : "en";
-    const prompt = PROMPTS[language](tweet);
-    const randomRoomId = Math.random().toString(36).substring(2, 10);
+    const systemPrompt = PROMPTS[language](tweet);
 
-    const response = await fetch(AI_API_URL, {
+    const response = await fetch(GROK_API_URL, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'Authorization': `Bearer ${process.env.XAI_API_KEY}`
       },
       body: JSON.stringify({
-        text: prompt,
-        roomId: randomRoomId
+        messages: [
+          systemPrompt,
+          {
+            role: "user",
+            content: tweet
+          }
+        ],
+        model: "grok-beta",
+        stream: false,
+        temperature: 0.7
       })
     });
 
     if (!response.ok) {
-      throw new Error(`AI API responded with status: ${response.status}`);
+      throw new Error(`Grok API responded with status: ${response.status}`);
     }
 
     const data = await response.json();
-    return NextResponse.json({ content: data[0].text });
+    return NextResponse.json({ content: data.choices[0].message.content });
     
   } catch (error) {
     console.error("AI comment generation error:", error);
