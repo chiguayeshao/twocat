@@ -141,7 +141,7 @@ export default function Home() {
   }, [connected, publicKey]);
 
   return (
-    <div className="min-h-screen relative flex flex-col">
+    <div className=" h-full relative flex flex-col">
       {/* 修改背景实现 */}
       <div className="fixed inset-0 z-0 overflow-hidden">
         {/* 第一层：主渐变背景 */}
