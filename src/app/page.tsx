@@ -16,7 +16,6 @@ import {
 import { CreateCommunityDialog } from '@/components/CreateCommunityDialog';
 import { CommunityData } from '@/components/CreateCommunityDialog';
 import { ContentType } from '@/types/content';
-import { Footer } from '@/components/layout/Footer';
 
 interface RoomData {
   room: {
@@ -367,8 +366,6 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Footer */}
-      <Footer />
     </div>
   );
 }

@@ -27,7 +27,7 @@ export function Footer() {
     ];
 
     return (
-        <footer className="mt-auto border-t border-[#ffffff10] bg-[#1a1b1e]/50 backdrop-blur-md">
+        <footer className="w-full shrink-0 border-t border-[#ffffff10] bg-[#1a1b1e]/50 backdrop-blur-md">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
                 <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
                     {/* Logo & Copyright */}
