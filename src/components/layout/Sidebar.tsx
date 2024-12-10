@@ -94,18 +94,18 @@ const channels = [
         href: '/meme-gallery',
         icon: <ImageIcon className="h-4 w-4" />,
     },
-    {
-        id: 'tweet-monitor',
-        name: '推文监控',
-        href: '/tweet-monitor',
-        icon: <Eye className="h-4 w-4" />,
-    },
-    {
-        id: 'ai-agents',
-        name: 'AI 代理',
-        href: '/ai-agents',
-        icon: <BotIcon className="h-4 w-4" />,
-    },
+    // {
+    //     id: 'tweet-monitor',
+    //     name: '推文监控',
+    //     href: '/tweet-monitor',
+    //     icon: <Eye className="h-4 w-4" />,
+    // },
+    // {
+    //     id: 'ai-agents',
+    //     name: 'AI 代理',
+    //     href: '/ai-agents',
+    //     icon: <BotIcon className="h-4 w-4" />,
+    // },
 ];
 
 interface MonitoredWallet {
@@ -385,7 +385,7 @@ export function Sidebar({
                     {/* 导航菜单 */}
                     <nav className="mt-4 space-y-1">
                         {/* 快交易按钮 */}
-                        <div className="px-2 mb-4">
+                        {/* <div className="px-2 mb-4">
                             <button
                                 onClick={() => onContentChange(ContentType.QUICK_TRADE)}
                                 className={cn(
@@ -409,7 +409,7 @@ export function Sidebar({
                                     />
                                 )}
                             </button>
-                        </div>
+                        </div> */}
 
                         {/* 分割线 */}
                         <div className="h-px bg-discord-divider mx-2 my-2" />
