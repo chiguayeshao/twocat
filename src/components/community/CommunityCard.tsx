@@ -2,9 +2,9 @@
 
 import { motion } from 'framer-motion';
 import { useSpring, animated, to } from '@react-spring/web';
-import { Twitter, Globe, Coins, MessageCircle, Send, Users } from 'lucide-react';
+import { Twitter, Globe, Coins, MessageCircle, Send, Users, Check } from 'lucide-react';
 import Image from 'next/image';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { useToast } from '@/hooks/use-toast';
 import { JoinCommunityDialog } from './JoinCommunityDialog';
@@ -35,8 +35,34 @@ export function CommunityCard({
     const { connected, publicKey } = useWallet();
     const { toast } = useToast();
     const [isJoining, setIsJoining] = useState(false);
-    const [copied, setCopied] = useState(false);
+    const [isMember, setIsMember] = useState(false);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
+    const [isChecking, setIsChecking] = useState(true);
+    const [copied, setCopied] = useState(false);
+
+    // 检查成员身份
+    useEffect(() => {
+        const checkMembership = async () => {
+            if (!connected || !publicKey) {
+                setIsChecking(false);
+                return;
+            }
+
+            try {
+                const response = await fetch(
+                    `/api/twocat-core/rooms/check-membership?roomId=${roomId}&walletAddress=${publicKey.toString()}`
+                );
+                const data = await response.json();
+                setIsMember(data.data?.isMember || false);
+            } catch (error) {
+                console.error('Check membership error:', error);
+            } finally {
+                setIsChecking(false);
+            }
+        };
+
+        checkMembership();
+    }, [connected, publicKey, roomId]);
 
     // 进一步减小倾斜效果的幅度
     const [springs, api] = useSpring(() => ({
@@ -146,25 +172,35 @@ export function CommunityCard({
                 {/* 加入社区按钮 - 右上角 */}
                 <motion.button
                     onClick={handleJoinClick}
-                    disabled={isJoining}
+                    disabled={isJoining || isChecking || isMember}
                     className="absolute top-4 right-4 z-10"
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
+                    whileHover={{ scale: isMember ? 1 : 1.02 }}
+                    whileTap={{ scale: isMember ? 1 : 0.98 }}
                 >
                     <div className={`
                         flex items-center gap-2 px-4 py-2.5 rounded-lg
-                        bg-gradient-to-r from-[#53b991]/10 to-[#53b991]/20
-                        border border-[#53b991]/20 hover:border-[#53b991]/30
+                        ${isMember
+                            ? 'bg-[#53b991]/10 cursor-default'
+                            : 'bg-gradient-to-r from-[#53b991]/10 to-[#53b991]/20'
+                        }
+                        border border-[#53b991]/20 
+                        ${!isMember && 'hover:border-[#53b991]/30'}
                         transition-all duration-300
-                        ${!connected ? 'opacity-50 cursor-not-allowed' : ''}
+                        ${(!connected || isChecking) ? 'opacity-50 cursor-not-allowed' : ''}
                     `}>
-                        {isJoining ? (
+                        {isChecking ? (
                             <div className="w-4 h-4 border-2 border-[#53b991] border-t-transparent rounded-full animate-spin" />
+                        ) : isJoining ? (
+                            <div className="w-4 h-4 border-2 border-[#53b991] border-t-transparent rounded-full animate-spin" />
+                        ) : isMember ? (
+                            <Check className="w-4 h-4 text-[#53b991]" />
                         ) : (
                             <Users className="w-4 h-4 text-[#53b991]" />
                         )}
                         <span className="text-sm font-medium text-[#53b991]">
-                            {isJoining ? '加入中...' : '加入社区'}
+                            {isChecking ? '检查中...' :
+                                isJoining ? '加入中...' :
+                                    isMember ? '已加入' : '加入社区'}
                         </span>
                     </div>
                 </motion.button>
@@ -294,13 +330,15 @@ export function CommunityCard({
                 <div className="absolute bottom-0 left-0 w-32 h-32 bg-white/5 rounded-full blur-2xl" />
             </animated.div>
 
-            <JoinCommunityDialog
-                isOpen={isDialogOpen}
-                onClose={() => !isJoining && setIsDialogOpen(false)}
-                onConfirm={handleJoinConfirm}
-                isJoining={isJoining}
-                communityName={name}
-            />
+            {!isMember && (
+                <JoinCommunityDialog
+                    isOpen={isDialogOpen}
+                    onClose={() => !isJoining && setIsDialogOpen(false)}
+                    onConfirm={handleJoinConfirm}
+                    isJoining={isJoining}
+                    communityName={name}
+                />
+            )}
         </>
     );
 }
