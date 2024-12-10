@@ -479,15 +479,15 @@ export default function Home() {
                                 <span>{roomData.room.memberCount.toLocaleString()} 成员</span>
                               </div>
 
-                              <div className="flex items-center gap-2">
+                              {/* <div className="flex items-center gap-2">
                                 <div className="flex items-center gap-1.5 text-[#9ad499]">
                                   <Fire className="w-4 h-4" />
                                   <span>{formatNumber(roomData.communityLevel.currentVolume)}</span>
                                 </div>
                                 <span className="text-xs text-gray-400">SOL 交易量</span>
-                              </div>
+                              </div> */}
 
-                              <div className="flex items-center gap-2">
+                              {/* <div className="flex items-center gap-2">
                                 <div className="flex items-center gap-1.5 text-[#acc97e]">
                                   <Coins className="w-4 h-4" />
                                   <span>
@@ -498,7 +498,7 @@ export default function Home() {
                                   </span>
                                 </div>
                                 <span className="text-xs text-gray-400">SOL 金库</span>
-                              </div>
+                              </div> */}
                             </div>
                           </div>
                         </div>

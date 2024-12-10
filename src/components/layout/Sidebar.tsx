@@ -84,7 +84,7 @@ const channels = [
     },
     {
         id: 'boost-addresses',
-        name: '冲推地址',
+        name: '一键冲推',
         href: '/boost-addresses',
         icon: <Rocket className="h-4 w-4" />,
     },
@@ -285,18 +285,18 @@ export function Sidebar({
                                     </>
                                 ) : (
                                     <>
-                                        {/* <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
                                             <UsersIcon className="h-4 w-4" />
                                             <span>{room?.memberCount || 0} 位成员</span>
-                                        </div> */}
+                                        </div>
                                         <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                                            <ListIcon className="h-4 w-4" />
+                                            {/* <ListIcon className="h-4 w-4" /> */}
                                             <Dialog>
-                                                <DialogTrigger>
+                                                {/* <DialogTrigger>
                                                     <div className="flex items-center gap-2 text-sm text-muted-foreground hover:text-white transition-colors">
                                                         <span>监控地址列表</span>
                                                     </div>
-                                                </DialogTrigger>
+                                                </DialogTrigger> */}
                                                 <DialogContent className="bg-discord-secondary border-discord-divider">
                                                     <DialogHeader>
                                                         <DialogTitle className="text-lg font-medium text-white">监控地址列表</DialogTitle>

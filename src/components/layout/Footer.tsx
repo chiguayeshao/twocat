@@ -9,19 +9,19 @@ export function Footer() {
         {
             name: 'Twitter',
             icon: <Twitter className="w-5 h-5" />,
-            href: 'https://twitter.com/MCGA',
+            href: 'https://x.com/McgaToday',
             hoverColor: 'hover:bg-[#53b991]/80'
         },
-        {
-            name: 'Telegram',
-            icon: <Send className="w-5 h-5" />,
-            href: 'https://t.me/MCGA',
-            hoverColor: 'hover:bg-[#53b991]/80'
-        },
+        // {
+        //     name: 'Telegram',
+        //     icon: <Send className="w-5 h-5" />,
+        //     href: 'https://t.me/MCGA',
+        //     hoverColor: 'hover:bg-[#53b991]/80'
+        // },
         {
             name: 'Gitbook',
             icon: <BookOpen className="w-5 h-5" />,
-            href: 'https://docs.mcga.com',
+            href: 'https://mcga-1.gitbook.io/mcga-docs',
             hoverColor: 'hover:bg-[#53b991]/80'
         }
     ];
