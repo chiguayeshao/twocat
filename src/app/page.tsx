@@ -17,6 +17,7 @@ import { CreateCommunityDialog } from '@/components/CreateCommunityDialog';
 import { CommunityData } from '@/components/CreateCommunityDialog';
 import { ContentType } from '@/types/content';
 import { useWallet } from '@solana/wallet-adapter-react';
+import { Footer } from '@/components/layout/Footer';
 
 interface RoomData {
   room: {
@@ -174,7 +175,7 @@ export default function Home() {
       </div>
 
       {/* 内容区域 */}
-      <div className="relative z-10">
+      <div className="relative z-10 flex-1">
         {/* 修改导航栏样式 */}
         <nav className="border-b border-[#ffffff10] bg-transparent backdrop-blur-md sticky top-0 z-50">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -511,6 +512,7 @@ export default function Home() {
         </div>
       </div>
 
+      <Footer />
     </div>
   );
 }

@@ -4,7 +4,6 @@ import './globals.css';
 import { WalletContextProvider } from '@/components/providers/WalletProvider';
 import { Toaster } from '@/components/ui/toaster';
 import { Analytics } from '@vercel/analytics/next';
-import { Footer } from '@/components/layout/Footer';
 
 const geistSans = localFont({
   src: './fonts/GeistVF.woff',
@@ -36,7 +35,7 @@ export default function RootLayout({
             <main className="flex-1 flex flex-col">
               {children}
             </main>
-            <Footer />
+           
           </WalletContextProvider>
         </div>
         <Analytics />
