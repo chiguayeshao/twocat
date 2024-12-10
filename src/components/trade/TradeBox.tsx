@@ -203,25 +203,27 @@ export default function TradeBox({
     data?: unknown; // 或者
   }
 
-  const updateVolume = useCallback(async (volume: number) => {
-    if (!publicKey) return;
-  
+  const updateVolume = useCallback(async (volume: number, hash: string) => {
+    if (!publicKey || !roomId) return;
+
     try {
-      const response = await fetch(`/api/rooms/update-swap?roomId=${roomId}`, {
+      const response = await fetch('/api/rooms/update-volume', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
+          roomId,           // 在请求体中传入 roomId
           volume,
           userAddress: publicKey.toString(),
+          hash,            // 交易哈希
         }),
       });
-  
+
       if (!response.ok) {
         throw new Error('更新交易量失败');
       }
-  
+
       const data = await response.json();
       console.log('交易量更新成功:', data);
       onTreasuryUpdate(data.data.treasury, data.data.communityLevel);
@@ -233,7 +235,7 @@ export default function TradeBox({
         variant: 'destructive',
       });
     }
-  }, [publicKey, tokenAddress, toast]);
+  }, [publicKey, roomId, onTreasuryUpdate, toast]);
 
   // 预留交易接口
   const executeJupiterTrade = useCallback(async () => {
@@ -323,15 +325,15 @@ export default function TradeBox({
       //   手续费: `${(feeAmount / 1e9).toFixed(9)} ${tokenInfo.solSymbol}`,
       // });
 
-         // 根据交易模式计算手续费
-    // 买入时基于输入的 SOL 金额计算手续费
-    // 卖出时基于输出的 SOL 金额计算手续费
-    const feeAmount = Math.floor(
-      (mode === 'buy' ? 
-        Number(atomicAmount) : // 买入时用输入的 SOL 金额
-        Number(quoteResponse.outAmount) // 卖出时用输出的 SOL 金额
-      ) * FEE_PERCENTAGE
-    );
+      // 根据交易模式计算手续费
+      // 买入时基于输入的 SOL 金额计算手续费
+      // 卖出时基于输出的 SOL 金额计算手续费
+      const feeAmount = Math.floor(
+        (mode === 'buy' ?
+          Number(atomicAmount) : // 买入时用输入的 SOL 金额
+          Number(quoteResponse.outAmount) // 卖出时用输出的 SOL 金额
+        ) * FEE_PERCENTAGE
+      );
 
       console.log('正在准备交易...');
       // 使用 Jupiter API 的类型
@@ -414,12 +416,12 @@ export default function TradeBox({
       }, 3000);
 
       // 计算需要更新的交易量
-      const volumeToUpdate = mode === 'buy' ? 
+      const volumeToUpdate = mode === 'buy' ?
         Number(parseFloat(amount).toFixed(4)) : // 买入时用输入的 SOL 金额
         Number((Number(quoteResponse.outAmount) / Math.pow(10, tokenInfo.solDecimals)).toFixed(4)); // 卖出时用输出的 SOL 金额
 
       // 更新交易量
-      await updateVolume(volumeToUpdate);
+      await updateVolume(volumeToUpdate, signature);
     } catch (error) {
       console.error('Trade failed:', error);
       const tradeError = error as TradeError;
