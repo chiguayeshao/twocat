@@ -34,7 +34,10 @@ export function ChineseTweets({ roomId }: { roomId: string }) {
             }
             const result = await response.json();
             if (result.success && result.data) {
-                setTweets(result.data);
+                const sortedTweets = result.data.sort((a: Tweet, b: Tweet) => {
+                    return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+                });
+                setTweets(sortedTweets);
             } else {
                 setError(result.message || '获取推文失败');
             }
