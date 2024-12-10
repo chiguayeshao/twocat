@@ -31,9 +31,10 @@ export async function generateMetadata({
   const roomId = resolvedParams.roomId;
   
   const data = await getRoomData(roomId);
+  console.log(data);
   const room = data?.room;
   
-  const title = room?.name || '未知房间';
+  const title = room?.roomName || '未知房间';
   const description = room?.description || '暂无描述';
   const imageUrl = room?.avatarUrl || '/default-room-image.jpg';
 
