@@ -3,16 +3,16 @@ import { Room, Treasury, CommunityLevel } from '@/types/room';
 
 async function getRoomData(roomId: string | undefined) {
   if (!roomId) return null;
-  
+
   try {
     const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/twocat-core/rooms?roomId=${roomId}`, {
       next: { revalidate: 60 }
     });
-    
+
     if (!response.ok) {
       throw new Error('Failed to fetch room info');
     }
-    
+
     const data = await response.json();
     return data.success ? data.data : null;
   } catch (error) {
@@ -29,14 +29,14 @@ export async function generateMetadata({
   // 等待 params 解析完成
   const resolvedParams = await Promise.resolve(params);
   const roomId = resolvedParams.roomId;
-  
+
   const data = await getRoomData(roomId);
   console.log(data);
   const room = data?.room;
-  
+
   const title = room?.roomName || '未知房间';
   const description = room?.description || '暂无描述';
-  const imageUrl = room?.avatarUrl || '/default-room-image.jpg';
+  const imageUrl = room?.avatarUrl || 'https://twocat-room-avatars.s3.ap-southeast-1.amazonaws.com/room-avatars/1733850202455-logo.png';
 
   return {
     title,
