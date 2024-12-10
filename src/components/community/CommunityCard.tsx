@@ -2,11 +2,14 @@
 
 import { motion } from 'framer-motion';
 import { useSpring, animated, to } from '@react-spring/web';
-import { Twitter, Globe, Coins, MessageCircle, Send } from 'lucide-react';
+import { Twitter, Globe, Coins, MessageCircle, Send, Users } from 'lucide-react';
 import Image from 'next/image';
 import { useState } from 'react';
+import { useWallet } from '@solana/wallet-adapter-react';
+import { useToast } from '@/hooks/use-toast';
 
 interface CommunityCardProps {
+    roomId: string;
     name: string;
     avatar: string;
     website?: string;
@@ -18,6 +21,7 @@ interface CommunityCardProps {
 }
 
 export function CommunityCard({
+    roomId,
     name,
     avatar,
     website,
@@ -27,6 +31,11 @@ export function CommunityCard({
     ca,
     imageError
 }: CommunityCardProps) {
+    const { connected, publicKey } = useWallet();
+    const { toast } = useToast();
+    const [isJoining, setIsJoining] = useState(false);
+    const [copied, setCopied] = useState(false);
+
     // 进一步减小倾斜效果的幅度
     const [springs, api] = useSpring(() => ({
         from: { xys: [0, 0, 1] as [number, number, number] },
@@ -43,13 +52,69 @@ export function CommunityCard({
     const trans = (x: number, y: number, s: number): string =>
         `perspective(600px) rotateX(${x}deg) rotateY(${y}deg) scale(${s})`;
 
-    const [copied, setCopied] = useState(false);
-
     const handleCopy = () => {
         if (ca) {
             navigator.clipboard.writeText(ca);
             setCopied(true);
             setTimeout(() => setCopied(false), 2000);
+        }
+    };
+
+    const handleJoin = async (e: React.MouseEvent) => {
+        e.stopPropagation();
+
+        if (!connected || !publicKey) {
+            toast({
+                title: "请先连接钱包",
+                description: "加入社区需要先连接钱包",
+                variant: "destructive",
+            });
+            return;
+        }
+
+        setIsJoining(true);
+        try {
+            const response = await fetch('/api/twocat-core/rooms/join', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    roomId,
+                    walletAddress: publicKey.toString(),
+                }),
+            });
+
+            const data = await response.json();
+
+            if (data.code === "ALREADY_MEMBER") {
+                toast({
+                    title: "已是社区成员",
+                    description: data.message,
+                    variant: "default",
+                });
+                return;
+            }
+
+            if (!data.success) {
+                throw new Error(data.message || '加入失败');
+            }
+
+            toast({
+                title: "加入成功",
+                description: "欢迎加入社区！",
+                variant: "success",
+            });
+
+        } catch (error) {
+            console.error('Join community error:', error);
+            toast({
+                title: "加入失败",
+                description: error instanceof Error ? error.message : "请稍后重试",
+                variant: "destructive",
+            });
+        } finally {
+            setIsJoining(false);
         }
     };
 
@@ -69,6 +134,32 @@ export function CommunityCard({
             }}
             className="relative p-5 sm:p-6 rounded-2xl backdrop-blur-sm border border-white/10 shadow-xl"
         >
+            {/* 加入社区按钮 - 右上角 */}
+            <motion.button
+                onClick={handleJoin}
+                disabled={isJoining}
+                className="absolute top-4 right-4 z-10"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+            >
+                <div className={`
+                    flex items-center gap-2 px-3 py-1.5 rounded-full
+                    ${isJoining ? 'bg-[#53b991]/50' : 'bg-[#53b991]'}
+                    hover:bg-[#53b991]/90 transition-colors duration-200
+                    text-white text-sm font-medium
+                    ${!connected ? 'opacity-50 cursor-not-allowed' : ''}
+                `}>
+                    {isJoining ? (
+                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    ) : (
+                        <>
+                            <Users className="w-4 h-4" />
+                            <span>加入社区</span>
+                        </>
+                    )}
+                </div>
+            </motion.button>
+
             {/* 名称放在顶部 */}
             <motion.h2
                 initial={{ opacity: 0, y: 20 }}
