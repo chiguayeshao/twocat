@@ -71,14 +71,14 @@ export function CommunityHome({ roomId, room, treasury, communityLevel, onTreasu
                     />
                 </div>
 
-                <div className="mt-6 sm:mt-12">
+                {/* <div className="mt-6 sm:mt-12">
                     <TreasurySummary
                         treasury={treasury}
                         communityLevel={communityLevel}
                         roomId={roomId}
                         onUpdate={onTreasuryUpdate}
                     />
-                </div>
+                </div> */}
             </div>
         </div>
     );
