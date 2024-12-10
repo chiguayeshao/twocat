@@ -152,16 +152,20 @@ export function CommunityCard({
                     whileTap={{ scale: 0.98 }}
                 >
                     <div className={`
-                        py-2.5 px-4 rounded-lg
-                        bg-gradient-to-r from-[#53b991] to-[#53b991]/90
-                        text-white font-medium
+                        flex items-center gap-2 px-4 py-2.5 rounded-lg
+                        bg-gradient-to-r from-[#53b991]/10 to-[#53b991]/20
+                        border border-[#53b991]/20 hover:border-[#53b991]/30
                         transition-all duration-300
-                        hover:from-[#53b991]/90 hover:to-[#53b991]/80
-                        flex items-center gap-2
                         ${!connected ? 'opacity-50 cursor-not-allowed' : ''}
                     `}>
-                        <Users className="w-4 h-4" />
-                        <span>加入社区</span>
+                        {isJoining ? (
+                            <div className="w-4 h-4 border-2 border-[#53b991] border-t-transparent rounded-full animate-spin" />
+                        ) : (
+                            <Users className="w-4 h-4 text-[#53b991]" />
+                        )}
+                        <span className="text-sm font-medium text-[#53b991]">
+                            {isJoining ? '加入中...' : '加入社区'}
+                        </span>
                     </div>
                 </motion.button>
 
