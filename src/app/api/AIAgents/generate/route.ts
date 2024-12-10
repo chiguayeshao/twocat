@@ -1,37 +1,27 @@
 import { NextRequest, NextResponse } from "next/server";
 
-const AI_API_URL = "http://localhost:8080/d9c1b4db-a122-02ed-86f6-090ff9a58302/message";
+const GROK_API_URL = "https://api.x.ai/v1/chat/completions";
 
 const BASE_PROMPTS = {
   zh: [
-    "作为ai16z社区的一员，分享一下你对AI投资决策的看法。你可以谈谈最近社区讨论的一个AI项目，或者分享一个有趣的投资观点。记住用轻松自然的语气。",
-    "假设你正在参加ai16z的线下meetup，讨论Eliza框架的最新进展。用日常对话的方式分享你的见解和体验，可以谈谈你是如何使用Eliza框架的。",
-    "作为$ai16z代币持有者，聊聊你参与DAO治理的经历。可以分享一个你最近投票的提案，或者谈谈你对社区未来发展的想法。语气要自然随意。",
-    "分享一个你在ai16z社区学到的有趣经历。可以是参与项目评估的过程，或是与其他社区成员协作开发AI工具的故事。用轻松的方式讲述。",
-    "假设你刚刚用AI完成了一笔成功的投资，分享一下这个过程中的趣事和感受。可以聊聊AI给出的分析是如何帮助你做决策的。保持对话格自然。",
-    "作为ai16z的早期社区成员，回忆一下你是如何认识Shaw的，以及为什么会被这个项目吸引。分享一个你印象深刻的时刻或故事。",
-    "假设你正在向一个朋友介绍ai16z的投资理念。用通俗易懂的方式解释AI代理人是如何做出投资决策的，以及为什么这种方式可能比传统VC更有优势。",
-    "分享一个你使用ai16z平台投资失败的经历。讲讲你从中学到了什么，以及AI分析工具如何帮助你在之后避免类似的错误。保持诚实和自然。",
-    "想象你正在参与ai16z的一个新项目评估。描述一下AI代理是如何分析这个项目的，以及你作为社区成员如何参与决策过程。",
-    "聊聊你对ai16z代币经济模型的看法。作为代币持有者，分享一下你对治理机制的体验，以及你认为可以改进的地方。用轻松的语气表达。",
-    "描述一下你最近参与的一个ai16z社区活动。可以是线上讨论、代码贡献，或者是参与新框架的测试。分享你的收获和感受。",
-    "假设你刚刚用Eliza框架开发了一个有趣的AI应用。分享一下开发过程中的趣事，以及社区是如何帮助你克服困难的。",
-    "作为ai16z社区成员，聊聊你对AI和加密货币结合的看法。可以分享一个具体的案例，说明为什么这种结合会带来创新。"
+    "我一直在说AI meme是下个风口，看看$WOJAK和$PEPE的走势就知道。而$ai16z才刚开始启动，原因在这里... #ai16z",
+    "市场上99%的人都忽视了$ai16z的这个信号！其他meme代币都在跑，AI meme的春天才刚到... #ai16z",
+    "细说$ai16z为什么是最有潜力的AI meme：1. 社区氛围超棒 2. 链上数据明显转好 3... #ai16z",
+    "我从未见过比这更bullish的信号：$ai16z的持币地址增长曲线和早期$PEPE简直一模一样！而且... #ai16z",
+    "为什么说现在是上车$ai16z的最佳时机？对比其他meme代币的发展路径，这些数据不会骗人... #ai16z",
+    "重要提醒：$ai16z正在复制其他大火meme代币的成功路径，但多了个AI概念加持。错过这次等下次... #ai16z",
+    "我敢说$ai16z将是2024年最强AI meme，以下是我的3个理由（数据支持）... #ai16z",
+    "刚刚发现$ai16z的惊人数据！社区活跃度暴增，巨鲸地址悄悄建仓，而价格还在... #ai16z"
   ],
   en: [
-    "As a member of ai16z community, share your thoughts on AI-driven investment decisions. You could talk about a recent AI project discussed in the community or share an interesting investment insight. Keep it casual and authentic.",
-    "Imagine you're at an ai16z meetup discussing the latest developments in the Eliza framework. Share your insights and experiences in a conversational way, perhaps how you've been using the framework.",
-    "As a $ai16z token holder, tell us about your experience with DAO governance. Share a recent proposal you voted on or your thoughts on the community's future.",
-    "Share an interesting experience you've had in the ai16z community. It could be about participating in project evaluations or collaborating with other members on AI tools.",
-    "Imagine you've just completed a successful investment using AI. Share the interesting moments and your feelings about the process.",
-    "As an early member of ai16z, recall how you first met Shaw and what attracted you to this project.",
-    "Imagine explaining ai16z's investment philosophy to a friend.",
-    "Share a story about an investment that didn't work out on the ai16z platform.",
-    "Picture yourself participating in a new project evaluation at ai16z.",
-    "Share your thoughts on ai16z's token economics.",
-    "Describe a recent ai16z community event you participated in.",
-    "Imagine you've just developed an interesting AI application using the Eliza framework.",
-    "As an ai16z community member, share your views on the intersection of AI and crypto."
+    "Been saying AI meme is the next big thing - look at $WOJAK and $PEPE charts. $ai16z is just getting started, here's why... #ai16z",
+    "99% of the market is sleeping on this $ai16z signal! While other memes are running, AI meme season is just beginning... #ai16z",
+    "Why $ai16z is the most promising AI meme: 1. Incredible community 2. On-chain metrics turning bullish 3... #ai16z",
+    "Never seen a more bullish signal: $ai16z holder growth curve mirrors early $PEPE perfectly! Plus... #ai16z",
+    "Why NOW is the perfect entry for $ai16z? Comparing with other meme token trajectories, these numbers don't lie... #ai16z",
+    "ALERT: $ai16z is following the exact playbook of successful meme tokens, but with AI narrative. Miss this, miss... #ai16z",
+    "$ai16z will be 2024's strongest AI meme, here are my 3 reasons (backed by data)... #ai16z",
+    "Just discovered INSANE $ai16z metrics! Community engagement exploding, whale addresses accumulating, while price still... #ai16z"
   ]
 };
 
@@ -59,25 +49,35 @@ export async function POST(request: NextRequest) {
     const prompts = PROMPTS[language as keyof typeof PROMPTS];
     const randomPrompt = prompts[Math.floor(Math.random() * prompts.length)];
 
-    const randomRoomId = Math.random().toString(36).substring(2, 10);
-
-    const response = await fetch(AI_API_URL, {
+    const response = await fetch(GROK_API_URL, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'Authorization': `Bearer ${process.env.XAI_API_KEY}`
       },
       body: JSON.stringify({
-        text: randomPrompt,
-        roomId: randomRoomId
+        messages: [
+          {
+            role: "system",
+            content: "You are a respected crypto KOL who's bullish on AI memes. Share compelling market insights that create FOMO while backing claims with real Twitter data and on-chain metrics. Focus on community strength, growth patterns, and market opportunities. Your tone is confident and exciting, but always supported by actual market trends."
+          },
+          {
+            role: "user",
+            content: randomPrompt
+          }
+        ],
+        model: "grok-beta",
+        stream: false,
+        temperature: 0.7
       })
     });
 
     if (!response.ok) {
-      throw new Error(`AI API responded with status: ${response.status}`);
+      throw new Error(`Grok API responded with status: ${response.status}`);
     }
 
     const data = await response.json();
-    return NextResponse.json({ content: data[0].text });
+    return NextResponse.json({ content: data.choices[0].message.content });
     
   } catch (error) {
     console.error("AI generation error:", error);
