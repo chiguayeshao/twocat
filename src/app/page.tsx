@@ -181,13 +181,15 @@ export default function Home() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex items-center justify-between h-16">
               <div className="flex items-center gap-2">
-                <Image
-                  src="https://twocat-room-avatars.s3.ap-southeast-1.amazonaws.com/room-avatars/1732023482786-twocatlogo.jpg"
-                  alt="MCGA Logo"
-                  width={40}
-                  height={40}
-                  className="rounded-lg"
-                />
+                <div className="w-10 h-10">
+                  <Image
+                    src="/images/mcgalogo.png"
+                    alt="MCGA Logo"
+                    width={40}
+                    height={40}
+                    className="rounded-lg object-cover w-full h-full"
+                  />
+                </div>
                 <span className="text-xl font-bold bg-gradient-to-r from-[#53b991] to-[#9ad499] text-transparent bg-clip-text">
                   MCGA
                 </span>

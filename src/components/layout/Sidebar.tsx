@@ -191,7 +191,7 @@ export function Sidebar({
                         <div className="flex items-center gap-2">
                             <div className="rounded-full overflow-hidden">
                                 <Image
-                                    src="/images/twocatlogo.jpg"
+                                    src="/images/mcgalogo.png"
                                     alt="MCGA Logo"
                                     width={28}
                                     height={28}
